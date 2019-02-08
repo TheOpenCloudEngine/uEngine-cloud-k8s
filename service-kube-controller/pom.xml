@@ -11,7 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>service-controller</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>service-apiTemplate</name>
+	<name>service-controller</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>

@@ -39,12 +39,6 @@ public class KubeInstanceTask implements InitializingBean {
     @Value("${topic.instanceTopic}")
     private String instanceTopic;
 
-    @Value("${producerReplicas}")
-    private String producerReplicas;
-
-    @Value("${producerId}")
-    private String producerId;
-
     @Autowired
     KafkaTemplate kafkaTemplate;
 
