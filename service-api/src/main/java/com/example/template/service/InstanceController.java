@@ -8,15 +8,20 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/kube")
+@RequestMapping("/kube/v1")
 public class InstanceController {
 
     @Autowired
     InstanceService instanceService;
+
+    @Autowired
+    K8sManagerService k8sManagerService;
 
     @RequestMapping(value = "/instance", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<InstanceModel> getAllInstance(HttpServletRequest request,
@@ -59,6 +64,28 @@ public class InstanceController {
         }
 
         return list;
+    }
+
+    /**
+     * 수정 요청
+     * @param request
+     * @param response
+     * @param namespace
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/deployments/{name}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> updateDeployment(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @PathVariable(value = "namespace") String namespace,
+                                               @PathVariable(value = "name") String name
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+
+        k8sManagerService.createDeploy(namespace, name);
+
+        return returnData;
     }
 
 

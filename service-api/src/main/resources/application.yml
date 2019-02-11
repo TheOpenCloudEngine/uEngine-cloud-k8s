@@ -4,6 +4,8 @@ server:
 
 topic:
   instanceTopic: instanceTopic
+  orderTopic: orderTopic
+  stateMsgTopic: stateMsgTopic
 
 ---
 spring:

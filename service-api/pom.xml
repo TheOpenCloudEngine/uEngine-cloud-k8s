@@ -11,7 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>service-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>service-apiTemplate</name>
+	<name>service-api</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
@@ -46,6 +46,13 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.23</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>

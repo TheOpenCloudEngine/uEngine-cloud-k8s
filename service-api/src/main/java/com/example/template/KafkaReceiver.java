@@ -33,7 +33,7 @@ public class KafkaReceiver {
      * @param consumerRecord
      */
 
-    @KafkaListener(topics = "${topic.instanceTopic}")
+    @KafkaListener(topics = "${topic.stateMsgTopic}")
     public void listenByObject(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
 
         System.out.println(message);

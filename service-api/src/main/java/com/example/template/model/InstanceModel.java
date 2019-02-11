@@ -14,6 +14,8 @@ import java.util.Properties;
 @Table(name = "INSTANCE_VIEW")
 public class InstanceModel implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     String id;
     String name;

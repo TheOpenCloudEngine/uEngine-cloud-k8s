@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempapi-deploy
+  labels:
+    app: tempapi-deploy
+spec:
+  selector:
+    matchLabels:
+      app: tempapi-deploy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tempapi-deploy
+    spec:
+      containers:
+        - name: tempapi-deploy
+          image: sanaloveyou/serviceapi
