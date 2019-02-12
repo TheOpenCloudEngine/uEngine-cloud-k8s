@@ -1,8 +1,5 @@
 package com.example.template;
 
-import com.example.template.model.InstanceModel;
-import com.example.template.service.InstanceService;
-import com.google.gson.Gson;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+
+import com.example.template.model.Deployment;
+import com.example.template.service.DeploymentService;
+import com.example.template.service.InstanceService;
+import com.google.gson.Gson;
 
 
 
@@ -20,6 +22,10 @@ public class KafkaReceiver {
 
     @Autowired
     InstanceService instanceService;
+    
+    @Autowired
+    private DeploymentService deploymentService;
+    
 
     @Autowired
     private AppEntityBaseMessageHandler messageHandler;
@@ -42,6 +48,19 @@ public class KafkaReceiver {
 //        instanceService.update(im);
 //        instanceService.deleteCacheList(im);
 //        messageHandler.publish(im.getName(), im.getProvider(), message);
+    }
+    
+    @KafkaListener(topics = "${topic.delpoyMsgTopic}")
+    public void listenByDeployment(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
+
+    	Gson gson = new Gson();
+    	Deployment dpl = gson.fromJson(message, Deployment.class);
+    	
+    	deploymentService.update(dpl);
+    	
+    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
+    	
+        System.out.println(message);
     }
 
 }

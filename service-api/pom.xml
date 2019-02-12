@@ -11,7 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>service-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>service-api</name>
+	<name>service-apiTemplate</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
@@ -84,6 +84,24 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
 		</dependency>
 	</dependencies>
 

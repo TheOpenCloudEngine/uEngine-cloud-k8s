@@ -6,6 +6,7 @@ topic:
   instanceTopic: instanceTopic
   orderTopic: orderTopic
   stateMsgTopic: stateMsgTopic
+  delpoyMsgTopic: delpoyMsgTopic
 
 ---
 spring:
