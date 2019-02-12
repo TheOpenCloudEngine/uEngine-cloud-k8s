@@ -1,7 +1,5 @@
-package com.example.template.service;
+package com.example.template.pod;
 
-import com.example.template.model.InstanceModel;
-import com.example.template.model.InstanceModelRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,32 +10,32 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 @Service
-public class InstanceService {
+public class PodService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InstanceService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PodService.class);
 
     @Autowired
-    InstanceModelRepository instanceModelRepository;
+    PodRepository instanceModelRepository;
 
     @Cacheable(value="instance" ,key="#instance.id")
-    public InstanceModel checkInstance(InstanceModel instance){
-        return instanceModelRepository.findById(instance.getId()).orElse(new InstanceModel());
+    public Pod checkInstance(Pod instance){
+        return instanceModelRepository.findById(instance.getId()).orElse(new Pod());
     }
 
     @Cacheable(value="instance")
-    public Iterable<InstanceModel> getAllInstance(){
+    public Iterable<Pod> getAllInstance(){
         LOG.info("use getAllInstance database");
         return instanceModelRepository.findAll();
     }
 
     @Cacheable(value="instance", key="#provider")
-    public Iterable<InstanceModel> getAllInstanceByProvider(String provider){
+    public Iterable<Pod> getAllInstanceByProvider(String provider){
         LOG.info("use getAllInstanceByProvider database");
         return instanceModelRepository.findByProvider(provider);
     }
 
     @Cacheable(value="instance", key="#provider+#name")
-    public Iterable<InstanceModel> getInstanceByProviderAndName(String provider, String name){
+    public Iterable<Pod> getInstanceByProviderAndName(String provider, String name){
         LOG.info("use getAllInstanceByProvider database");
         return instanceModelRepository.findByProviderAndName(provider,name);
     }
@@ -49,7 +47,7 @@ public class InstanceService {
     @Caching(put = {
             @CachePut(value = "instance", key="#instance.id")
     })
-    public String update(InstanceModel instance) {
+    public String update(Pod instance) {
 //        LOG.info("cache update .. {}", instance.toString());
         return "";
     }
@@ -63,7 +61,7 @@ public class InstanceService {
             @CacheEvict(value = "instance", key ="#instance.provider"),
             @CacheEvict(value = "instance", key ="#instance.provider+#instance.name")
     })
-    public String deleteCacheList(InstanceModel instance) {
+    public String deleteCacheList(Pod instance) {
 //        LOG.info("cache delete .. {}", instance.toString());
         return "";
     }

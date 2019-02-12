@@ -1,6 +1,7 @@
-package com.example.template.service;
+package com.example.template.pod;
 
-import com.example.template.model.InstanceModel;
+import com.example.template.service.K8sManagerService;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,22 +16,22 @@ import java.util.Map;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/kube/v1")
-public class InstanceController {
+public class PodController {
 
     @Autowired
-    InstanceService instanceService;
+    PodService instanceService;
 
     @Autowired
     K8sManagerService k8sManagerService;
 
     @RequestMapping(value = "/instance", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public List<InstanceModel> getAllInstance(HttpServletRequest request,
+    public List<Pod> getAllInstance(HttpServletRequest request,
                                          HttpServletResponse response
     ) throws Exception {
 
-        List<InstanceModel> list = new ArrayList<InstanceModel>();
-        Iterable<InstanceModel> it = instanceService.getAllInstance();
-        for (InstanceModel item : it) {
+        List<Pod> list = new ArrayList<Pod>();
+        Iterable<Pod> it = instanceService.getAllInstance();
+        for (Pod item : it) {
             list.add(item);
         }
 
@@ -38,13 +39,13 @@ public class InstanceController {
     }
 
     @RequestMapping(value = "/instance/{provider}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public List<InstanceModel> getAllInstanceByProvider(HttpServletRequest request,
+    public List<Pod> getAllInstanceByProvider(HttpServletRequest request,
                           HttpServletResponse response,
                           @PathVariable(value = "provider", required=false) String provider
     ) throws Exception {
-        List<InstanceModel> list = new ArrayList<InstanceModel>();
-        Iterable<InstanceModel> it = instanceService.getAllInstanceByProvider(provider);
-        for (InstanceModel item : it) {
+        List<Pod> list = new ArrayList<Pod>();
+        Iterable<Pod> it = instanceService.getAllInstanceByProvider(provider);
+        for (Pod item : it) {
             list.add(item);
         }
 
@@ -52,14 +53,14 @@ public class InstanceController {
     }
 
     @RequestMapping(value = "/instance/{provider}/{name}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public List<InstanceModel> getInstanceByProviderAndName(HttpServletRequest request,
+    public List<Pod> getInstanceByProviderAndName(HttpServletRequest request,
                                                         HttpServletResponse response,
                                                         @PathVariable(value = "provider", required=false) String provider,
                                                         @PathVariable(value = "name", required=false) String name
     ) throws Exception {
-        List<InstanceModel> list = new ArrayList<InstanceModel>();
-        Iterable<InstanceModel> it = instanceService.getInstanceByProviderAndName(provider, name);
-        for (InstanceModel item : it) {
+        List<Pod> list = new ArrayList<Pod>();
+        Iterable<Pod> it = instanceService.getInstanceByProviderAndName(provider, name);
+        for (Pod item : it) {
             list.add(item);
         }
 

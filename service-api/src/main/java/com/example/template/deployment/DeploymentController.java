@@ -1,4 +1,4 @@
-package com.example.template.controller;
+package com.example.template.deployment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.template.model.Deployment;
-import com.example.template.model.InstanceModel;
-import com.example.template.service.DeploymentService;
+import com.example.template.pod.Pod;
 import com.example.template.service.K8sManagerService;
 
 @RestController

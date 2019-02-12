@@ -1,9 +1,7 @@
-package com.example.template.repository;
+package com.example.template.deployment;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-
-import com.example.template.model.Deployment;
 
 public interface DeploymentRepository extends CrudRepository<Deployment, String> {
 

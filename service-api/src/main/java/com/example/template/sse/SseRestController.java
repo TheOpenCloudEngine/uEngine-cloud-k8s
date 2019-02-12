@@ -1,6 +1,5 @@
-package com.example.template.emitter;
+package com.example.template.sse;
 
-import com.example.template.AppEntityBaseMessage;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +17,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Controller
 //@CrossOrigin(origins = "*")
 @RequestMapping("/kubesse")
-public class SSERestController {
+public class SseRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SSERestController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SseRestController.class);
 
-    private final CopyOnWriteArrayList<KubeEmitter> userBaseEmitters = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<SseKubeEmitter> userBaseEmitters = new CopyOnWriteArrayList<>();
     public String nameSpace = null;
 
     @CrossOrigin(origins = "*")
@@ -32,7 +31,7 @@ public class SSERestController {
                                  @RequestParam(value = "provider", required = false) String provider,
                                  @RequestParam(value = "name", required = false) String name
     ) {
-        KubeEmitter emitter = new KubeEmitter(name, provider);
+        SseKubeEmitter emitter = new SseKubeEmitter(name, provider);
         userBaseEmitters.add(emitter);
         System.out.println("before: " + this.userBaseEmitters.size());
 //        this.nameSpace = nameSpace;
@@ -46,7 +45,7 @@ public class SSERestController {
     }
 
     @EventListener
-    public void onKubeSse(AppEntityBaseMessage appEntityBaseMessage) {
+    public void onKubeSse(SseBaseMessage appEntityBaseMessage) {
         LOGGER.info("appEntityBaseMessage");
         System.out.println(this.userBaseEmitters.size());
         List<SseEmitter> deadEmitters = new ArrayList<>();

@@ -1,13 +1,10 @@
-package com.example.template.service;
+package com.example.template.deployment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
-import com.example.template.model.Deployment;
-import com.example.template.repository.DeploymentRepository;
 
 @Service
 public class DeploymentService {

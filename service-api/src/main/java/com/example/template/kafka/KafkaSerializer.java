@@ -1,11 +1,11 @@
-package com.example.template;
+package com.example.template.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Map;
 
-public class InstanceSerializer implements Serializer {
+public class KafkaSerializer implements Serializer {
 
     @Override
     public void configure(Map configs, boolean isKey) {

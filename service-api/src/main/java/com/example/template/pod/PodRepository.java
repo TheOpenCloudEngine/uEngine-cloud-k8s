@@ -1,10 +1,10 @@
-package com.example.template.model;
+package com.example.template.pod;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface InstanceModelRepository extends CrudRepository<InstanceModel, String> {
+public interface PodRepository extends CrudRepository<Pod, String> {
 
-    Iterable<InstanceModel> findByProvider(@Param("provider") String provider);
-    Iterable<InstanceModel> findByProviderAndName(@Param("provider") String provider,@Param("name") String name);
+    Iterable<Pod> findByProvider(@Param("provider") String provider);
+    Iterable<Pod> findByProviderAndName(@Param("provider") String provider,@Param("name") String name);
 }

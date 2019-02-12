@@ -1,4 +1,4 @@
-package com.example.template;
+package com.example.template.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -8,9 +8,10 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import com.example.template.model.Deployment;
-import com.example.template.service.DeploymentService;
-import com.example.template.service.InstanceService;
+import com.example.template.deployment.Deployment;
+import com.example.template.deployment.DeploymentService;
+import com.example.template.pod.PodService;
+import com.example.template.sse.SseBaseMessageHandler;
 import com.google.gson.Gson;
 
 
@@ -21,14 +22,14 @@ public class KafkaReceiver {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaReceiver.class);
 
     @Autowired
-    InstanceService instanceService;
+    PodService instanceService;
     
     @Autowired
     private DeploymentService deploymentService;
     
 
     @Autowired
-    private AppEntityBaseMessageHandler messageHandler;
+    private SseBaseMessageHandler messageHandler;
 
 
 

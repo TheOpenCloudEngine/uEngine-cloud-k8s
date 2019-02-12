@@ -1,22 +1,17 @@
-package com.example.template.model;
-
-import lombok.Data;
+package com.example.template.pod;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.io.Serializable;
-import java.util.Properties;
 
-@Data
 @Entity
 @Table(name = "INSTANCE_VIEW")
-public class InstanceModel implements Serializable {
+public class Pod implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,10 +26,6 @@ public class InstanceModel implements Serializable {
     String regDate;
 
     String properties;
-
-    // 인스턴스 상태값 - DB 에서는 제외
-    @Transient
-    InstanceState instanceState;
 
 	public String getId() {
 		return id;
@@ -98,14 +89,6 @@ public class InstanceModel implements Serializable {
 
 	public void setProperties(String properties) {
 		this.properties = properties;
-	}
-
-	public InstanceState getInstanceState() {
-		return instanceState;
-	}
-
-	public void setInstanceState(InstanceState instanceState) {
-		this.instanceState = instanceState;
 	}
 	
 	@Override

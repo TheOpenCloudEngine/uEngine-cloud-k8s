@@ -1,13 +1,13 @@
-package com.example.template.emitter;
+package com.example.template.sse;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-public class KubeEmitter extends SseEmitter {
+public class SseKubeEmitter extends SseEmitter {
 
     private String name;
     private String provider;
 
-    public KubeEmitter(String name, String provider) {
+    public SseKubeEmitter(String name, String provider) {
         super();
         this.name = name;
         this.provider = provider;

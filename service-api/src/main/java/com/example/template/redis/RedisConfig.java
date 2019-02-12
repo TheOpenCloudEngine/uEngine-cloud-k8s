@@ -1,4 +1,4 @@
-package com.example.template;
+package com.example.template.redis;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.EnableCaching;

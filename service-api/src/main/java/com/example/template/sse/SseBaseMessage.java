@@ -1,4 +1,4 @@
-package com.example.template;
+package com.example.template.sse;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import lombok.Data;
 
 @Data
-public class AppEntityBaseMessage {
+public class SseBaseMessage {
     String provider;
     String name;
     String message;

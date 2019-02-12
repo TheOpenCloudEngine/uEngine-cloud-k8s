@@ -1,6 +1,5 @@
-package com.example.template;
+package com.example.template.sse;
 
-import com.example.template.emitter.SSERestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +8,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component("messageHandler")
-public class AppEntityBaseMessageHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AppEntityBaseMessageHandler.class);
+public class SseBaseMessageHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SseBaseMessageHandler.class);
 
     @Autowired
-    private SSERestController sseController;
+    private SseRestController sseController;
     private ApplicationEventPublisher eventPublisher;
-    public AppEntityBaseMessageHandler(ApplicationEventPublisher eventPublisher) {
+    public SseBaseMessageHandler(ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
@@ -23,7 +22,7 @@ public class AppEntityBaseMessageHandler {
     public void publish(String name, String provider, String jsonData) {
         try {
 
-            AppEntityBaseMessage message = new AppEntityBaseMessage();
+            SseBaseMessage message = new SseBaseMessage();
             message.setName(provider);
             message.setName(name);
             message.setMessage(jsonData);
