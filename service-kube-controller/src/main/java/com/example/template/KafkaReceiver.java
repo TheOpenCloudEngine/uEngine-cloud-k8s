@@ -1,5 +1,9 @@
 package com.example.template;
 
+import com.example.template.manager.DeployManager;
+import com.example.template.manager.KubeManager;
+import com.example.template.manager.PodManager;
+import com.example.template.manager.ServiceManager;
 import com.squareup.okhttp.MediaType;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.apis.AppsV1Api;
@@ -8,6 +12,7 @@ import io.kubernetes.client.models.V1Deployment;
 import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1Service;
 import io.kubernetes.client.util.Config;
+import io.kubernetes.client.util.Yaml;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -20,8 +25,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.Yaml;
-
 
 @Service
 public class KafkaReceiver {
@@ -56,136 +59,40 @@ public class KafkaReceiver {
         try {
             obj = parser.parse( message );
             JSONObject jsonObj = (JSONObject) obj;
-//            String host = (String) jsonObj.get("host");
-//            String token = (String) jsonObj.get("token");
+            String host = (String) jsonObj.get("host");
+            String token = (String) jsonObj.get("token");
             String type = (String) jsonObj.get("type");
             String command = (String) jsonObj.get("command");
-//            Object body = (Object) jsonObj.get("body");
-//
-//            LOG.info("message host='{}'" , host);
-//            LOG.info("message token='{}'" , token);
-//            LOG.info("message type='{}'" , type);
-//            LOG.info("message command='{}'" , command);
-//            LOG.info("message body='{}'" , body);
 
             this.sendMessage(type, "처리중");
 
-
+            KubeManager manager = null;
             if( type.equals("SERVICE")){
-                if ( command.equals("CREATE")){
-                    this.createService(jsonObj);
-                }
+                manager = new ServiceManager(host, token);
+            }else if( type.equals("DEPLOY")){
+                manager = new DeployManager(host, token);
+            }else if( type.equals("POD")){
+                manager = new PodManager(host, token);
             }
-            if( type.equals("DEPLOY")){
-                if ( command.equals("CREATE")){
-                    this.createDeploy(jsonObj);
-                }
-            }
-            if( type.equals("POD")){
-                if ( command.equals("CREATE")){
-                    this.createPods(jsonObj);
-                }
+
+
+            if ( command.equals("CREATE")){
+                manager.create(jsonObj);
+            }else if( command.equals("DELETE")){
+                manager.delete(jsonObj);
+            }else if( command.equals("UPDATE")){
+                manager.update(jsonObj);
             }
 
         } catch (ParseException e) {
+            this.sendMessage(e.toString(), "처리실패");
             e.printStackTrace();
         }
     }
 
     public void sendMessage(String type, String command){
-        String msg = type + " : " + command;
+        String msg = command + " : " + type;
         kafkaTemplate.send(stateMsgTopic , msg);
-    }
-
-    public void createService(JSONObject jsonObj){
-        String host = (String) jsonObj.get("host");
-        String token = (String) jsonObj.get("token");
-        String type = (String) jsonObj.get("type");
-        String namespace = (String) jsonObj.get("namespace");
-        if( namespace == null ){
-            namespace = "default";
-        }
-        Object body = (Object) jsonObj.get("body");
-        String bodyTmp = body.toString();
-        bodyTmp = bodyTmp.replaceAll("\\\\", "");
-        LOG.info("message bodyTmp='{}'" , bodyTmp);
-        try {
-            Yaml yaml = new Yaml();
-            V1Service deploy = yaml.loadAs(bodyTmp, V1Service.class);
-
-            ApiClient client = Config.fromToken(host, token, false);
-            client.setDebugging(true);
-            CoreV1Api apiInstance = new CoreV1Api(client);
-
-            V1Service result = apiInstance.createNamespacedService(namespace, deploy, null, null, null);
-            System.out.println(result);
-
-        }catch (Exception e){
-            e.printStackTrace();
-            this.sendMessage(type , "처리실패");
-        }
-    }
-    public void createDeploy(JSONObject jsonObj){
-        String host = (String) jsonObj.get("host");
-        String token = (String) jsonObj.get("token");
-        String type = (String) jsonObj.get("type");
-        String namespace = (String) jsonObj.get("namespace");
-        if( namespace == null ){
-            namespace = "default";
-        }
-        Object body = (Object) jsonObj.get("body");
-        String bodyTmp = body.toString();
-        bodyTmp = bodyTmp.replaceAll("\\\\", "");
-        LOG.info("message bodyTmp='{}'" , bodyTmp);
-        try {
-            Yaml yaml = new Yaml();
-            V1Deployment deploy = yaml.loadAs(bodyTmp, V1Deployment.class);
-//        LOG.info("message getMetadata='{}'" , deploy.toString());
-//        LOG.info("message getSpec='{}'" , deploy.getSpec().toString());
-
-            ApiClient client = Config.fromToken(host, token, false);
-//            client.setDebugging(true);
-            AppsV1Api apiInstance = new AppsV1Api(client);
-
-            V1Deployment result = apiInstance.createNamespacedDeployment(namespace, deploy, null, null, null);
-            System.out.println(result);
-
-        }catch (Exception e){
-            e.printStackTrace();
-            this.sendMessage(type , "처리실패");
-        }
-    }
-    public void createPods(JSONObject jsonObj){
-        String host = (String) jsonObj.get("host");
-        String token = (String) jsonObj.get("token");
-        String type = (String) jsonObj.get("type");
-        String namespace = (String) jsonObj.get("namespace");
-        if( namespace == null ){
-            namespace = "default";
-        }
-        Object body = (Object) jsonObj.get("body");
-        String bodyTmp = body.toString();
-        bodyTmp = bodyTmp.replaceAll("\\\\", "");
-        LOG.info("message bodyTmp='{}'" , bodyTmp);
-        try {
-            Yaml yaml = new Yaml();
-            V1Pod deploy = yaml.loadAs(bodyTmp, V1Pod.class);
-
-            ApiClient client = Config.fromToken(host, token, false);
-            client.setDebugging(true);
-            CoreV1Api apiInstance = new CoreV1Api(client);
-
-            V1Pod result = apiInstance.createNamespacedPod(namespace, deploy, null, null, null);
-            System.out.println(result);
-
-        }catch (Exception e){
-            e.printStackTrace();
-            this.sendMessage(type , "처리실패");
-        }
-    }
-
-    public void deletePods(){
-
     }
 
 }

@@ -111,6 +111,28 @@ public class InstanceController {
     }
 
     /**
+     * deploy create 요청
+     * @param request
+     * @param response
+     * @param namespace
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/deployments/{name}", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> deleteDeployment(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @PathVariable(value = "namespace") String namespace,
+                                               @PathVariable(value = "name") String name
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+
+        k8sManagerService.deleteDeploy(namespace, name);
+
+        return returnData;
+    }
+
+    /**
      * pod create 요청
      * @param request
      * @param response
@@ -128,6 +150,27 @@ public class InstanceController {
         Map<String,Object> returnData = new HashMap<String,Object>();
 
         k8sManagerService.createPod(namespace, name);
+
+        return returnData;
+    }
+    /**
+     * pod delete 요청
+     * @param request
+     * @param response
+     * @param namespace
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/pods/{name}", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> deletePod(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @PathVariable(value = "namespace") String namespace,
+                                               @PathVariable(value = "name") String name
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+
+        k8sManagerService.deletePod(namespace, name);
 
         return returnData;
     }

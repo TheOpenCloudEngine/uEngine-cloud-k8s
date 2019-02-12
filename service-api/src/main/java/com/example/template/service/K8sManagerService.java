@@ -37,6 +37,7 @@ public class K8sManagerService {
         data.put("host", userData.get("host"));
         data.put("token", userData.get("token"));
         data.put("namespace", namespace);
+        data.put("name", name);
         data.put("type", "SERVICE");
         data.put("command", "CREATE");
         data.put("body", body);
@@ -57,11 +58,26 @@ public class K8sManagerService {
         data.put("host", userData.get("host"));
         data.put("token", userData.get("token"));
         data.put("namespace", namespace);
+        data.put("name", name);
         data.put("type", "DEPLOY");
         data.put("command", "CREATE");
         data.put("body", body);
         kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
     }
+
+    public void deleteDeploy(String namespace, String name){
+        Map<String,String> userData =  getUserDetail(null);
+
+        JSONObject data = new JSONObject();
+        data.put("host", userData.get("host"));
+        data.put("token", userData.get("token"));
+        data.put("namespace", namespace);
+        data.put("name", name);
+        data.put("type", "DEPLOY");
+        data.put("command", "DELETE");
+        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+    }
+
     public void createPod(String namespace, String name){
 
         // TODO yaml 파일
@@ -77,9 +93,23 @@ public class K8sManagerService {
         data.put("host", userData.get("host"));
         data.put("token", userData.get("token"));
         data.put("namespace", namespace);
+        data.put("name", name);
         data.put("type", "POD");
         data.put("command", "CREATE");
         data.put("body", body);
+        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+    }
+
+    public void deletePod(String namespace, String name){
+        Map<String,String> userData =  getUserDetail(null);
+
+        JSONObject data = new JSONObject();
+        data.put("host", userData.get("host"));
+        data.put("token", userData.get("token"));
+        data.put("namespace", namespace);
+        data.put("name", name);
+        data.put("type", "POD");
+        data.put("command", "DELETE");
         kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
     }
 
