@@ -3,7 +3,10 @@ package com.example.template;
 import com.squareup.okhttp.MediaType;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.apis.AppsV1Api;
+import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.models.V1Deployment;
+import io.kubernetes.client.models.V1Pod;
+import io.kubernetes.client.models.V1Service;
 import io.kubernetes.client.util.Config;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.json.simple.JSONObject;
@@ -67,9 +70,23 @@ public class KafkaReceiver {
 
             this.sendMessage(type, "처리중");
 
-            if( type.equals("DEPLOY") && command.equals("CREATE")){
-                this.createDeploy(jsonObj);
+
+            if( type.equals("SERVICE")){
+                if ( command.equals("CREATE")){
+                    this.createService(jsonObj);
+                }
             }
+            if( type.equals("DEPLOY")){
+                if ( command.equals("CREATE")){
+                    this.createDeploy(jsonObj);
+                }
+            }
+            if( type.equals("POD")){
+                if ( command.equals("CREATE")){
+                    this.createPods(jsonObj);
+                }
+            }
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -80,6 +97,34 @@ public class KafkaReceiver {
         kafkaTemplate.send(stateMsgTopic , msg);
     }
 
+    public void createService(JSONObject jsonObj){
+        String host = (String) jsonObj.get("host");
+        String token = (String) jsonObj.get("token");
+        String type = (String) jsonObj.get("type");
+        String namespace = (String) jsonObj.get("namespace");
+        if( namespace == null ){
+            namespace = "default";
+        }
+        Object body = (Object) jsonObj.get("body");
+        String bodyTmp = body.toString();
+        bodyTmp = bodyTmp.replaceAll("\\\\", "");
+        LOG.info("message bodyTmp='{}'" , bodyTmp);
+        try {
+            Yaml yaml = new Yaml();
+            V1Service deploy = yaml.loadAs(bodyTmp, V1Service.class);
+
+            ApiClient client = Config.fromToken(host, token, false);
+            client.setDebugging(true);
+            CoreV1Api apiInstance = new CoreV1Api(client);
+
+            V1Service result = apiInstance.createNamespacedService(namespace, deploy, null, null, null);
+            System.out.println(result);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            this.sendMessage(type , "처리실패");
+        }
+    }
     public void createDeploy(JSONObject jsonObj){
         String host = (String) jsonObj.get("host");
         String token = (String) jsonObj.get("token");
@@ -109,6 +154,38 @@ public class KafkaReceiver {
             e.printStackTrace();
             this.sendMessage(type , "처리실패");
         }
+    }
+    public void createPods(JSONObject jsonObj){
+        String host = (String) jsonObj.get("host");
+        String token = (String) jsonObj.get("token");
+        String type = (String) jsonObj.get("type");
+        String namespace = (String) jsonObj.get("namespace");
+        if( namespace == null ){
+            namespace = "default";
+        }
+        Object body = (Object) jsonObj.get("body");
+        String bodyTmp = body.toString();
+        bodyTmp = bodyTmp.replaceAll("\\\\", "");
+        LOG.info("message bodyTmp='{}'" , bodyTmp);
+        try {
+            Yaml yaml = new Yaml();
+            V1Pod deploy = yaml.loadAs(bodyTmp, V1Pod.class);
+
+            ApiClient client = Config.fromToken(host, token, false);
+            client.setDebugging(true);
+            CoreV1Api apiInstance = new CoreV1Api(client);
+
+            V1Pod result = apiInstance.createNamespacedPod(namespace, deploy, null, null, null);
+            System.out.println(result);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            this.sendMessage(type , "처리실패");
+        }
+    }
+
+    public void deletePods(){
+
     }
 
 }

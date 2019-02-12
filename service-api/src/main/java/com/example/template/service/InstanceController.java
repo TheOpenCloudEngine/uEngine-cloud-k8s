@@ -67,7 +67,29 @@ public class InstanceController {
     }
 
     /**
-     * 수정 요청
+     * service create 요청
+     * @param request
+     * @param response
+     * @param namespace
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/service/{name}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> createService(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @PathVariable(value = "namespace") String namespace,
+                                               @PathVariable(value = "name") String name
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+
+        k8sManagerService.createService(namespace, name);
+
+        return returnData;
+    }
+
+    /**
+     * deploy create 요청
      * @param request
      * @param response
      * @param namespace
@@ -76,7 +98,7 @@ public class InstanceController {
      * @throws Exception
      */
     @RequestMapping(value = "/namespaces/{namespace}/deployments/{name}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public Map<String,Object> updateDeployment(HttpServletRequest request,
+    public Map<String,Object> createDeployment(HttpServletRequest request,
                                                HttpServletResponse response,
                                                @PathVariable(value = "namespace") String namespace,
                                                @PathVariable(value = "name") String name
@@ -84,6 +106,28 @@ public class InstanceController {
         Map<String,Object> returnData = new HashMap<String,Object>();
 
         k8sManagerService.createDeploy(namespace, name);
+
+        return returnData;
+    }
+
+    /**
+     * pod create 요청
+     * @param request
+     * @param response
+     * @param namespace
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/pods/{name}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> createPod(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @PathVariable(value = "namespace") String namespace,
+                                               @PathVariable(value = "name") String name
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+
+        k8sManagerService.createPod(namespace, name);
 
         return returnData;
     }
