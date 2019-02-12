@@ -1,4 +1,4 @@
-package com.example.template.deployment;
+package com.example.template.k8s.deployment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.template.pod.Pod;
-import com.example.template.service.K8sManagerService;
+import com.example.template.k8s.pod.Pod;
+import com.example.template.k8s.service.K8sManagerService;
 
 @RestController
 @CrossOrigin("*")

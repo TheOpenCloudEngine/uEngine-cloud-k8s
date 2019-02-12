@@ -1,10 +1,10 @@
-package com.example.template.pod;
-
-import com.example.template.service.K8sManagerService;
+package com.example.template.k8s.pod;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.template.k8s.service.K8sManagerService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

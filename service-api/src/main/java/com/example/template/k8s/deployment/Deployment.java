@@ -1,4 +1,4 @@
-package com.example.template.deployment;
+package com.example.template.k8s.deployment;
 
 import java.io.Serializable;
 

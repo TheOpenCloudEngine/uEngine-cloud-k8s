@@ -1,4 +1,4 @@
-package com.example.template.pod;
+package com.example.template.k8s.pod;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

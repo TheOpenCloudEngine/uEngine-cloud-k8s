@@ -1,4 +1,4 @@
-package com.example.template.pod;
+package com.example.template.k8s.pod;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.example.template.service;
+package com.example.template.k8s.service;
 
 import com.google.gson.JsonObject;
 import org.apache.kafka.clients.producer.ProducerRecord;

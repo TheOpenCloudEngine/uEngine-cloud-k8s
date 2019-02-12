@@ -1,4 +1,4 @@
-package com.example.template.deployment;
+package com.example.template.k8s.deployment;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

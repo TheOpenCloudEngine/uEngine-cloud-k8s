@@ -1,4 +1,4 @@
-package com.example.template.pod;
+package com.example.template.k8s.pod;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

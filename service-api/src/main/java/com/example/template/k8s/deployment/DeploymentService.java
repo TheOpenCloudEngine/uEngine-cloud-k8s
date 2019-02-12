@@ -1,4 +1,4 @@
-package com.example.template.deployment;
+package com.example.template.k8s.deployment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
