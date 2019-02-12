@@ -6,8 +6,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.joda.time.DateTime;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,8 +20,10 @@ import com.google.common.reflect.TypeToken;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
-import io.kubernetes.client.apis.AppsV1Api;
-import io.kubernetes.client.models.V1Deployment;
+import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.models.V1LoadBalancerIngress;
+import io.kubernetes.client.models.V1Service;
+import io.kubernetes.client.models.V1ServicePort;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.Watch;
 
@@ -32,7 +32,7 @@ import io.kubernetes.client.util.Watch;
 public class KubeInstanceTask implements InitializingBean {
 
     @Autowired
-    Environment environment;
+    private Environment environment;
 
     @Value("${topic.instanceTopic}")
     private String instanceTopic;
@@ -65,58 +65,66 @@ public class KubeInstanceTask implements InitializingBean {
         return this.token;
     }
 
-
-
     @Scheduled(fixedRate = 10000)
     public void watchPod() throws IOException, ApiException{
     	
-    	AppsV1Api av1api = new AppsV1Api();
+    	CoreV1Api av1api = new CoreV1Api();
     	
-    	Watch<V1Deployment> watch = Watch.createWatch(
+    	Watch<V1Service> watch = Watch.createWatch(
                 client,
-                av1api.listDeploymentForAllNamespacesCall(null, null, null, null, null, null, null, null, Boolean.TRUE, null, null),
-                new TypeToken<Watch.Response<V1Deployment>>() {}.getType());
+                av1api.listServiceForAllNamespacesCall(null, null, null, null, null, null, null, null, Boolean.TRUE, null, null),
+                new TypeToken<Watch.Response<V1Service>>() {}.getType());
     	
     	try {
-            for (Watch.Response<V1Deployment> item : watch) {
+            for (Watch.Response<V1Service> item : watch) {
             	
-            	Deployment dpl = new Deployment();
+            	Services svs = new Services();
             	
-            	dpl.setProvider("K8S");
-            	dpl.setId(UUID.randomUUID().toString());
-            	dpl.setType(item.type);
-            	dpl.setApiVersion(item.object.getApiVersion());
-            	dpl.setKind(item.object.getKind());
+            	svs.setProvider("K8S");
+            	svs.setId(UUID.randomUUID().toString());
+            	svs.setType(item.type);
+            	svs.setApiVersion(item.object.getApiVersion());
+            	svs.setKind(item.object.getKind());
             	
-            	// deployment의 메타데이터 정보
+            	// service의 메타데이터 정보
             	{
     				if (item.object.getMetadata().getCreationTimestamp() != null && item.object.getMetadata().getCreationTimestamp().getMillis() != 0L) {
     					SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    					dpl.setCreateTimeStamp(transFormat.format(item.object.getMetadata().getCreationTimestamp().getMillis()));
+    					svs.setCreateTimeStamp(transFormat.format(item.object.getMetadata().getCreationTimestamp().getMillis()));
     				}
     				
-    				dpl.setName(item.object.getMetadata().getName());
-    				dpl.setNamespace(item.object.getMetadata().getNamespace());
-    				dpl.setUid(item.object.getMetadata().getUid());
+    				svs.setName(item.object.getMetadata().getName());
+    				svs.setNamespace(item.object.getMetadata().getNamespace());
+    				svs.setUid(item.object.getMetadata().getUid());
             	}
             	
-            	// deployment의 spec 정보
+            	// service의 spec 정보
             	{
-            		dpl.setStrategyType(item.object.getSpec().getStrategy().getType());
-            		dpl.setSpecReplicas(item.object.getSpec().getReplicas());
+//            		svs.setStrategyType(item.object.getSpec().getStrategy().getType());
+//            		svs.setSpecReplicas(item.object.getSpec().getReplicas());
+            		
+            		svs.setSpecSessionAffinity(item.object.getSpec().getSessionAffinity());
+            		for(V1ServicePort vsport : item.object.getSpec().getPorts()) {
+            			svs.setSpecPort(vsport.getPort());
+            			svs.setSpecProtocol(vsport.getProtocol());
+            			svs.setSpecTargetPort(vsport.getTargetPort().getIntValue());
+            		}
+            		
+            		svs.setSpecType(item.object.getSpec().getType());
+            		
             	}
             	
-            	// deployment의 status 정보
+            	// service의 status 정보
             	{
-            		dpl.setStatusReplicas(item.object.getStatus().getReplicas());
-            		dpl.setStatusAvailableReplicas(item.object.getStatus().getAvailableReplicas());
-            		dpl.setStatusReadyReplicas(item.object.getStatus().getReadyReplicas());
-            		dpl.setStatusUpdateReplicas(item.object.getStatus().getUpdatedReplicas());
+            		for(V1LoadBalancerIngress v1Ingress : item.object.getStatus().getLoadBalancer().getIngress()) {
+            			svs.setHostname(v1Ingress.getHostname());
+            			svs.setIngressIp(v1Ingress.getIp());
+            		}
             	}
             	
-                kafkaTemplate.send(new ProducerRecord<String, Deployment>(instanceTopic, item.object.getMetadata().getNamespace() , dpl));
+                kafkaTemplate.send(new ProducerRecord<String, Services>(instanceTopic, item.object.getMetadata().getNamespace() , svs));
 
-                System.out.printf("%s : %s %n" , dpl.getType(), dpl.toString() );
+                System.out.printf("%s : %s %n" , svs.getType(), svs.toString() );
             }
         } finally {
             watch.close();
