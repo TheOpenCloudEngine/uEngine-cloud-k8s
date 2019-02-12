@@ -1,4 +1,4 @@
-package com.example.template.kafka;
+package com.example.template.k8s.pod;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -17,15 +17,12 @@ import com.google.gson.Gson;
 
 
 @Service
-public class KafkaReceiver {
+public class PodKafkaService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaReceiver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PodKafkaService.class);
 
     @Autowired
-    PodService instanceService;
-    
-    @Autowired
-    private DeploymentService deploymentService;
+    PodService podService;
     
 
     @Autowired
@@ -49,19 +46,6 @@ public class KafkaReceiver {
 //        instanceService.update(im);
 //        instanceService.deleteCacheList(im);
 //        messageHandler.publish(im.getName(), im.getProvider(), message);
-    }
-    
-    @KafkaListener(topics = "${topic.delpoyMsgTopic}")
-    public void listenByDeployment(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
-
-    	Gson gson = new Gson();
-    	Deployment dpl = gson.fromJson(message, Deployment.class);
-    	
-    	deploymentService.update(dpl);
-    	
-    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
-    	
-        System.out.println(message);
     }
 
 }

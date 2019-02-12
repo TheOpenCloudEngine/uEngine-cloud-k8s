@@ -1,4 +1,4 @@
-package com.example.template.kafka;
+package com.example.template.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;
