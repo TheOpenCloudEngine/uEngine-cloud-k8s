@@ -31,8 +31,8 @@ public class ServicesService {
 
 
     @Cacheable(value="deployment" ,key="#deployment.id")
-    public Services checkInstance(Services deployment){
-        return deploymentRepository.findById(deployment.getId()).orElse(new Services());
+    public Services checkInstance(Services svs){
+        return deploymentRepository.findById(svs.getId()).orElse(new Services());
     }
 
     @Cacheable(value="deployment")
@@ -51,8 +51,8 @@ public class ServicesService {
     }
 
 
-    public String update(Services deployment) {
-    	deploymentRepository.save(deployment);
+    public String update(Services svs) {
+    	deploymentRepository.save(svs);
         return "";
     }
 

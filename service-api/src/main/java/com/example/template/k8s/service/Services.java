@@ -46,24 +46,30 @@ public class Services implements Serializable {
 	@Column(name="uid")
 	private String uid;
 	
-	@Column(name="specReplicas")
-	private Integer specReplicas;
+	@Column(name="specClusterIp")
+	private String specClusterIp;
 	
-	@Column(name="strategyType")
-	private String strategyType;
+	@Column(name="specPort")
+	private Integer specPort;
+	
+	@Column(name="specProtocol")
+	private String specProtocol;
+	
+	@Column(name="specTargetPort")
+	private Integer specTargetPort;
+	
+	@Column(name="specSessionAffinity")
+	private String specSessionAffinity;
+	
+	@Column(name="specType")
+	private String specType;
+	
+	@Column(name="hostname")
+	private String hostname;
+	
+	@Column(name="ingressIp")
+	private String ingressIp;
 
-	@Column(name="statusReplicas")
-	private Integer statusReplicas;
-	
-	@Column(name="statusAvailableReplicas")
-	private Integer statusAvailableReplicas;
-	
-	@Column(name="statusReadyReplicas")
-	private Integer statusReadyReplicas;
-	
-	@Column(name="statusUpdateReplicas")
-	private Integer statusUpdateReplicas;
-	
 	public String getProvider() {
 		return provider;
 	}
@@ -136,54 +142,69 @@ public class Services implements Serializable {
 		this.uid = uid;
 	}
 
-	public Integer getSpecReplicas() {
-		return specReplicas;
+	public String getSpecClusterIp() {
+		return specClusterIp;
 	}
 
-	public void setSpecReplicas(Integer specReplicas) {
-		this.specReplicas = specReplicas;
+	public void setSpecClusterIp(String specClusterIp) {
+		this.specClusterIp = specClusterIp;
 	}
 
-	public String getStrategyType() {
-		return strategyType;
+	public Integer getSpecPort() {
+		return specPort;
 	}
 
-	public void setStrategyType(String strategyType) {
-		this.strategyType = strategyType;
+	public void setSpecPort(Integer specPort) {
+		this.specPort = specPort;
 	}
 
-	public Integer getStatusReplicas() {
-		return statusReplicas;
+	public String getSpecProtocol() {
+		return specProtocol;
 	}
 
-	public void setStatusReplicas(Integer statusReplicas) {
-		this.statusReplicas = statusReplicas;
+	public void setSpecProtocol(String specProtocol) {
+		this.specProtocol = specProtocol;
 	}
 
-	public Integer getStatusAvailableReplicas() {
-		return statusAvailableReplicas;
+	public Integer getSpecTargetPort() {
+		return specTargetPort;
 	}
 
-	public void setStatusAvailableReplicas(Integer statusAvailableReplicas) {
-		this.statusAvailableReplicas = statusAvailableReplicas;
+	public void setSpecTargetPort(Integer specTargetPort) {
+		this.specTargetPort = specTargetPort;
 	}
 
-	public Integer getStatusReadyReplicas() {
-		return statusReadyReplicas;
+	public String getSpecSessionAffinity() {
+		return specSessionAffinity;
 	}
 
-	public void setStatusReadyReplicas(Integer statusReadyReplicas) {
-		this.statusReadyReplicas = statusReadyReplicas;
+	public void setSpecSessionAffinity(String specSessionAffinity) {
+		this.specSessionAffinity = specSessionAffinity;
 	}
 
-	public Integer getStatusUpdateReplicas() {
-		return statusUpdateReplicas;
+	public String getSpecType() {
+		return specType;
 	}
 
-	public void setStatusUpdateReplicas(Integer statusUpdateReplicas) {
-		this.statusUpdateReplicas = statusUpdateReplicas;
+	public void setSpecType(String specType) {
+		this.specType = specType;
 	}
 
+	public String getHostname() {
+		return hostname;
+	}
+
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
+	public String getIngressIp() {
+		return ingressIp;
+	}
+
+	public void setIngressIp(String ingressIp) {
+		this.ingressIp = ingressIp;
+	}
 
 	@Override
 	public String toString() {

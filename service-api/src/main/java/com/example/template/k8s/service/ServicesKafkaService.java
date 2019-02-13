@@ -19,19 +19,18 @@ public class ServicesKafkaService {
     private static final Logger LOG = LoggerFactory.getLogger(ServicesKafkaService.class);
     
     @Autowired
-    private ServicesService deploymentService;
+    private ServicesService servicesService;
     
     @Autowired
     private SseBaseMessageHandler messageHandler;
 
 
-    @KafkaListener(topics = "${topic.delpoyMsgTopic}")
-    public void listenByDeployment(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
+    @KafkaListener(topics = "${topic.serviceMsgTopic}")
+    public void listenByServices(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
 
     	Gson gson = new Gson();
-    	Services dpl = gson.fromJson(message, Services.class);
-    	
-    	deploymentService.update(dpl);
+    	Services svs = gson.fromJson(message, Services.class);
+    	servicesService.update(svs);
     	
 //    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
     	
