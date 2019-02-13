@@ -37,13 +37,13 @@ public class PodKafkaService {
      * @param consumerRecord
      */
 
-    @KafkaListener(topics = "${topic.stateMsgTopic}")
+    @KafkaListener(topics = "${topic.podeMsgTopic}")
     public void listenByObject(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
 
         System.out.println(message);
-//        Gson gson = new Gson();
-//        InstanceModel im = gson.fromJson(message, InstanceModel.class);
-//        instanceService.update(im);
+        Gson gson = new Gson();
+        Pod pod = gson.fromJson(message, Pod.class);
+        podService.update(pod);
 //        instanceService.deleteCacheList(im);
 //        messageHandler.publish(im.getName(), im.getProvider(), message);
     }

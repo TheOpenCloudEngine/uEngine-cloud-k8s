@@ -45,7 +45,7 @@ public class ServicesController {
         return returnData;
     }
     
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Services> getAllServices(HttpServletRequest request,
                                          HttpServletResponse response
     ) throws Exception {

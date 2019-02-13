@@ -15,7 +15,7 @@ spring:
     bootstrap-servers: localhost:9092
 
 server:
-  port: 8085
+  port: 8083
 ---
 spring:
   profiles: docker

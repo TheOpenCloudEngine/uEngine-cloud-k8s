@@ -45,7 +45,7 @@ public class DeploymentController {
         return returnData;
     }
     
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Deployment> getAllDeployment(HttpServletRequest request,
                                          HttpServletResponse response
     ) throws Exception {

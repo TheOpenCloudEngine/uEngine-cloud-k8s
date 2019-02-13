@@ -14,7 +14,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "DEPLOYMENT")
+@Table(name = "SERVICES")
 public class Services implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -55,8 +55,8 @@ public class Services implements Serializable {
 	@Column(name="specProtocol")
 	private String specProtocol;
 	
-	@Column(name="specTargetPort")
-	private Integer specTargetPort;
+//	@Column(name="specTargetPort")
+//	private String specTargetPort;
 	
 	@Column(name="specSessionAffinity")
 	private String specSessionAffinity;
@@ -166,13 +166,13 @@ public class Services implements Serializable {
 		this.specProtocol = specProtocol;
 	}
 
-	public Integer getSpecTargetPort() {
-		return specTargetPort;
-	}
-
-	public void setSpecTargetPort(Integer specTargetPort) {
-		this.specTargetPort = specTargetPort;
-	}
+//	public String getSpecTargetPort() {
+//		return specTargetPort;
+//	}
+//
+//	public void setSpecTargetPort(String specTargetPort) {
+//		this.specTargetPort = specTargetPort;
+//	}
 
 	public String getSpecSessionAffinity() {
 		return specSessionAffinity;

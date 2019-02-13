@@ -1,73 +1,34 @@
-package com.example.template.k8s.pod;
+package com.example.template;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.io.Serializable;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.io.Serializable;
+import lombok.Data;
 
-@Entity
-@Table(name = "POD")
+@Data
 public class Pod implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
-    @Id
+	private String provider;
     private String id;
-
-    @Column(name="provider")
-    private String provider;
-    
-    @Column(name="type")
     private String type;
-
-    @Column(name="kind")
     private String kind;
-
-    @Column(name="name")
     private String name;
-
-    @Column(name="namespace")
     private String namespace;
-
-    @Column(name="uid")
     private String uid;
-
-    @Column(name="createTimeStamp")
     private String createTimeStamp;
 
-    @Column(name="image")
     private String image;
-
-    @Column(name="nodeName")
     private String nodeName;
-
-    @Column(name="restartPolicy")
     private String restartPolicy;
-
-    @Column(name="serviceAccount")
     private String serviceAccount;
     
-    @Column(name="hostIp")
     private String hostIp;
-
-    @Column(name="podIp")
     private String podIp;
     
-    @Column(name="status")
     private String status;
-	
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
+    private String properties;
 
 	public String getProvider() {
 		return provider;
@@ -75,6 +36,14 @@ public class Pod implements Serializable {
 
 	public void setProvider(String provider) {
 		this.provider = provider;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getType() {
@@ -181,10 +150,18 @@ public class Pod implements Serializable {
 		this.status = status;
 	}
 
+	public String getProperties() {
+		return properties;
+	}
+
+	public void setProperties(String properties) {
+		this.properties = properties;
+	}
+
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
 	}
-    
+
 }
 

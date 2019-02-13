@@ -24,7 +24,7 @@ public class Services implements Serializable {
 	private String specClusterIp;
 	private Integer specPort;
 	private String specProtocol;
-	private Integer specTargetPort;
+//	private String specTargetPort;
 	private String specSessionAffinity;
 	private String specType;
 	private String hostname;
@@ -126,13 +126,13 @@ public class Services implements Serializable {
 		this.specProtocol = specProtocol;
 	}
 
-	public Integer getSpecTargetPort() {
-		return specTargetPort;
-	}
-
-	public void setSpecTargetPort(Integer specTargetPort) {
-		this.specTargetPort = specTargetPort;
-	}
+//	public String getSpecTargetPort() {
+//		return specTargetPort;
+//	}
+//
+//	public void setSpecTargetPort(String specTargetPort) {
+//		this.specTargetPort = specTargetPort;
+//	}
 
 	public String getSpecSessionAffinity() {
 		return specSessionAffinity;
