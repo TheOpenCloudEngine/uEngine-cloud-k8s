@@ -1,8 +1,6 @@
 package com.example.template.k8s.deployment;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.template.k8s.pod.Pod;
-import com.example.template.k8s.service.K8sManagerService;
-
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/kube/v1/deployment")
@@ -26,50 +21,48 @@ public class DeploymentController {
     @Autowired
     DeploymentService deploymentService;
 
-    @Autowired
-    K8sManagerService k8sManagerService;
-
-    @RequestMapping(value = "/instance", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public List<Deployment> getAllInstance(HttpServletRequest request,
-                                         HttpServletResponse response
+    /**
+     * deploy create 요청
+     * @param request
+     * @param response
+     * @param namespace
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> createDeployment(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @PathVariable(value = "namespace") String namespace,
+                                               @PathVariable(value = "name") String name
     ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
 
-        List<Deployment> list = new ArrayList<Deployment>();
-        Iterable<Deployment> it = deploymentService.getAllInstance();
-        for (Deployment item : it) {
-            list.add(item);
-        }
+        deploymentService.createDeploy(namespace, name);
 
-        return list;
+        return returnData;
     }
 
-    @RequestMapping(value = "/instance/{provider}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public List<Deployment> getAllInstanceByProvider(HttpServletRequest request,
-                          HttpServletResponse response,
-                          @PathVariable(value = "provider", required=false) String provider
+    /**
+     * deploy delete 요청
+     * @param request
+     * @param response
+     * @param namespace
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> deleteDeployment(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               @PathVariable(value = "namespace") String namespace,
+                                               @PathVariable(value = "name") String name
     ) throws Exception {
-        List<Deployment> list = new ArrayList<Deployment>();
-        Iterable<Deployment> it = deploymentService.getAllInstanceByProvider(provider);
-        for (Deployment item : it) {
-            list.add(item);
-        }
+        Map<String,Object> returnData = new HashMap<String,Object>();
 
-        return list;
-    }
+        deploymentService.deleteDeploy(namespace, name);
 
-    @RequestMapping(value = "/instance/{provider}/{name}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public List<Deployment> getInstanceByProviderAndName(HttpServletRequest request,
-                                                        HttpServletResponse response,
-                                                        @PathVariable(value = "provider", required=false) String provider,
-                                                        @PathVariable(value = "name", required=false) String name
-    ) throws Exception {
-        List<Deployment> list = new ArrayList<Deployment>();
-        Iterable<Deployment> it = deploymentService.getInstanceByProviderAndName(provider, name);
-        for (Deployment item : it) {
-            list.add(item);
-        }
-
-        return list;
+        return returnData;
     }
 
 }

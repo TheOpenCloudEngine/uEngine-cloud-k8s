@@ -1,9 +1,9 @@
 http http://localhost:8086/kube/v1/instance
 
-http POST http://localhost:8086/kube/v1/namespaces/default/service/bbb
+http POST http://localhost:8086/kube/v1/service/namespaces/default/bbb
 
-http POST http://localhost:8086/kube/v1/namespaces/default/deployments/tempapi-deploy
-http DELETE http://localhost:8086/kube/v1/namespaces/default/deployments/tempapi-deploy
+http POST http://localhost:8086/kube/v1/deployment/namespaces/default/tempapi-deploy
+http DELETE http://localhost:8086/kube/v1/deployment/namespaces/default/tempapi-deploy
 
-http POST http://localhost:8086/kube/v1/namespaces/default/pods/dowork-pod
-http DELETE http://localhost:8086/kube/v1/namespaces/default/pods/dowork-pod
+http POST http://localhost:8086/kube/v1/pod/namespaces/default/dowork-pod
+http DELETE http://localhost:8086/kube/v1/pod/namespaces/default/dowork-pod
