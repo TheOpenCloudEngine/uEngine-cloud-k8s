@@ -1,6 +1,8 @@
 package com.example.template.k8s.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +43,51 @@ public class ServicesController {
         servicesService.createService(namespace, name);
 
         return returnData;
+    }
+    
+    @RequestMapping(value = "/", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<Services> getAllServices(HttpServletRequest request,
+                                         HttpServletResponse response
+    ) throws Exception {
+
+        List<Services> list = new ArrayList<Services>();
+        Iterable<Services> it = servicesService.getAllServices();
+        for (Services item : it) {
+            list.add(item);
+        }
+
+        return list;
+    }
+    
+    @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<Services> getServicesByNamespace(HttpServletRequest request,
+                                         HttpServletResponse response,
+                                         @PathVariable(value = "namespace") String namespace
+    ) throws Exception {
+
+        List<Services> list = new ArrayList<Services>();
+        Iterable<Services> it = servicesService.getServicesByNamespace(namespace);
+        for (Services item : it) {
+            list.add(item);
+        }
+
+        return list;
+    }
+    
+    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<Services> getServicesByNamespaceName(HttpServletRequest request,
+                                         HttpServletResponse response,
+                                         @PathVariable(value = "namespace") String namespace,
+                                         @PathVariable(value = "name") String name
+    ) throws Exception {
+
+        List<Services> list = new ArrayList<Services>();
+        Iterable<Services> it = servicesService.getServicesByNamespaceAndName(namespace, name);
+        for (Services item : it) {
+            list.add(item);
+        }
+
+        return list;
     }
 
 }

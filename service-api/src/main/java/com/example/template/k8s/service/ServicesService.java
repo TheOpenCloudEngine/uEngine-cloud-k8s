@@ -11,6 +11,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
+import com.example.template.k8s.deployment.Deployment;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +23,7 @@ public class ServicesService {
     private static final Logger LOG = LoggerFactory.getLogger(ServicesService.class);
 
     @Autowired
-    ServicesRepository deploymentRepository;
+    ServicesRepository servicesRepository;
 
     @Value("${topic.orderTopic}")
     private String orderTopic;
@@ -30,29 +32,39 @@ public class ServicesService {
     KafkaTemplate kafkaTemplate;
 
 
-    @Cacheable(value="deployment" ,key="#deployment.id")
+    @Cacheable(value="service" ,key="#deployment.id")
     public Services checkInstance(Services svs){
-        return deploymentRepository.findById(svs.getId()).orElse(new Services());
+        return servicesRepository.findById(svs.getId()).orElse(new Services());
     }
 
-    @Cacheable(value="deployment")
-    public Iterable<Services> getAllInstance(){
-        return deploymentRepository.findAll();
+    @Cacheable(value="service")
+    public Iterable<Services> getAllServices(){
+        return servicesRepository.findAll();
     }
 
-    @Cacheable(value="deployment", key="#provider")
-    public Iterable<Services> getAllInstanceByProvider(String provider){
-        return deploymentRepository.findByProvider(provider);
+    @Cacheable(value="service", key="#provider")
+    public Iterable<Services> getServicesByProvider(String provider){
+        return servicesRepository.findByProvider(provider);
     }
 
-    @Cacheable(value="deployment", key="#provider+#name")
-    public Iterable<Services> getInstanceByProviderAndName(String provider, String name){
-        return deploymentRepository.findByProviderAndName(provider,name);
+    @Cacheable(value="service", key="#provider+#name")
+    public Iterable<Services> getServicesByProviderAndName(String provider, String name){
+        return servicesRepository.findByProviderAndName(provider,name);
+    }
+    
+    @Cacheable(value="service", key="#namespace")
+    public Iterable<Services> getServicesByNamespace(String namespace){
+        return servicesRepository.findByNamespace(namespace);
+    }
+    
+    @Cacheable(value="service", key="#namespace+#name")
+    public Iterable<Services> getServicesByNamespaceAndName(String namespace, String name){
+        return servicesRepository.findByNamespaceAndName(namespace, name);
     }
 
 
     public String update(Services svs) {
-    	deploymentRepository.save(svs);
+    	servicesRepository.save(svs);
         return "";
     }
 
