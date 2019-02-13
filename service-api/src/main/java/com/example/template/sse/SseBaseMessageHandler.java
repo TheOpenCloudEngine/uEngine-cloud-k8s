@@ -11,22 +11,18 @@ import org.springframework.stereotype.Component;
 public class SseBaseMessageHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(SseBaseMessageHandler.class);
 
-    @Autowired
-    private SseRestController sseController;
     private ApplicationEventPublisher eventPublisher;
     public SseBaseMessageHandler(ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
 
     @Async
-    public void publish(String name, String provider, String jsonData) {
+    public void publish(String instanceType, String jsonData) {
         try {
 
             SseBaseMessage message = new SseBaseMessage();
-            message.setName(provider);
-            message.setName(name);
+            message.setInstanceType(instanceType);
             message.setMessage(jsonData);
-            LOGGER.error("Published");
             this.eventPublisher.publishEvent(message);
         } catch (Exception ex) {
             LOGGER.error("Publish Error");

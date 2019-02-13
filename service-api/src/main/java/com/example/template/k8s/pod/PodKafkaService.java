@@ -44,6 +44,9 @@ public class PodKafkaService {
         Gson gson = new Gson();
         Pod pod = gson.fromJson(message, Pod.class);
         podService.update(pod);
+        
+        messageHandler.publish("pod", message);
+        
 //        instanceService.deleteCacheList(im);
 //        messageHandler.publish(im.getName(), im.getProvider(), message);
     }

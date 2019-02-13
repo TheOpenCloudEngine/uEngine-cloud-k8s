@@ -41,7 +41,7 @@ public class DeploymentKafkaService {
     	Gson gson = new Gson();
     	Deployment dpl = gson.fromJson(message, Deployment.class);
     	deploymentService.update(dpl);
-//    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
+        messageHandler.publish("deployment", message);
         System.out.println(message);
     	
     	

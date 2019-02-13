@@ -7,30 +7,24 @@ import lombok.Data;
 
 @Data
 public class SseBaseMessage {
-    String provider;
-    String name;
-    String message;
     
+	private String instanceType;
+	private String message;
     
-	public String getProvider() {
-		return provider;
-	}
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
 	public String getMessage() {
 		return message;
 	}
 	public void setMessage(String message) {
 		this.message = message;
 	}
-    
+	
+	public String getInstanceType() {
+		return instanceType;
+	}
+	public void setInstanceType(String instanceType) {
+		this.instanceType = instanceType;
+	}
+	
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
