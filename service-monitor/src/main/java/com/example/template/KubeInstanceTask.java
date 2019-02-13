@@ -78,6 +78,8 @@ public class KubeInstanceTask implements InitializingBean {
     	try {
             for (Watch.Response<V1Service> item : watch) {
             	
+            	kafkaTemplate.send(new ProducerRecord<String, Watch.Response<V1Service>>(instanceTopic, item.object.getMetadata().getNamespace() , item));
+            	
             	Services svs = new Services();
             	
             	svs.setProvider("K8S");

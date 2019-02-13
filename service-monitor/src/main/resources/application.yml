@@ -2,7 +2,7 @@ server:
   port: 8080
 
 topic:
-  instanceTopic : delpoyMsgTopic
+  instanceTopic : serviceMsgTopic
 
 kube:
   host: https://api.k8s.bzdvops.com

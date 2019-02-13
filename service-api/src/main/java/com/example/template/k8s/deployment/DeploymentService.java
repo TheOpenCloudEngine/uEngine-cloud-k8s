@@ -35,18 +35,28 @@ public class DeploymentService {
     }
 
     @Cacheable(value="deployment")
-    public Iterable<Deployment> getAllInstance(){
+    public Iterable<Deployment> getAllDeployment(){
         return deploymentRepository.findAll();
     }
 
     @Cacheable(value="deployment", key="#provider")
-    public Iterable<Deployment> getAllInstanceByProvider(String provider){
+    public Iterable<Deployment> getAllDeploymentByProvider(String provider){
         return deploymentRepository.findByProvider(provider);
     }
 
     @Cacheable(value="deployment", key="#provider+#name")
-    public Iterable<Deployment> getInstanceByProviderAndName(String provider, String name){
+    public Iterable<Deployment> getDeploymentByProviderAndName(String provider, String name){
         return deploymentRepository.findByProviderAndName(provider,name);
+    }
+    
+    @Cacheable(value="deployment", key="#namespace")
+    public Iterable<Deployment> getDeploymentByNamespace(String namespace){
+        return deploymentRepository.findByNamespace(namespace);
+    }
+    
+    @Cacheable(value="deployment", key="#namespace+#name")
+    public Iterable<Deployment> getDeploymentByNamespaceAndName(String namespace, String name){
+        return deploymentRepository.findByNamespaceAndName(namespace, name);
     }
 
 

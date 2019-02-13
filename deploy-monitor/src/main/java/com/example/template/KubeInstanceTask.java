@@ -6,8 +6,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.joda.time.DateTime;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 
 import io.kubernetes.client.ApiClient;
@@ -69,6 +68,7 @@ public class KubeInstanceTask implements InitializingBean {
 
     @Scheduled(fixedRate = 10000)
     public void watchPod() throws IOException, ApiException{
+    	ObjectMapper objectMapper = new ObjectMapper();
     	
     	AppsV1Api av1api = new AppsV1Api();
     	
@@ -79,6 +79,8 @@ public class KubeInstanceTask implements InitializingBean {
     	
     	try {
             for (Watch.Response<V1Deployment> item : watch) {
+            	
+//            	kafkaTemplate.send(new ProducerRecord<String, V1Deployment>(instanceTopic, item.object.getMetadata().getUid() , item.object));
             	
             	Deployment dpl = new Deployment();
             	
