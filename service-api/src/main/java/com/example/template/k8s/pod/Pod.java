@@ -68,6 +68,9 @@ public class Pod implements Serializable {
 	@Column(name="updateTime")
 	private Timestamp updateTime;
 	
+	@Column(name="sourceData")
+	private String sourceData;
+	
 	public String getId() {
 		return id;
 	}
@@ -202,6 +205,14 @@ public class Pod implements Serializable {
 
 	public void setUpdateTime(Timestamp updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public String getSourceData() {
+		return sourceData;
+	}
+
+	public void setSourceData(String sourceData) {
+		this.sourceData = sourceData;
 	}
 
 	@Override

@@ -28,8 +28,8 @@ public class Deployment implements Serializable {
 	private Integer statusAvailableReplicas;
 	private Integer statusReadyReplicas;
 	private Integer statusUpdateReplicas;
+	private String sourceData;
 	
-
 	
 	public String getProvider() {
 		return provider;
@@ -159,11 +159,18 @@ public class Deployment implements Serializable {
 		this.statusUpdateReplicas = statusUpdateReplicas;
 	}
 
+	public String getSourceData() {
+		return sourceData;
+	}
+
+	public void setSourceData(String sourceData) {
+		this.sourceData = sourceData;
+	}
 
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
 	}
-
+	
 }
 

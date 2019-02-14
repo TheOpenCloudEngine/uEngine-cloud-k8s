@@ -29,6 +29,7 @@ public class Pod implements Serializable {
     
     private String status;
     private String properties;
+    private String sourceData;
 
 	public String getProvider() {
 		return provider;
@@ -156,6 +157,14 @@ public class Pod implements Serializable {
 
 	public void setProperties(String properties) {
 		this.properties = properties;
+	}
+
+	public String getSourceData() {
+		return sourceData;
+	}
+
+	public void setSourceData(String sourceData) {
+		this.sourceData = sourceData;
 	}
 
 	@Override

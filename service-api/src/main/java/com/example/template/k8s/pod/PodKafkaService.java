@@ -1,5 +1,9 @@
 package com.example.template.k8s.pod;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +47,18 @@ public class PodKafkaService {
         System.out.println(message);
         Gson gson = new Gson();
         Pod pod = gson.fromJson(message, Pod.class);
+        
+        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+    	Calendar cal = Calendar.getInstance();
+    	String today = null;
+    	today = formatter.format(cal.getTime());
+    	Timestamp ts = Timestamp.valueOf(today);
+    	pod.setCreateTime(ts);
+        
         podService.update(pod);
         
         messageHandler.publish("pod", message);
         
-//        instanceService.deleteCacheList(im);
-//        messageHandler.publish(im.getName(), im.getProvider(), message);
     }
 
 }

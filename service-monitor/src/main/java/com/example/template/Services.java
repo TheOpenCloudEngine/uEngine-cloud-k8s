@@ -29,6 +29,7 @@ public class Services implements Serializable {
 	private String specType;
 	private String hostname;
 	private String ingressIp;
+	private String sourceData;
 
 	public String getProvider() {
 		return provider;
@@ -164,6 +165,14 @@ public class Services implements Serializable {
 
 	public void setIngressIp(String ingressIp) {
 		this.ingressIp = ingressIp;
+	}
+
+	public String getSourceData() {
+		return sourceData;
+	}
+
+	public void setSourceData(String sourceData) {
+		this.sourceData = sourceData;
 	}
 
 	@Override

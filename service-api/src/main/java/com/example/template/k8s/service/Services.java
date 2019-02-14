@@ -76,6 +76,9 @@ public class Services implements Serializable {
 	
 	@Column(name="updateTime")
 	private Timestamp updateTime;
+	
+	@Column(name="sourceData")
+	private String sourceData;
 
 	public String getProvider() {
 		return provider;
@@ -227,6 +230,14 @@ public class Services implements Serializable {
 
 	public void setUpdateTime(Timestamp updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public String getSourceData() {
+		return sourceData;
+	}
+
+	public void setSourceData(String sourceData) {
+		this.sourceData = sourceData;
 	}
 
 	@Override

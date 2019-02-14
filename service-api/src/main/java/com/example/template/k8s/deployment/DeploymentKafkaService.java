@@ -1,14 +1,9 @@
 package com.example.template.k8s.deployment;
 
-import com.example.template.sse.SseBaseMessageHandler;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import io.kubernetes.client.models.V1Deployment;
-import io.kubernetes.client.util.Yaml;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+
+import com.example.template.sse.SseBaseMessageHandler;
+import com.google.gson.Gson;
 
 
 
@@ -36,20 +34,31 @@ public class DeploymentKafkaService {
 
     	Gson gson = new Gson();
     	Deployment dpl = gson.fromJson(message, Deployment.class);
+    	
+    	
+    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+    	Calendar cal = Calendar.getInstance();
+    	String today = null;
+    	today = formatter.format(cal.getTime());
+    	Timestamp ts = Timestamp.valueOf(today);
+    	dpl.setCreateTime(ts);
+    	
     	deploymentService.update(dpl);
 //    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
         System.out.println(message);
+        messageHandler.publish("deployment", message);
+        
 //        String bodyData = message.replaceAll("\\\\", "");
 //        System.out.println(bodyData);
 
-        JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(message);
-        String bodyData = json.get("object").toString();
-        bodyData = bodyData.replace("\\\"", "'");
-        bodyData = bodyData.replaceAll("\\\\", "");
-        Yaml yaml = new Yaml();
-        V1Deployment body = yaml.loadAs(bodyData, V1Deployment.class);
-        System.out.println(body);
+//        JSONParser parser = new JSONParser();
+//        JSONObject json = (JSONObject) parser.parse(message);
+//        String bodyData = json.get("object").toString();
+//        bodyData = bodyData.replace("\\\"", "'");
+//        bodyData = bodyData.replaceAll("\\\\", "");
+//        Yaml yaml = new Yaml();
+//        V1Deployment body = yaml.loadAs(bodyData, V1Deployment.class);
+//        System.out.println(body);
 
 //        Gson gson = new Gson();
 //        V1Deployment dpl = gson.fromJson(message, V1Deployment.class);

@@ -1,6 +1,7 @@
 package com.example.template;
 
 import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
@@ -122,7 +123,17 @@ public class KubeInstanceTask implements InitializingBean {
                 	}
                 }
                 
-                pod.setStatus(item.object.getStatus().getPhase());
+                {
+            		// CreationTimestamp, Conditions 을 제거해줘야 문제가 발생하지 않는다.
+					item.object.getMetadata().setCreationTimestamp(null);
+//					item.object.getStatus().setConditions(null);
+					
+					pod.setStatus(item.object.getStatus().getPhase());
+					item.object.setStatus(null);
+					
+					pod.setSourceData(new Gson().toJson(item.object));
+            	}
+                
                 
 
 //                JSONObject properties = new JSONObject();

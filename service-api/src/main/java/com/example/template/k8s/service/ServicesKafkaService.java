@@ -1,5 +1,9 @@
 package com.example.template.k8s.service;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +34,18 @@ public class ServicesKafkaService {
 
     	Gson gson = new Gson();
     	Services svs = gson.fromJson(message, Services.class);
+    	
+    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+    	Calendar cal = Calendar.getInstance();
+    	String today = null;
+    	today = formatter.format(cal.getTime());
+    	Timestamp ts = Timestamp.valueOf(today);
+    	svs.setCreateTime(ts);
+    	
     	servicesService.update(svs);
     	messageHandler.publish("service", message);
         System.out.println(message);
     }
+    
 
 }
