@@ -23,6 +23,7 @@ public class Deployment implements Serializable {
 	private String uid;
 	private Integer specReplicas;
 	private String strategyType;
+	private String Status;
 	private Integer statusReplicas;
 	private Integer statusAvailableReplicas;
 	private Integer statusReadyReplicas;
@@ -112,6 +113,14 @@ public class Deployment implements Serializable {
 
 	public String getStrategyType() {
 		return strategyType;
+	}
+
+	public String getStatus() {
+		return Status;
+	}
+
+	public void setStatus(String status) {
+		Status = status;
 	}
 
 	public void setStrategyType(String strategyType) {

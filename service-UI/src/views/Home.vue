@@ -1,16 +1,12 @@
 <template>
     <div class="home">
-        <el-button @click="user=null">Master</el-button>
-        <el-button @click="user=[{provider: 'EC2' , name: 'nodes.jjy.k8s.local'}]">User 1</el-button>
-        <el-button @click="user=[{provider: 'K8S' , name: 'default'}]">User 2</el-button>
-        <el-button @click="user=[{provider: 'K8S' , name: 'default'}, {provider: 'EC2' , name: 'nodes.jjy.k8s.local'}]">User 3</el-button>
-        <DashBoard :user="user"/>
+        Welcome
     </div>
 </template>
 
 <script>
     // @ is an alias to /src
-    import DashBoard from '@/components/DashBoard.vue'
+    // import DashBoard from '@/components/dashboard_back.vue'
 
     export default {
         name: 'home',
@@ -20,7 +16,7 @@
             }
         },
         components: {
-            DashBoard
+
         }
     }
 </script>

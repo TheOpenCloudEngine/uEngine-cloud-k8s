@@ -14,6 +14,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
+import com.example.template.k8s.deployment.Deployment;
+import com.example.template.k8s.service.Services;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,41 +34,51 @@ public class PodService {
 
 
     @Autowired
-    PodRepository instanceModelRepository;
+    PodRepository podRepository;
 
-    @Cacheable(value="instance" ,key="#instance.id")
-    public Pod checkInstance(Pod instance){
-        return instanceModelRepository.findById(instance.getId()).orElse(new Pod());
+    @Cacheable(value="pod" ,key="#pod.id")
+    public Pod checkInstance(Pod pod){
+        return podRepository.findById(pod.getId()).orElse(new Pod());
     }
 
-    @Cacheable(value="instance")
-    public Iterable<Pod> getAllInstance(){
-        LOG.info("use getAllInstance database");
-        return instanceModelRepository.findAll();
+    @Cacheable(value="pods")
+    public Iterable<Pod> getAllPods(){
+        return podRepository.findAll();
     }
 
-    @Cacheable(value="instance", key="#provider")
-    public Iterable<Pod> getAllInstanceByProvider(String provider){
-        LOG.info("use getAllInstanceByProvider database");
-        return instanceModelRepository.findByProvider(provider);
+    @Cacheable(value="pods", key="#provider")
+    public Iterable<Pod> getAllPodsByProvider(String provider){
+        return podRepository.findByProvider(provider);
     }
 
-    @Cacheable(value="instance", key="#provider+#name")
+    @Cacheable(value="pods", key="#provider+#name")
     public Iterable<Pod> getInstanceByProviderAndName(String provider, String name){
-        LOG.info("use getAllInstanceByProvider database");
-        return instanceModelRepository.findByProviderAndName(provider,name);
+        return podRepository.findByProviderAndName(provider,name);
+    }
+    
+    @Cacheable(value="service", key="#namespace")
+    public Iterable<Pod> getPodsByNamespace(String namespace){
+        return podRepository.findByNamespace(namespace);
+    }
+    
+    @Cacheable(value="service", key="#namespace+#name")
+    public Iterable<Pod> getPodsByNamespaceAndName(String namespace, String name){
+        return podRepository.findByNamespaceAndName(namespace, name);
     }
 
 
     /**
      * 단건을 업데이트 한다
      */
-    @Caching(put = {
-            @CachePut(value = "instance", key="#instance.id")
-    })
-    public String update(Pod instance) {
-//        LOG.info("cache update .. {}", instance.toString());
-        return "";
+//    @Caching(put = {
+//            @CachePut(value = "instance", key="#instance.id")
+//    })
+//    public String update(Pod instance) {
+//        return "";
+//    }
+    
+    public void update(Pod pod) {
+    	podRepository.save(pod);
     }
 
     /**

@@ -2,7 +2,7 @@ server:
   port: 8080
 
 topic:
-  instanceTopic : instanceTopic
+  instanceTopic : podeMsgTopic
 
 kube:
   host: https://api.k8s.bzdvops.com

@@ -34,13 +34,10 @@ public class DeploymentKafkaService {
     @KafkaListener(topics = "${topic.delpoyMsgTopic}")
     public void listenByDeployment(@Payload String message) throws ParseException {
 
-//    	Gson gson = new Gson();
-//    	Deployment dpl = gson.fromJson(message, Deployment.class);
-//    	deploymentService.update(dpl);
+    	Gson gson = new Gson();
+    	Deployment dpl = gson.fromJson(message, Deployment.class);
+    	deploymentService.update(dpl);
 //    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
-
-//        String bodyData = message.replace("\\n", "");
-//        System.out.println(bodyData);
         System.out.println(message);
 //        String bodyData = message.replaceAll("\\\\", "");
 //        System.out.println(bodyData);

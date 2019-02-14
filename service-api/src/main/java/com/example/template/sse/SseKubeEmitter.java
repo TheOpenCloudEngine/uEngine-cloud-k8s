@@ -4,28 +4,28 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public class SseKubeEmitter extends SseEmitter {
 
-    private String name;
-    private String provider;
+//    private String name;
+//    private String provider;
+    private String instanceType;
 
-    public SseKubeEmitter(String name, String provider) {
+//    public SseKubeEmitter(String name, String provider) {
+//        super();
+//        this.name = name;
+//        this.provider = provider;
+//    }
+    
+    public SseKubeEmitter(String instanceType) {
         super();
-        this.name = name;
-        this.provider = provider;
+        this.instanceType = instanceType;
     }
 
-    public String getName() {
-        return name;
-    }
+	public String getInstanceType() {
+		return instanceType;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setInstanceType(String instanceType) {
+		this.instanceType = instanceType;
+	}
 
-    public String getProvider() {
-        return provider;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
+    
 }

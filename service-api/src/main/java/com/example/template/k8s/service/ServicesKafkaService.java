@@ -31,9 +31,7 @@ public class ServicesKafkaService {
     	Gson gson = new Gson();
     	Services svs = gson.fromJson(message, Services.class);
     	servicesService.update(svs);
-    	
-//    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
-    	
+    	messageHandler.publish("service", message);
         System.out.println(message);
     }
 

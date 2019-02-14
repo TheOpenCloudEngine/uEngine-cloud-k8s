@@ -78,7 +78,7 @@ public class KubeInstanceTask implements InitializingBean {
     	try {
             for (Watch.Response<V1Service> item : watch) {
             	
-            	kafkaTemplate.send(new ProducerRecord<String, Watch.Response<V1Service>>(instanceTopic, item.object.getMetadata().getNamespace() , item));
+//            	kafkaTemplate.send(new ProducerRecord<String, Watch.Response<V1Service>>(instanceTopic, item.object.getMetadata().getNamespace() , item));
             	
             	Services svs = new Services();
             	
@@ -109,7 +109,7 @@ public class KubeInstanceTask implements InitializingBean {
             		for(V1ServicePort vsport : item.object.getSpec().getPorts()) {
             			svs.setSpecPort(vsport.getPort());
             			svs.setSpecProtocol(vsport.getProtocol());
-            			svs.setSpecTargetPort(vsport.getTargetPort().getIntValue());
+//            			svs.setSpecTargetPort(vsport.getTargetPort().getStrValue());
             		}
             		
             		svs.setSpecType(item.object.getSpec().getType());
@@ -118,9 +118,11 @@ public class KubeInstanceTask implements InitializingBean {
             	
             	// service의 status 정보
             	{
-            		for(V1LoadBalancerIngress v1Ingress : item.object.getStatus().getLoadBalancer().getIngress()) {
-            			svs.setHostname(v1Ingress.getHostname());
-            			svs.setIngressIp(v1Ingress.getIp());
+            		if(item.object.getStatus().getLoadBalancer() != null && item.object.getStatus().getLoadBalancer().getIngress() != null) {
+            			for(V1LoadBalancerIngress v1Ingress : item.object.getStatus().getLoadBalancer().getIngress()) {
+            				svs.setHostname(v1Ingress.getHostname());
+            				svs.setIngressIp(v1Ingress.getIp());
+            			}
             		}
             	}
             	

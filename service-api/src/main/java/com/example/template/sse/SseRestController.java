@@ -21,19 +21,19 @@ public class SseRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SseRestController.class);
 
-    private final CopyOnWriteArrayList<SseKubeEmitter> userBaseEmitters = new CopyOnWriteArrayList<>();
+    private static final CopyOnWriteArrayList<SseKubeEmitter> userBaseEmitters = new CopyOnWriteArrayList<>();
+
     public String nameSpace = null;
 
     @CrossOrigin(origins = "*")
     @GetMapping("/")
     public SseEmitter getNewKube(HttpServletRequest request,
                                  HttpServletResponse response,
-                                 @RequestParam(value = "provider", required = false) String provider,
-                                 @RequestParam(value = "name", required = false) String name
+                                 @RequestParam(value = "instanceType", required = false) String instanceType
     ) {
-        SseKubeEmitter emitter = new SseKubeEmitter(name, provider);
+//        SseKubeEmitter emitter = new SseKubeEmitter(name, provider);
+    	SseKubeEmitter emitter = new SseKubeEmitter(instanceType);
         userBaseEmitters.add(emitter);
-        System.out.println("before: " + this.userBaseEmitters.size());
 //        this.nameSpace = nameSpace;
 
         emitter.onCompletion(() -> this.userBaseEmitters.remove(emitter));
@@ -55,11 +55,11 @@ public class SseRestController {
                     todo : nameSpace 조건 부분
                  */
                 LOGGER.info("appEntityBaseMessage");
-                if(emitter.getName() == null) {
-                    emitter.send(appEntityBaseMessage);
-                } else if(appEntityBaseMessage.getName().equals(emitter.getName()) && appEntityBaseMessage.getProvider().equals(emitter.getProvider())) {
+                if(appEntityBaseMessage.getInstanceType().equals(emitter.getInstanceType())) {
                     emitter.send(appEntityBaseMessage);
                 }
+//
+//                emitter.send(appEntityBaseMessage);
             } catch (Exception e) {
                 e.printStackTrace();
                 LOGGER.info("dead");

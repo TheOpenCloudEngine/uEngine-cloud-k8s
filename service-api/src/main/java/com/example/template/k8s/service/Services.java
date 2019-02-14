@@ -1,6 +1,7 @@
 package com.example.template.k8s.service;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +15,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "DEPLOYMENT")
+@Table(name = "SERVICES")
 public class Services implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -55,8 +56,8 @@ public class Services implements Serializable {
 	@Column(name="specProtocol")
 	private String specProtocol;
 	
-	@Column(name="specTargetPort")
-	private Integer specTargetPort;
+//	@Column(name="specTargetPort")
+//	private String specTargetPort;
 	
 	@Column(name="specSessionAffinity")
 	private String specSessionAffinity;
@@ -69,6 +70,12 @@ public class Services implements Serializable {
 	
 	@Column(name="ingressIp")
 	private String ingressIp;
+	
+	@Column(name="createTime")
+	private Timestamp createTime;
+	
+	@Column(name="updateTime")
+	private Timestamp updateTime;
 
 	public String getProvider() {
 		return provider;
@@ -166,13 +173,13 @@ public class Services implements Serializable {
 		this.specProtocol = specProtocol;
 	}
 
-	public Integer getSpecTargetPort() {
-		return specTargetPort;
-	}
-
-	public void setSpecTargetPort(Integer specTargetPort) {
-		this.specTargetPort = specTargetPort;
-	}
+//	public String getSpecTargetPort() {
+//		return specTargetPort;
+//	}
+//
+//	public void setSpecTargetPort(String specTargetPort) {
+//		this.specTargetPort = specTargetPort;
+//	}
 
 	public String getSpecSessionAffinity() {
 		return specSessionAffinity;
@@ -204,6 +211,22 @@ public class Services implements Serializable {
 
 	public void setIngressIp(String ingressIp) {
 		this.ingressIp = ingressIp;
+	}
+	
+	public Timestamp getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Timestamp createTime) {
+		this.createTime = createTime;
+	}
+
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
 	}
 
 	@Override

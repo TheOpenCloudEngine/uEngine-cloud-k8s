@@ -1,300 +1,412 @@
 <template>
-    <div class="DashBoard" style="text-align:center; margin: 10px">
-        <!--<h1> List </h1>-->
-        <div>
-            <!--<dropdown :options="nameSpaceList"-->
-            <!--:selected="selectedNamespace"-->
-            <!--v-on:updateOption="methodToRunOnSelect"-->
-            <!--:placeholder="'Select an Namespace'"-->
-            <!--&gt;-->
-            <!--</dropdown>-->
-        </div>
-        <div class="table">
-            <h2>Response</h2>
+    <div>
+        <!-- Title -->
+        <el-header>{{ types }}
+            <el-button @click="dialogVisible = true">
+                ADD
+            </el-button>
+        </el-header>
 
-            <el-table
-                    ref="filterTable"
-                    :data="list"
-                    style="width: 100%">
-                <el-table-column
-                        fixed
-                        sortable
-                        prop="provider"
-                        label="Provider"
-                        width="120"
-                        :filters="[{text: 'EC2', value: 'EC2'}, {text: 'K8S', value: 'K8S'}]"
-                        :filter-method="filterHandler"
-                >
-                    <template slot-scope="scope">
-                        <el-tag
-                                :type="scope.row.provider === 'K8S' ? 'primary' : 'warning'"
-                                disable-transitions>{{scope.row.provider}}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        fixed
-                        sortable
-                        prop="name"
-                        label="Name"
-                >
-                </el-table-column>
-                <el-table-column
-                        fixed
-                        prop="id"
-                        label="ID"
-                >
-                </el-table-column>
-                <el-table-column
-                        prop="type"
-                        label="Type"
-                        width="100">
-                </el-table-column>
-                <el-table-column
-                        prop="status"
-                        label="Status"
-                        width="100"
-                >
-                </el-table-column>
-                <el-table-column
-                        prop="instanceState"
-                        label="Instance State"
-                        width="120"
-                >
-                </el-table-column>
-                <el-table-column
-                        prop="createDate"
-                        label="Create Date"
-                        column-key="date"
-                        width="100"
-                />
-                <el-table-column
-                        prop="regDate"
-                        label="Reg Date"
-                        column-key="date"
-                        width="100"
-                />
-                <el-table-column
-                        prop="properties"
-                        label="Properties"
-                >
-                </el-table-column>
-
-            </el-table>
-            <!--<vuetable ref="pods"-->
-            <!--:fields="['kubePodId.namespace', 'kubePodId.name', 'statusType', 'phase', 'startTime', 'updateTime', 'endTime']"-->
-            <!--:data="list"-->
-            <!--&gt;-->
-            <!--</vuetable>-->
-        </div>
-        <!--<div class="table">-->
-        <!--<h2>Services</h2>-->
-        <!--<vuetable ref="services"-->
-        <!--:fields="['nameSpace', 'service', 'pod', 'deployment', 'replicaSet']"-->
-        <!--:data="list"-->
-        <!--&gt;-->
-        <!--</vuetable>-->
-        <!--</div>-->
-        <!--
-        <div class="table">
-            <h2>Jobs</h2>
-            <vuetable ref="jobs"
-                      :fields="['kubePodId.namespace', 'kubePodId.name', 'statusType', 'phase', 'startTime', 'updateTime', 'endTime']"
-                      :data="list2"
+        <!-- Pods Table Start -->
+        <el-table
+                v-if="types=='pod'"
+                :data="list"
+                style="width: 100%"
+                height="250"
+                :default-sort="{prop: 'namespace', order: 'ascending'}"
+        >
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <p>Name: {{ props.row.name }}</p>
+                    <p>NameSpace: {{ props.row.namespace }}</p>
+                    <p>Type: {{ props.row.type }}</p>
+                    <p>CreateTime: {{ props.row.createTimeStamp }}</p>
+                    <p>Image: {{ props.row.image }}</p>
+                    <p>Node Name: {{ props.row.nodeName }}</p>
+                    <p>host Ip: {{ props.row.hostIp }}</p>
+                    <p>Pod Ip: {{ props.row.podIp }}</p>
+                    <p>Status: {{ props.row.status }}</p>
+                    <p>UID: {{ props.row.uid }}</p>
+                    <p>provider: {{ props.row.provider }}</p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Provider"
+                    prop="provider"
+                    width="80">
+                <template slot-scope="scope">
+                    <div slot="reference" class="name-wrapper">
+                        <el-tag size="medium">{{ scope.row.provider }}</el-tag>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Name"
+                    prop="name">
+            </el-table-column>
+            <el-table-column
+                    label="NameSpace"
+                    prop="namespace"
+                    sortable
+                    width="140"
             >
-            </vuetable>
-        </div>
-        -->
+            </el-table-column>
+            <el-table-column
+                    label="Status"
+                    prop="status"
+                    width="80">
+            </el-table-column>
+            <el-table-column
+                    label="Type"
+                    prop="type"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    label="CreateTime"
+                    prop="createTimeStamp"
+                    width="150">
+            </el-table-column>
+            <el-table-column
+                    label="Image"
+                    prop="image">
+            </el-table-column>
+        </el-table>
+        <!-- Pods Table End -->
+
+        <!-- Service Table Start -->
+        <el-table
+                v-else-if="types=='service'"
+                :data="list"
+                style="width: 100%"
+                height="250"
+                :default-sort="{prop: 'namespace', order: 'ascending'}"
+        >
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <p>Name: {{ props.row.name }}</p>
+                    <p>NameSpace: {{ props.row.namespace }}</p>
+                    <p>Kind: {{ props.row.kind }}</p>
+                    <p>Type: {{ props.row.type }}</p>
+                    <p>apiVersion: {{ props.row.apiVersion }}</p>
+                    <p>CreateTime: {{ props.row.createTimeStamp }}</p>
+                    <p>Spec Cluster Ip: {{ props.row.specClusterIp }}</p>
+                    <p>Spec Protocol: {{ props.row.specProtocol }}</p>
+                    <p>Spec Session Affinity: {{ props.row.specSessionAffinity }}</p>
+                    <p>Spec Type: {{ props.row.specType }}</p>
+                    <p>HostName: {{ props.row.hostname }}</p>
+                    <p>Ingress Ip: {{ props.row.ingressIp }}</p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Provider"
+                    prop="provider"
+                    width="80">
+                <template slot-scope="scope">
+                    <div slot="reference" class="name-wrapper">
+                        <el-tag size="medium">{{ scope.row.provider }}</el-tag>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Name"
+                    prop="name">
+            </el-table-column>
+            <el-table-column
+                    label="NameSpace"
+                    prop="namespace"
+                    sortable
+                    width="140"
+            >
+            </el-table-column>
+            <el-table-column
+                    label="Kind"
+                    prop="kind"
+                    width="80">
+            </el-table-column>
+            <el-table-column
+                    label="Type"
+                    prop="type"
+                    width="140">
+            </el-table-column>
+            <el-table-column
+                    label="CreateTime"
+                    prop="createTimeStamp"
+                    width="150">
+            </el-table-column>
+        </el-table>
+        <!-- Service Table End -->
+
+        <!-- Deployment Table Start -->
+        <el-table
+                v-else-if="types=='deployment'"
+                :data="list"
+                style="width: 100%"
+                height="250"
+                :default-sort="{prop: 'namespace', order: 'ascending'}"
+        >
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <p>Name: {{ props.row.name }}</p>
+                    <p>NameSpace: {{ props.row.namespace }}</p>
+                    <p>Kind: {{ props.row.kind }}</p>
+                    <p>Type: {{ props.row.type }}</p>
+                    <p>apiVersion: {{ props.row.apiVersion }}</p>
+                    <p>CreateTime: {{ props.row.createTimeStamp }}</p>
+                    <p>Spec Replicas: {{ props.row.specReplicas }}</p>
+                    <p>Strategy Type: {{ props.row.strategyType }}</p>
+                    <p v-if="props.row.statusReplicas != null">Status Replicas: {{ props.row.statusReplicas }}</p>
+                    <p v-if="props.row.statusAvailableReplicas != null">Status Available Replicas: {{ props.row.statusAvailableReplicas }}</p>
+                    <p v-if="props.row.statusReadyReplicas != null">Status Ready Replicas: {{ props.row.statusReadyReplicas }}</p>
+                    <p v-if="props.row.statusUpdateReplicas != null">Status Update Replicas: {{ props.row.statusUpdateReplicas }}</p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Provider"
+                    prop="provider"
+                    width="80">
+                <template slot-scope="scope">
+                    <div slot="reference" class="name-wrapper">
+                        <el-tag size="medium">{{ scope.row.provider }}</el-tag>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Name"
+                    prop="name">
+            </el-table-column>
+            <el-table-column
+                    label="NameSpace"
+                    prop="namespace"
+                    sortable
+                    width="140"
+            >
+            </el-table-column>
+            <el-table-column
+                    label="Kind"
+                    prop="kind"
+                    width="140">
+            </el-table-column>
+            <el-table-column
+                    label="Type"
+                    prop="type"
+                    width="140">
+            </el-table-column>
+            <el-table-column
+                    label="CreateTime"
+                    prop="createTimeStamp"
+                    width="150">
+            </el-table-column>
+        </el-table>
+        <!-- Deployment Table End -->
+
+        <!-- Dial Button -->
+        <el-dialog
+                :title="'YAML Editor'"
+                :visible.sync="dialogVisible"
+                width="50%"
+                :before-close="handleClose">
+            <span>Edit Scope : {{types}}</span>
+            <codemirror
+                    :options="{
+                theme: 'darcula',
+                mode: 'yaml',
+                lineNumbers: true,
+                lineWrapping: true,
+                }"
+                    :value="plainText"
+                    v-model="plainText"
+            >
+            </codemirror>
+
+            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="demo-ruleForm"
+                     style="margin-top: 10px;">
+                <el-form-item label="NameSpace" prop="nameSpace">
+                    <el-input v-model="ruleForm.nameSpace"></el-input>
+                </el-form-item>
+                <el-form-item label="Name" prop="name">
+                    <el-input v-model="ruleForm.name"></el-input>
+                </el-form-item>
+            </el-form>
+
+            <text-reader @load="plainText = $event"></text-reader>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="postYAML">Confirm</el-button>
+            </span>
+        </el-dialog>
+
     </div>
 </template>
 
 <script>
     import VueTable from 'vuetable-2'
     import dropdown from 'vue-dropdowns';
+    import TextReader from "@/components/yaml.vue";
+    import yaml from 'js-yaml'
+    import json2yaml from 'json2yaml'
+    import 'vue-codemirror'
+    import 'codemirror/mode/yaml/yaml.js'
 
     export default {
 
         name: 'DashBoard',
         props: {
             user: Array,
+            types: String
         },
         components: {
             'vuetable': VueTable,
             'dropdown': dropdown,
+            TextReader,
+            yaml,
+            json2yaml
         },
         data() {
             return {
                 evtSource: null,
-                // nameSpaceList: [{id: 0, name: 'All'}],
                 selectedNamespace: {},
                 list: [],
-                providerFilters: []
+                providerFilters: [],
+                dialogVisible: false,
+                plainText: "",
+                json_data: {},
+                yamlText: "",
+                ruleForm: {
+                    nameSpace: '',
+                    name: ''
+                },
+                rules: {
+                    nameSpace: [
+                        {required: true, message: 'Please Input NameSpace', trigger: 'blur'},
+                    ],
+                    name: [
+                        {required: true, message: 'Please Input Name', trigger: 'blur'},
+                    ],
+                }
+
+
             }
         },
 
         beforeDestroy: function () {
-            if (this.evtSource) {
-                console.log("closing evtSource beforeDestroy");
-                this.evtSource.close();
-            }
+            var me = this
+            // console.log("closing evtSource beforeDestroy");
+            // me.evtSource.close();
         },
+
         mounted() {
-            var me = this;
-            this.startSSE();
-            this.getNameSpace().then(function (list) {
-                /* Provider별 정렬 */
-                list.sort(function (a, b) {
-                    return a.provider < b.provider ? -1 : a.provider > b.provider ? 1 : 0;
-                });
-                me.list = list
-            });
-        },
+            var me = this
+            var getURLType
+            if (me.types == 'pod') {
+                getURLType = me.types + 's'
+            } else {
+                getURLType = me.types
+            }
 
+            me.startSSE()
+
+            me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
+                .then((result) => {
+                    console.log(result.data)
+                    me.list = result.data
+                })
+        },
         watch: {
-            user: function (newVal) {
-                var me = this;
-                var resultArray = [];
-                if (newVal == null) {
-                    var provider = 'All'
-                } else {
-                    var name = newVal.name;
-                    var provider = newVal.provider
-                }
-                if (provider == 'All') {
-                    me.$http.get(`${API_HOST}/kube/instance/`)
-                        .then((result) => {
-                            me.list = [];
-                            me.list = result.data;
-                            me.list.sort(function (a, b) {
-                                return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-                            });
-                        });
-                    if (me.evtSource != null) {
-                        me.evtSource.close();
-                        me.startSSE();
-                    }
-                } else {
-                    newVal.forEach(function (newValData) {
-                        return new Promise(function (resolve, reject) {
-                            var responseList = [];
-                            me.$http.get(`${API_HOST}/kube/instance/` + newValData.provider + '/' + newValData.name)
-                                .then((result) => {
-                                    me.list = [];
-                                    if (me.list.length == 0) {
-                                        result.data.forEach(function (data) {
-                                            if (!(newValData.statusType == 'DELETED')) {
-                                                resultArray.push(data)
-                                            }
-                                        })
-                                    }
-                                    resolve(resultArray)
-                                });
-                        }).then(
-                            function (list) {
-                                list.sort(function (a, b) {
-                                    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-                                })
-                                me.list = list
-                            }
-                        );
-                        if (me.evtSource != null) {
-                            me.evtSource.close();
-                            me.startSSE(name);
-                        }
-                    })
-                }
+            plainText: function (newVal) {
+                var me = this
             },
         },
-        methods: {
-            filterHandler(value, row, column) {
-                const property = column['property'];
-                return row[property] === value;
-            },
-            getNameSpace: function (callback) {
-                var me = this;
-                return new Promise(function (resolve, reject) {
-                    var responseList = [];
-                    me.$http.get(`${API_HOST}/kube/instance/`)
-                        .then((result) => {
-                            console.log(result);
-                            if (me.list.length == 0) {
-                                result.data.forEach(function (data) {
-                                    if (!(data.statusType == 'DELETED')) {
-                                        responseList.push(data)
-                                    }
-                                })
-                            }
-                            resolve(responseList);
-                        })
 
-                });
-            },
-            startSSE: function (user) {
+        methods: {
+            startSSE: function () {
                 var me = this;
-                // this.getNameSpace();
-                if (user == null) {
-                    me.evtSource = new EventSource(`${API_HOST}/kubesse/`)
-                } else {
-                    this.evtSource = new EventSource(`${API_HOST}/kubesse/?provider=` + user.provider + '?name=' + user.name)
-                }
-                var tmp = [];
+                // var tmp = [];
+
+                me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
+
                 me.evtSource.onmessage = function (e) {
-                    var parse = JSON.parse(e.data);
-                    var parseMessage = JSON.parse(parse.message);
-                    var listNameListTmp = [];
-                    me.list.forEach(function (name) {
-                        listNameListTmp.push(name.id)
+                    // console.log(e.data)
+                    var parseMessage = JSON.parse(e.data);
+                    var tmpData = JSON.parse(parseMessage.message)
+                    var listUidTmp=[];
+
+                    me.list.forEach(function (listData) {
+                        listUidTmp.push(listData.uid)
                     });
 
                     me.list.some(function (listTmp, index) {
-                        if (listTmp.id == parseMessage.id) {
-                            // console.log(me.list[index] + ':' + parseMessage);
-                            if (parseMessage.statusType == 'DELETED') {
+                        if (listTmp.uid == tmpData.uid) {
+                            if (parseMessage.instanceState == 'DELETED') {
                                 me.list = [
                                     ...me.list.slice(0, index),
                                     ...me.list.slice(index + 1)
                                 ]
+                                return;
                             } else {
                                 me.list = [
                                     ...me.list.slice(0, index),
-                                    parseMessage,
+                                    tmpData,
                                     ...me.list.slice(index + 1)
                                 ]
+                                return;
                             }
-                            me.list.sort(function (a, b) {
-                                return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-                            });
-                        } else if (!listNameListTmp.includes(parseMessage.id)) {
-                            if (!(parseMessage.statusType == 'DELETED')) {
-                                me.list.push(parseMessage)
-                                listNameListTmp.push(parseMessage.id)
 
-                                me.list.sort(function (a, b) {
-                                    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-                                });
-
+                        } else if (!listUidTmp.includes(tmpData.uid)) {
+                            if (!(parseMessage.instanceState == 'DELETED')) {
+                                me.list.push(tmpData)
                                 return;
                             }
                         }
                     })
 
                 }
-
                 me.evtSource.onerror = function (e) {
-                    if (me.evtSource) {
-                        console.log("closing evtSource and reconnect");
-                        me.evtSource.close();
-                        setTimeout(function () {
-                            if (me.user != null) {
-                                me.startSSE(user);
-                            } else {
-                                me.startSSE();
-                            }
-                        }, 3000)
-
-                    }
+                    me.evtSource.close();
+                    me.startSSE();
                 }
             },
+            handleClose(done) {
+                this.$confirm('Are you sure to close this dialog?')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {
+                    });
+            },
+            notiOpen() {
+                this.$notify({
+                    title: 'Info',
+                    message: 'YAML파일 적용 중 입니다.',
+                    type: 'info'
+                });
+            },
+            postYAML() {
+                var me = this
+                if (me.ruleForm.nameSpace == "" || me.ruleForm.podName == "" || me.plainText == "") {
+                    this.$alert('입력값이 부족합니다.', '알림', {
+                        confirmButtonText: 'OK',
+                    })
+                }
+                var me = this;
+                var jsonYaml = yaml.load(me.plainText)
+                var getURLType;
+                if (me.types == 'pod') {
+                    getURLType = me.types + 's'
+                } else {
+                    getURLType = me.types
+                }
+                me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.ruleForm.nameSpace + '/' + me.ruleForm.name, jsonYaml, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                ).then(function () {
+                    me.dialogVisible = false
+                    me.notiOpen()
+                })
+
+            }
         },
     }
 </script>

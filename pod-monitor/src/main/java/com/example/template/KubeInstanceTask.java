@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -81,36 +82,66 @@ public class KubeInstanceTask implements InitializingBean {
 
         try {
             for (Watch.Response<V1Pod> item : watch) {
-                Date createDate =  item.object.getStatus().getStartTime() != null ? item.object.getStatus().getStartTime().toDate() : null;
-                String dateStr = "";
-                if( createDate != null ){
-                    SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    dateStr = transFormat.format(createDate);
+                Pod pod = new Pod();
+                
+                pod.setProvider("K8S");
+                pod.setId(UUID.randomUUID().toString());
+                pod.setType(item.type);
+                
+                {
+    				if (item.object.getMetadata().getCreationTimestamp() != null && item.object.getMetadata().getCreationTimestamp().getMillis() != 0L) {
+    					SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    					pod.setCreateTimeStamp(transFormat.format(item.object.getMetadata().getCreationTimestamp().getMillis()));
+    				}
+    				
+    				pod.setName(item.object.getMetadata().getName());
+    				pod.setNamespace(item.object.getMetadata().getNamespace());
+    				pod.setUid(item.object.getMetadata().getUid());
+            	}
+                
+                {
+                	pod.setNodeName(item.object.getSpec().getNodeName());
+                	pod.setRestartPolicy(item.object.getSpec().getRestartPolicy());
+                	pod.setServiceAccount(item.object.getSpec().getServiceAccount());
+                	if(item.object.getSpec().getContainers() != null) {
+                		for(V1Container coctainer : item.object.getSpec().getContainers()) {
+                			pod.setImage(coctainer.getImage());
+                		}
+                	}
+                		
                 }
-                InstanceModel im = new InstanceModel();
-                im.setId(item.object.getMetadata().getName());
-                im.setProvider("K8S");
-                im.setName(item.object.getMetadata().getNamespace());
-                im.setStatus(item.object.getStatus().getPhase());
-                im.setType(item.object.getKind());
-                im.setCreateDate(dateStr);
-
-                JSONObject properties = new JSONObject();
-                properties.put("apiVersion", item.object.getApiVersion());
-                properties.put("image", item.object.getSpec().getContainers() != null ? item.object.getSpec().getContainers().get(0).getImage() : "");
-                // TODO set all info
-
-                im.setProperties(properties.toJSONString());
-
-                if(item.type.equals("DELETED")){
-                    im.setInstanceState(InstanceState.DELETE);
-                }else if(item.type.equals("MODIFIED")) {
-                    im.setInstanceState(InstanceState.MODIFY);
+                
+                {
+                	pod.setHostIp(item.object.getStatus().getHostIP());
+                	pod.setPodIp(item.object.getStatus().getPodIP());
+                	if(item.object.getStatus().getConditions() != null) {
+                		for(V1PodCondition podcondition : item.object.getStatus().getConditions())
+                		{
+                			
+                		}
+                	}
                 }
+                
+                pod.setStatus(item.object.getStatus().getPhase());
+                
+
+//                JSONObject properties = new JSONObject();
+//                properties.put("apiVersion", item.object.getApiVersion());
+//                properties.put("image", item.object.getSpec().getContainers() != null ? item.object.getSpec().getContainers().get(0).getImage() : "");
+//                // TODO set all info
+//
+//                pod.setProperties(properties.toJSONString());
+//
+//                if(item.type.equals("DELETED")){
+//                    pod.setInstanceState(InstanceState.DELETE);
+//                }else if(item.type.equals("MODIFIED")) {
+//                    pod.setInstanceState(InstanceState.MODIFY);
+//                }
 //                System.out.println("Message: " + item.type + " sent to topic: " + item.object.getMetadata().getName());
-                kafkaTemplate.send(new ProducerRecord<String, InstanceModel>(instanceTopic, item.object.getMetadata().getNamespace() , im));
+                
+                kafkaTemplate.send(new ProducerRecord<String, Pod>(instanceTopic, item.object.getMetadata().getNamespace() , pod));
 
-                System.out.printf("%s : %s %n" , item.type, im.toString() );
+                System.out.printf("%s : %s %n" , item.type, pod.toString() );
             }
         } finally {
             watch.close();
