@@ -78,13 +78,28 @@ public class DeploymentService {
 //        return "";
 //    }
 
-    public void createDeploy(String namespace, String name){
+    public void createDeploy(String namespace, String yamlString){
 
-        // TODO yaml 파일
         Yaml yaml = new Yaml();
-        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("tempDeploy.yaml");
+        Map<String,Object> body = yaml.load(yamlString);
 
-        Map<String,Object> body = yaml.load(inputStream);
+        // TODO
+        Map<String,String> userData =  getUserDetail(null);
+
+        JSONObject data = new JSONObject();
+        data.put("host", userData.get("host"));
+        data.put("token", userData.get("token"));
+        data.put("namespace", namespace);
+//        data.put("name", name);
+        data.put("type", "DEPLOY");
+        data.put("command", "CREATE");
+        data.put("body", body);
+        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+    }
+    public void updateDeploy(String namespace, String name, String yamlString){
+
+        Yaml yaml = new Yaml();
+        Map<String,Object> body = yaml.load(yamlString);
 
         // TODO
         Map<String,String> userData =  getUserDetail(null);
@@ -95,7 +110,7 @@ public class DeploymentService {
         data.put("namespace", namespace);
         data.put("name", name);
         data.put("type", "DEPLOY");
-        data.put("command", "CREATE");
+        data.put("command", "UPDATE");
         data.put("body", body);
         kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
     }
