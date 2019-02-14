@@ -338,28 +338,35 @@
 
             me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
                 .then((result) => {
-
                     var tmpData = _.sortBy(result.data, 'uid')
                     var resultMap = []
                     var usedUid = []
-                    tmpData.forEach(function (sortingData){
-                        if(!(usedUid.includes(sortingData.uid))) {
-                            resultMap.push(sortingData)
-                        } else {
-                            resultMap.forEach(function (resultMapTmp, index) {
-                                if(resultMapTmp.uid.equals(sortingData.uid)) {
-                                    if(resultMapTmp.updateTime < sortingData.updateTime) {
-                                        resultMap = [
-                                            ...resultMap.slice(0, index),
-                                            sortingData.updateTime,
-                                            ...resultMap.slice(index + 1)
-                                        ]
+                    return new Promise ((resolve, reject) => {
+                        tmpData.forEach(function (sortingData){
+                            if(!(usedUid.includes(sortingData.uid))) {
+                                resultMap.push(sortingData)
+                                usedUid.push(sortingData.uid)
+                            } else {
+                                resultMap.forEach(function (resultMapTmp, index) {
+                                    // console.log('check2')
+                                    if(resultMapTmp.uid == sortingData.uid) {
+                                        if(Date.parse(resultMapTmp.createTime) < Date.parse(sortingData.createTime)) {
+                                            // console.log('check3')
+                                            resultMap = [
+                                                ...resultMap.slice(0, index),
+                                                sortingData,
+                                                ...resultMap.slice(index + 1)
+                                            ]
+                                        }
                                     }
-                                }
-                            })
-                        }
+                                })
+                            }
+                        })
+                        resolve(resultMap)
+                    }).then(function (resolveData) {
+                        me.list = resolveData
+                            console.log(resolveData)
                     })
-                console.log(resultMap)
                 })
         },
         watch: {
