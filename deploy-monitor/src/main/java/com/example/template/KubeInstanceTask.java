@@ -1,10 +1,16 @@
 package com.example.template;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import io.kubernetes.client.ApiClient;
+import io.kubernetes.client.ApiException;
+import io.kubernetes.client.Configuration;
+import io.kubernetes.client.apis.AppsV1Api;
+import io.kubernetes.client.models.V1Deployment;
+import io.kubernetes.client.util.Config;
+import io.kubernetes.client.util.Watch;
+import io.kubernetes.client.util.Yaml;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +21,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.reflect.TypeToken;
-
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.Configuration;
-import io.kubernetes.client.apis.AppsV1Api;
-import io.kubernetes.client.models.V1Deployment;
-import io.kubernetes.client.util.Config;
-import io.kubernetes.client.util.Watch;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @EnableScheduling
@@ -79,9 +77,28 @@ public class KubeInstanceTask implements InitializingBean {
     	
     	try {
             for (Watch.Response<V1Deployment> item : watch) {
-            	
-//            	kafkaTemplate.send(new ProducerRecord<String, V1Deployment>(instanceTopic, item.object.getMetadata().getUid() , item.object));
-            	
+
+//                Yaml yaml = new Yaml();
+//                String data = yaml.dump(item.object);
+//                Map<String,Object> map = (Map<String, Object>) yaml.load(data);
+
+                V1Deployment deploy = item.object;
+                deploy.getMetadata().setCreationTimestamp(null);
+                deploy.getStatus().setConditions(null);
+
+                Gson gson = new Gson();
+                String data = gson.toJson(deploy);
+//                JsonObject request = new JsonParser().parse(data).getAsJsonObject();
+                System.out.printf("%s %n" , data );
+//                JSONObject data = new JSONObject();
+
+//                Yaml yaml = new Yaml();
+//                V1Deployment body = yaml.loadAs(data, V1Deployment.class);
+//                System.out.println(body);
+
+            	kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, item.object.getMetadata().getUid() , data));
+
+                /*
             	Deployment dpl = new Deployment();
             	
             	dpl.setProvider("K8S");
@@ -115,10 +132,11 @@ public class KubeInstanceTask implements InitializingBean {
             		dpl.setStatusReadyReplicas(item.object.getStatus().getReadyReplicas());
             		dpl.setStatusUpdateReplicas(item.object.getStatus().getUpdatedReplicas());
             	}
-            	
+
                 kafkaTemplate.send(new ProducerRecord<String, Deployment>(instanceTopic, item.object.getMetadata().getNamespace() , dpl));
 
                 System.out.printf("%s : %s %n" , dpl.getType(), dpl.toString() );
+                */
             }
         } finally {
             watch.close();
