@@ -1,0 +1,13 @@
+# Default values for helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+repo: 979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine
+monitor:
+  replicas: 1
+
+serviceapi:
+  replicas: 1
+
+service-kube-controller:
+  replicas: 1

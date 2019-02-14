@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tempapi-deploy
+  name: serviceapi
   labels:
-    app: tempapi-deploy
+    app: serviceapi
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: tempapi-deploy
-  replicas: 1
+      app: serviceapi
   template:
     metadata:
       labels:
-        app: tempapi-deploy
+        app: serviceapi
     spec:
       containers:
-        - name: tempapi-deploy
-          image: sanaloveyou/serviceapi
+        - name: serviceapi
+          image: 979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/serviceapi

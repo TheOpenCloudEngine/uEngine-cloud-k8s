@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-monitor
+  labels:
+    app: pod-monitor
+spec:
+  replicas: {{ .Values.monitor.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: pod-monitor
+  template:
+    metadata:
+      labels:
+        app: pod-monitor
+    spec:
+      containers:
+      - name: pod-monitor
+        image: {{ .Values.repo }}/pod-monitor
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serviceapi
+  labels:
+    app: serviceapi
+spec:
+  replicas: {{ .Values.serviceapi.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: serviceapi
+  template:
+    metadata:
+      labels:
+        app: serviceapi
+    spec:
+      containers:
+        - name: serviceapi
+          image: {{ .Values.repo }}/serviceapi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-kube-controller
+  labels:
+    app: service-kube-controller
+spec:
+  replicas: {{ .Values.service-kube-controller.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: service-kube-controller
+  template:
+    metadata:
+      labels:
+        app: service-kube-controller
+    spec:
+      containers:
+        - name: service-kube-controller
+          image: {{ .Values.repo }}/service-kube-controller
+---
+
+{{$replicas := .Values.producer.replicas }}
+{{range $i, $e := until (int .Values.producer.replicas | default 1)}}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: producer-{{$i}}
+spec:
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: dowork
+            image: sanaloveyou/jobproduce:v4
+            env:
+            - name: PRODUCER_REPLICAS
+              value: "{{$replicas}}"
+            - name: PRODUCER_ID
+              value: "{{$i}}"
+          restartPolicy: OnFailure
+          
+---
+{{end}}
