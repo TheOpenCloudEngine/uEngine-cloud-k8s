@@ -83,13 +83,28 @@ public class ServicesService {
 
 
 
-    public void createService(String namespace, String name){
+    public void createService(String namespace, String yamlString){
 
-        // TODO yaml 파일
         Yaml yaml = new Yaml();
-        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("tempService.yaml");
+        Map<String,Object> body = yaml.load(yamlString);
 
-        Map<String,Object> body = yaml.load(inputStream);
+        // TODO
+        Map<String,String> userData =  getUserDetail(null);
+
+        JSONObject data = new JSONObject();
+        data.put("host", userData.get("host"));
+        data.put("token", userData.get("token"));
+        data.put("namespace", namespace);
+        data.put("type", "SERVICE");
+        data.put("command", "CREATE");
+        data.put("body", body);
+        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+    }
+
+    public void updateService(String namespace, String name, String yamlString){
+
+        Yaml yaml = new Yaml();
+        Map<String,Object> body = yaml.load(yamlString);
 
         // TODO
         Map<String,String> userData =  getUserDetail(null);
@@ -100,10 +115,24 @@ public class ServicesService {
         data.put("namespace", namespace);
         data.put("name", name);
         data.put("type", "SERVICE");
-        data.put("command", "CREATE");
+        data.put("command", "UPDATE");
         data.put("body", body);
         kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
     }
+
+    public void deleteService(String namespace, String name){
+        Map<String,String> userData =  getUserDetail(null);
+
+        JSONObject data = new JSONObject();
+        data.put("host", userData.get("host"));
+        data.put("token", userData.get("token"));
+        data.put("namespace", namespace);
+        data.put("name", name);
+        data.put("type", "POD");
+        data.put("command", "DELETE");
+        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+    }
+
     public Map<String,String> getUserDetail(String userName){
 
         // TODO DB 조회

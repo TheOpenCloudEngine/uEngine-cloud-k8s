@@ -33,6 +33,22 @@ public class PodManager  extends KubeManager {
     }
 
     @Override
+    public void update(JSONObject jsonObj){
+        Map<String,Object> data = this.settingInitValue(jsonObj);
+        String name = (String) jsonObj.get("name");
+        try {
+            Yaml yaml = new Yaml();
+            V1Pod body = yaml.loadAs((String)data.get("body"), V1Pod.class);
+            CoreV1Api apiInstance = new CoreV1Api(client);
+
+            V1Pod result = apiInstance.patchNamespacedPod(name, (String)data.get("namespace"), body, null, null);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void delete(JSONObject jsonObj){
         String name = (String) jsonObj.get("name");
         String namespace = (String) jsonObj.get("namespace");
@@ -44,6 +60,5 @@ public class PodManager  extends KubeManager {
         } catch (ApiException e) {
 //            e.printStackTrace();
         }
-
     }
 }

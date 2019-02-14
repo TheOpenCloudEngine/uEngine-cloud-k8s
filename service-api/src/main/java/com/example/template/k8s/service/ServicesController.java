@@ -9,11 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
@@ -25,26 +21,48 @@ public class ServicesController {
 
     /**
      * service create 요청
-     * @param request
-     * @param response
-     * @param namespace
-     * @param name
-     * @return
-     * @throws Exception
      */
-    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public Map<String,Object> createService(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            @PathVariable(value = "namespace") String namespace,
-                                            @PathVariable(value = "name") String name
+                                            @RequestBody String body,
+                                            @PathVariable(value = "namespace") String namespace
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
-
-        servicesService.createService(namespace, name);
+        servicesService.createService(namespace, body);
 
         return returnData;
     }
-    
+    /**
+     * service update 요청
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> updateService(
+            @RequestBody String body,
+            @PathVariable(value = "name") String name,
+            @PathVariable(value = "namespace") String namespace
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+        servicesService.updateService(namespace, name, body);
+
+        return returnData;
+    }
+
+    /**
+     * service delete 요청
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> deleteService(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        @PathVariable(value = "namespace") String namespace,
+                                        @PathVariable(value = "name") String name
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+
+        servicesService.deleteService(namespace, name);
+
+        return returnData;
+    }
+
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Services> getAllServices(HttpServletRequest request,
                                          HttpServletResponse response

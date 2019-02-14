@@ -33,6 +33,22 @@ public class DeployManager extends KubeManager {
     }
 
     @Override
+    public void update(JSONObject jsonObj){
+        Map<String,Object> data = this.settingInitValue(jsonObj);
+        String name = (String) jsonObj.get("name");
+        try {
+            Yaml yaml = new Yaml();
+            V1Deployment body = yaml.loadAs((String)data.get("body"), V1Deployment.class);
+            AppsV1Api apiInstance = new AppsV1Api(client);
+
+            V1Deployment result = apiInstance.patchNamespacedDeployment(name , (String)data.get("namespace"), body, null, null);
+
+        }catch (ApiException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void delete(JSONObject jsonObj){
         String name = (String) jsonObj.get("name");
         String namespace = (String) jsonObj.get("namespace");

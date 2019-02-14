@@ -23,22 +23,27 @@ public class PodController {
 
     /**
      * pod create 요청
-     * @param request
-     * @param response
-     * @param namespace
-     * @param name
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public Map<String,Object> createPod(HttpServletRequest request,
-                                               HttpServletResponse response,
-                                               @PathVariable(value = "namespace") String namespace,
-                                               @PathVariable(value = "name") String name
+                                        @RequestBody String body,
+                                               @PathVariable(value = "namespace") String namespace
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
+        podService.createPod(namespace, body);
 
-        podService.createPod(namespace, name);
+        return returnData;
+    }
+    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> updatePod(
+            @RequestBody String body,
+            @PathVariable(value = "name") String name,
+            @PathVariable(value = "namespace") String namespace
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+        podService.updatePod(namespace, name, body);
 
         return returnData;
     }
