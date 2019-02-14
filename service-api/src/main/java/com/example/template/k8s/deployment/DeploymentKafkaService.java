@@ -2,9 +2,14 @@ package com.example.template.k8s.deployment;
 
 import com.example.template.sse.SseBaseMessageHandler;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.kubernetes.client.models.V1Deployment;
 import io.kubernetes.client.util.Yaml;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +32,7 @@ public class DeploymentKafkaService {
 
 
     @KafkaListener(topics = "${topic.delpoyMsgTopic}")
-    public void listenByDeployment(@Payload String message) {
+    public void listenByDeployment(@Payload String message) throws ParseException {
 
 //    	Gson gson = new Gson();
 //    	Deployment dpl = gson.fromJson(message, Deployment.class);
@@ -39,8 +44,14 @@ public class DeploymentKafkaService {
         System.out.println(message);
 //        String bodyData = message.replaceAll("\\\\", "");
 //        System.out.println(bodyData);
+
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(message);
+        String bodyData = json.get("object").toString();
+        bodyData = bodyData.replace("\\\"", "'");
+        bodyData = bodyData.replaceAll("\\\\", "");
         Yaml yaml = new Yaml();
-        V1Deployment body = yaml.loadAs(message, V1Deployment.class);
+        V1Deployment body = yaml.loadAs(bodyData, V1Deployment.class);
         System.out.println(body);
 
 //        Gson gson = new Gson();

@@ -87,7 +87,7 @@ public class KubeInstanceTask implements InitializingBean {
                 deploy.getStatus().setConditions(null);
 
                 Gson gson = new Gson();
-                String data = gson.toJson(deploy);
+                String data = gson.toJson(item);
 //                JsonObject request = new JsonParser().parse(data).getAsJsonObject();
                 System.out.printf("%s %n" , data );
 //                JSONObject data = new JSONObject();
