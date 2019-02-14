@@ -1,10 +1,205 @@
 <template>
     <div>
-        <el-header>{{ types }}</el-header>
-        <el-button @click="dialogVisible = true">
-            ADD
-        </el-button>
+        <!-- Title -->
+        <el-header>{{ types }}
+            <el-button @click="dialogVisible = true">
+                ADD
+            </el-button>
+        </el-header>
 
+        <!-- Pods Table Start -->
+        <el-table
+                v-if="types=='pod'"
+                :data="list"
+                style="width: 100%"
+                height="250"
+                :default-sort="{prop: 'namespace', order: 'ascending'}"
+        >
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <p>Name: {{ props.row.name }}</p>
+                    <p>NameSpace: {{ props.row.namespace }}</p>
+                    <p>Type: {{ props.row.type }}</p>
+                    <p>CreateTime: {{ props.row.createTimeStamp }}</p>
+                    <p>Image: {{ props.row.image }}</p>
+                    <p>Node Name: {{ props.row.nodeName }}</p>
+                    <p>host Ip: {{ props.row.hostIp }}</p>
+                    <p>Pod Ip: {{ props.row.podIp }}</p>
+                    <p>Status: {{ props.row.status }}</p>
+                    <p>UID: {{ props.row.uid }}</p>
+                    <p>provider: {{ props.row.provider }}</p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Provider"
+                    prop="provider"
+                    width="80">
+                <template slot-scope="scope">
+                    <div slot="reference" class="name-wrapper">
+                        <el-tag size="medium">{{ scope.row.provider }}</el-tag>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Name"
+                    prop="name">
+            </el-table-column>
+            <el-table-column
+                    label="NameSpace"
+                    prop="namespace"
+                    sortable
+                    width="140"
+            >
+            </el-table-column>
+            <el-table-column
+                    label="Status"
+                    prop="status"
+                    width="80">
+            </el-table-column>
+            <el-table-column
+                    label="Type"
+                    prop="type"
+                    width="100">
+            </el-table-column>
+            <el-table-column
+                    label="CreateTime"
+                    prop="createTimeStamp"
+                    width="150">
+            </el-table-column>
+            <el-table-column
+                    label="Image"
+                    prop="image">
+            </el-table-column>
+        </el-table>
+        <!-- Pods Table End -->
+
+        <!-- Service Table Start -->
+        <el-table
+                v-else-if="types=='service'"
+                :data="list"
+                style="width: 100%"
+                height="250"
+                :default-sort="{prop: 'namespace', order: 'ascending'}"
+        >
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <p>Name: {{ props.row.name }}</p>
+                    <p>NameSpace: {{ props.row.namespace }}</p>
+                    <p>Kind: {{ props.row.kind }}</p>
+                    <p>Type: {{ props.row.type }}</p>
+                    <p>apiVersion: {{ props.row.apiVersion }}</p>
+                    <p>CreateTime: {{ props.row.createTimeStamp }}</p>
+                    <p>Spec Cluster Ip: {{ props.row.specClusterIp }}</p>
+                    <p>Spec Protocol: {{ props.row.specProtocol }}</p>
+                    <p>Spec Session Affinity: {{ props.row.specSessionAffinity }}</p>
+                    <p>Spec Type: {{ props.row.specType }}</p>
+                    <p>HostName: {{ props.row.hostname }}</p>
+                    <p>Ingress Ip: {{ props.row.ingressIp }}</p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Provider"
+                    prop="provider"
+                    width="80">
+                <template slot-scope="scope">
+                    <div slot="reference" class="name-wrapper">
+                        <el-tag size="medium">{{ scope.row.provider }}</el-tag>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Name"
+                    prop="name">
+            </el-table-column>
+            <el-table-column
+                    label="NameSpace"
+                    prop="namespace"
+                    sortable
+                    width="140"
+            >
+            </el-table-column>
+            <el-table-column
+                    label="Kind"
+                    prop="kind"
+                    width="80">
+            </el-table-column>
+            <el-table-column
+                    label="Type"
+                    prop="type"
+                    width="140">
+            </el-table-column>
+            <el-table-column
+                    label="CreateTime"
+                    prop="createTimeStamp"
+                    width="150">
+            </el-table-column>
+        </el-table>
+        <!-- Service Table End -->
+
+        <!-- Deployment Table Start -->
+        <el-table
+                v-else-if="types=='deployment'"
+                :data="list"
+                style="width: 100%"
+                height="250"
+                :default-sort="{prop: 'namespace', order: 'ascending'}"
+        >
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <p>Name: {{ props.row.name }}</p>
+                    <p>NameSpace: {{ props.row.namespace }}</p>
+                    <p>Kind: {{ props.row.kind }}</p>
+                    <p>Type: {{ props.row.type }}</p>
+                    <p>apiVersion: {{ props.row.apiVersion }}</p>
+                    <p>CreateTime: {{ props.row.createTimeStamp }}</p>
+                    <p>Spec Replicas: {{ props.row.specReplicas }}</p>
+                    <p>Strategy Type: {{ props.row.strategyType }}</p>
+                    <p v-if="props.row.statusReplicas != null">Status Replicas: {{ props.row.statusReplicas }}</p>
+                    <p v-if="props.row.statusAvailableReplicas != null">Status Available Replicas: {{ props.row.statusAvailableReplicas }}</p>
+                    <p v-if="props.row.statusReadyReplicas != null">Status Ready Replicas: {{ props.row.statusReadyReplicas }}</p>
+                    <p v-if="props.row.statusUpdateReplicas != null">Status Update Replicas: {{ props.row.statusUpdateReplicas }}</p>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Provider"
+                    prop="provider"
+                    width="80">
+                <template slot-scope="scope">
+                    <div slot="reference" class="name-wrapper">
+                        <el-tag size="medium">{{ scope.row.provider }}</el-tag>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    label="Name"
+                    prop="name">
+            </el-table-column>
+            <el-table-column
+                    label="NameSpace"
+                    prop="namespace"
+                    sortable
+                    width="140"
+            >
+            </el-table-column>
+            <el-table-column
+                    label="Kind"
+                    prop="kind"
+                    width="140">
+            </el-table-column>
+            <el-table-column
+                    label="Type"
+                    prop="type"
+                    width="140">
+            </el-table-column>
+            <el-table-column
+                    label="CreateTime"
+                    prop="createTimeStamp"
+                    width="150">
+            </el-table-column>
+        </el-table>
+        <!-- Deployment Table End -->
+
+        <!-- Dial Button -->
         <el-dialog
                 :title="'YAML Editor'"
                 :visible.sync="dialogVisible"
@@ -20,16 +215,16 @@
                 }"
                     :value="plainText"
                     v-model="plainText"
-                    style="blur: 2px;"
             >
             </codemirror>
 
-            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="demo-ruleForm" style="margin-top: 10px;">
+            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="demo-ruleForm"
+                     style="margin-top: 10px;">
                 <el-form-item label="NameSpace" prop="nameSpace">
                     <el-input v-model="ruleForm.nameSpace"></el-input>
                 </el-form-item>
-                <el-form-item label="Name" prop="podName">
-                    <el-input v-model="ruleForm.podName"></el-input>
+                <el-form-item label="Name" prop="name">
+                    <el-input v-model="ruleForm.name"></el-input>
                 </el-form-item>
             </el-form>
 
@@ -78,15 +273,15 @@
                 json_data: {},
                 yamlText: "",
                 ruleForm: {
-                    nameSpace : '',
-                    podName: ''
+                    nameSpace: '',
+                    name: ''
                 },
                 rules: {
                     nameSpace: [
-                        { required: true, message: 'Please Input NameSpace', trigger: 'blur' },
+                        {required: true, message: 'Please Input NameSpace', trigger: 'blur'},
                     ],
-                    podName: [
-                        { required: true, message: 'Please Input podName', trigger: 'blur' },
+                    name: [
+                        {required: true, message: 'Please Input Name', trigger: 'blur'},
                     ],
                 }
 
@@ -103,15 +298,19 @@
         mounted() {
             var me = this
             var getURLType
-            // if (me.types == 'service') {
-            //     getURLType = 'serviceses'
-            // } else {
-            //     getURLType = me.types + 's'
-            // }
-            // me.$http.get(`${API_HOST}/pods`)
-            //     .then((result) => {
-            //         console.log(result)
-            //     })
+            if (me.types == 'pod') {
+                getURLType = me.types + 's'
+            } else {
+                getURLType = me.types
+            }
+
+            me.startSSE()
+
+            me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
+                .then((result) => {
+                    console.log(result.data)
+                    me.list = result.data
+                })
         },
         watch: {
             plainText: function (newVal) {
@@ -120,23 +319,53 @@
         },
 
         methods: {
-            // startSSE: function (user) {
-            //     var me = this;
-            //     var tmp = [];
-            //
-            //     if (!(user.provider == 'All')) {
-            //         me.evtSource = new EventSource(`${API_HOST}/kubesse/?provider=` + user.provider + '&name=' + user.name)
-            //     } else {
-            //         me.evtSource = new EventSource(`${API_HOST}/kubesse/`)
-            //     }
-            //     me.evtSource.onmessage = function (e) {
-            //
-            //
-            //     }
-            //     me.evtSource.onerror = function (e) {
-            //
-            //     }
-            // },
+            startSSE: function () {
+                var me = this;
+                // var tmp = [];
+
+                me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
+
+                me.evtSource.onmessage = function (e) {
+                    // console.log(e.data)
+                    var parseMessage = JSON.parse(e.data);
+                    var tmpData = JSON.parse(parseMessage.message)
+                    var listUidTmp=[];
+
+                    me.list.forEach(function (listData) {
+                        listUidTmp.push(listData.uid)
+                    });
+
+                    me.list.some(function (listTmp, index) {
+                        if (listTmp.uid == tmpData.uid) {
+                            if (parseMessage.instanceState == 'DELETED') {
+                                me.list = [
+                                    ...me.list.slice(0, index),
+                                    ...me.list.slice(index + 1)
+                                ]
+                                return;
+                            } else {
+                                me.list = [
+                                    ...me.list.slice(0, index),
+                                    tmpData,
+                                    ...me.list.slice(index + 1)
+                                ]
+                                return;
+                            }
+
+                        } else if (!listUidTmp.includes(tmpData.uid)) {
+                            if (!(parseMessage.instanceState == 'DELETED')) {
+                                me.list.push(tmpData)
+                                return;
+                            }
+                        }
+                    })
+
+                }
+                me.evtSource.onerror = function (e) {
+                    me.evtSource.close();
+                    me.startSSE();
+                }
+            },
             handleClose(done) {
                 this.$confirm('Are you sure to close this dialog?')
                     .then(_ => {
@@ -154,7 +383,7 @@
             },
             postYAML() {
                 var me = this
-                if(me.ruleForm.nameSpace == "" || me.ruleForm.podName == "" || me.plainText == "") {
+                if (me.ruleForm.nameSpace == "" || me.ruleForm.podName == "" || me.plainText == "") {
                     this.$alert('입력값이 부족합니다.', '알림', {
                         confirmButtonText: 'OK',
                     })
@@ -165,12 +394,14 @@
                 if (me.types == 'pod') {
                     getURLType = me.types + 's'
                 } else {
-                    getURLType = me
+                    getURLType = me.types
                 }
-                me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.ruleForm.nameSpace + '/' + me.ruleForm.podName, jsonYaml, {headers: {
-                    'Content-Type': 'application/json'
-                }}
-                ).then(function() {
+                me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.ruleForm.nameSpace + '/' + me.ruleForm.name, jsonYaml, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                ).then(function () {
                     me.dialogVisible = false
                     me.notiOpen()
                 })
