@@ -70,6 +70,18 @@
                     label="Image"
                     prop="image">
             </el-table-column>
+            <el-table-column
+                    label="Operations">
+                <template slot-scope="scope">
+                    <!--<el-button-->
+                            <!--size="mini"-->
+                            <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
+                    <el-button
+                            size="mini"
+                            type="danger"
+                            @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                </template>
+            </el-table-column>
         </el-table>
         <!-- Pods Table End -->
 
@@ -132,6 +144,18 @@
                     label="CreateTime"
                     prop="createTimeStamp"
                     width="150">
+            </el-table-column>
+            <el-table-column
+                    label="Operations">
+                <template slot-scope="scope">
+                    <!--<el-button-->
+                            <!--size="mini"-->
+                            <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
+                    <el-button
+                            size="mini"
+                            type="danger"
+                            @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                </template>
             </el-table-column>
         </el-table>
         <!-- Service Table End -->
@@ -196,6 +220,18 @@
                     prop="createTimeStamp"
                     width="150">
             </el-table-column>
+            <el-table-column
+                    label="Operations">
+                <template slot-scope="scope">
+                    <!--<el-button-->
+                            <!--size="mini"-->
+                            <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
+                    <el-button
+                            size="mini"
+                            type="danger"
+                            @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                </template>
+            </el-table-column>
         </el-table>
         <!-- Deployment Table End -->
 
@@ -222,9 +258,6 @@
                      style="margin-top: 10px;">
                 <el-form-item label="NameSpace" prop="nameSpace">
                     <el-input v-model="ruleForm.nameSpace"></el-input>
-                </el-form-item>
-                <el-form-item label="Name" prop="name">
-                    <el-input v-model="ruleForm.name"></el-input>
                 </el-form-item>
             </el-form>
 
@@ -280,9 +313,6 @@
                     nameSpace: [
                         {required: true, message: 'Please Input NameSpace', trigger: 'blur'},
                     ],
-                    name: [
-                        {required: true, message: 'Please Input Name', trigger: 'blur'},
-                    ],
                 }
 
 
@@ -308,8 +338,28 @@
 
             me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
                 .then((result) => {
-                    console.log(result.data)
-                    me.list = result.data
+
+                    var tmpData = _.sortBy(result.data, 'uid')
+                    var resultMap = []
+                    var usedUid = []
+                    tmpData.forEach(function (sortingData){
+                        if(!(usedUid.includes(sortingData.uid))) {
+                            resultMap.push(sortingData)
+                        } else {
+                            resultMap.forEach(function (resultMapTmp, index) {
+                                if(resultMapTmp.uid.equals(sortingData.uid)) {
+                                    if(resultMapTmp.updateTime < sortingData.updateTime) {
+                                        resultMap = [
+                                            ...resultMap.slice(0, index),
+                                            sortingData.updateTime,
+                                            ...resultMap.slice(index + 1)
+                                        ]
+                                    }
+                                }
+                            })
+                        }
+                    })
+                console.log(resultMap)
                 })
         },
         watch: {
@@ -366,6 +416,46 @@
                     me.startSSE();
                 }
             },
+            handleDelete(index, row) {
+                var me = this
+                var getURLType;
+
+                this.$confirm('This will permanently delete the file. Continue?', 'Warning', {
+                    confirmButtonText: 'OK',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }).then(() => {
+                    if (me.types == 'pod') {
+                        getURLType = me.types + 's'
+                    } else {
+                        getURLType = me.types
+                    }
+                    // console.log(row)
+                    me.$http.delete(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + row.namespace + '/' + row.name, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    ).then(function () {
+                        me.list = [
+                            ...me.list.slice(0, index),
+                            ...me.list.slice(index + 1)
+                        ]
+                        me.$notify({
+                            title: 'Success',
+                            message: '삭제되었습니다. 적용 중 입니다.',
+                            type: 'Success'
+                        });
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: 'Delete canceled'
+                    });
+                });
+
+
+            },
             handleClose(done) {
                 this.$confirm('Are you sure to close this dialog?')
                     .then(_ => {
@@ -396,7 +486,7 @@
                 } else {
                     getURLType = me.types
                 }
-                me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.ruleForm.nameSpace + '/' + me.ruleForm.name, jsonYaml, {
+                me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.ruleForm.nameSpace, jsonYaml, {
                         headers: {
                             'Content-Type': 'application/json'
                         }
