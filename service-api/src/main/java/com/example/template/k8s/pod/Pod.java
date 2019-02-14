@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "POD")
@@ -60,6 +61,12 @@ public class Pod implements Serializable {
     
     @Column(name="status")
     private String status;
+    
+    @Column(name="createTime")
+	private Timestamp createTime;
+	
+	@Column(name="updateTime")
+	private Timestamp updateTime;
 	
 	public String getId() {
 		return id;
@@ -179,6 +186,22 @@ public class Pod implements Serializable {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public Timestamp getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Timestamp createTime) {
+		this.createTime = createTime;
+	}
+
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
 	}
 
 	@Override

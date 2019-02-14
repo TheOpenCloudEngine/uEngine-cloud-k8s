@@ -1,6 +1,7 @@
 package com.example.template.k8s.deployment;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -63,6 +64,12 @@ public class Deployment implements Serializable {
 	
 	@Column(name="statusUpdateReplicas")
 	private Integer statusUpdateReplicas;
+	
+	@Column(name="createTime")
+	private Timestamp createTime;
+	
+	@Column(name="updateTime")
+	private Timestamp updateTime;
 	
 	public String getProvider() {
 		return provider;
@@ -184,6 +191,21 @@ public class Deployment implements Serializable {
 		this.statusUpdateReplicas = statusUpdateReplicas;
 	}
 
+	public Timestamp getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Timestamp createTime) {
+		this.createTime = createTime;
+	}
+
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
+	}
 
 	@Override
 	public String toString() {

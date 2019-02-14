@@ -1,6 +1,7 @@
 package com.example.template.k8s.service;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -69,6 +70,12 @@ public class Services implements Serializable {
 	
 	@Column(name="ingressIp")
 	private String ingressIp;
+	
+	@Column(name="createTime")
+	private Timestamp createTime;
+	
+	@Column(name="updateTime")
+	private Timestamp updateTime;
 
 	public String getProvider() {
 		return provider;
@@ -204,6 +211,22 @@ public class Services implements Serializable {
 
 	public void setIngressIp(String ingressIp) {
 		this.ingressIp = ingressIp;
+	}
+	
+	public Timestamp getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Timestamp createTime) {
+		this.createTime = createTime;
+	}
+
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
 	}
 
 	@Override
