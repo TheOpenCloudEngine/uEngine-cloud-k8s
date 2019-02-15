@@ -14,6 +14,7 @@
                 style="width: 100%"
                 height="250"
                 :default-sort="{prop: 'namespace', order: 'ascending'}"
+                v-loading="loading"
         >
             <el-table-column type="expand">
                 <template slot-scope="props">
@@ -74,12 +75,13 @@
                     label="Operations">
                 <template slot-scope="scope">
                     <!--<el-button-->
-                            <!--size="mini"-->
-                            <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
+                    <!--size="mini"-->
+                    <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
                     <el-button
                             size="mini"
                             type="danger"
-                            @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                            @click="handleDelete(scope.$index, scope.row)">Delete
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -92,6 +94,7 @@
                 style="width: 100%"
                 height="250"
                 :default-sort="{prop: 'namespace', order: 'ascending'}"
+                v-loading="loading"
         >
             <el-table-column type="expand">
                 <template slot-scope="props">
@@ -149,12 +152,13 @@
                     label="Operations">
                 <template slot-scope="scope">
                     <!--<el-button-->
-                            <!--size="mini"-->
-                            <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
+                    <!--size="mini"-->
+                    <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
                     <el-button
                             size="mini"
                             type="danger"
-                            @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                            @click="handleDelete(scope.$index, scope.row)">Delete
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -167,6 +171,7 @@
                 style="width: 100%"
                 height="250"
                 :default-sort="{prop: 'namespace', order: 'ascending'}"
+                v-loading="loading"
         >
             <el-table-column type="expand">
                 <template slot-scope="props">
@@ -178,10 +183,15 @@
                     <p>CreateTime: {{ props.row.createTimeStamp }}</p>
                     <p>Spec Replicas: {{ props.row.specReplicas }}</p>
                     <p>Strategy Type: {{ props.row.strategyType }}</p>
+                    <p>UID: {{ props.row.uid }}</p>
+
                     <p v-if="props.row.statusReplicas != null">Status Replicas: {{ props.row.statusReplicas }}</p>
-                    <p v-if="props.row.statusAvailableReplicas != null">Status Available Replicas: {{ props.row.statusAvailableReplicas }}</p>
-                    <p v-if="props.row.statusReadyReplicas != null">Status Ready Replicas: {{ props.row.statusReadyReplicas }}</p>
-                    <p v-if="props.row.statusUpdateReplicas != null">Status Update Replicas: {{ props.row.statusUpdateReplicas }}</p>
+                    <p v-if="props.row.statusAvailableReplicas != null">Status Available Replicas: {{
+                        props.row.statusAvailableReplicas }}</p>
+                    <p v-if="props.row.statusReadyReplicas != null">Status Ready Replicas: {{
+                        props.row.statusReadyReplicas }}</p>
+                    <p v-if="props.row.statusUpdateReplicas != null">Status Update Replicas: {{
+                        props.row.statusUpdateReplicas }}</p>
                 </template>
             </el-table-column>
             <el-table-column
@@ -224,12 +234,13 @@
                     label="Operations">
                 <template slot-scope="scope">
                     <!--<el-button-->
-                            <!--size="mini"-->
-                            <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
+                    <!--size="mini"-->
+                    <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
                     <el-button
                             size="mini"
                             type="danger"
-                            @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                            @click="handleDelete(scope.$index, scope.row)">Delete
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -298,12 +309,11 @@
         data() {
             return {
                 evtSource: null,
-                selectedNamespace: {},
                 list: [],
                 providerFilters: [],
                 dialogVisible: false,
                 plainText: "",
-                json_data: {},
+                loading: false,
                 yamlText: "",
                 ruleForm: {
                     nameSpace: '',
@@ -311,7 +321,7 @@
                 },
                 rules: {
                     nameSpace: [
-                        {required: true, message: 'Please Input NameSpace', trigger: 'blur'},
+                        {required: false, message: 'Please Input NameSpace', trigger: 'blur'},
                     ],
                 }
 
@@ -338,25 +348,37 @@
 
             me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
                 .then((result) => {
-                    var tmpData = _.sortBy(result.data, 'uid')
+                    var tmpData = result.data
                     var resultMap = []
                     var usedUid = []
-                    return new Promise ((resolve, reject) => {
-                        tmpData.forEach(function (sortingData){
-                            if(!(usedUid.includes(sortingData.uid))) {
+                    return new Promise((resolve, reject) => {
+                        tmpData.forEach(function (sortingData) {
+                            if (!(usedUid.includes(sortingData.uid))) {
                                 resultMap.push(sortingData)
                                 usedUid.push(sortingData.uid)
                             } else {
                                 resultMap.forEach(function (resultMapTmp, index) {
-                                    // console.log('check2')
-                                    if(resultMapTmp.uid == sortingData.uid) {
-                                        if(Date.parse(resultMapTmp.createTime) < Date.parse(sortingData.createTime)) {
-                                            // console.log('check3')
-                                            resultMap = [
-                                                ...resultMap.slice(0, index),
-                                                sortingData,
-                                                ...resultMap.slice(index + 1)
-                                            ]
+                                    if (resultMapTmp.uid == sortingData.uid) {
+                                        if (resultMapTmp.type == 'DELETED') {
+                                                resultMap = [
+                                                    ...resultMap.slice(0, index),
+                                                    resultMapTmp,
+                                                    ...resultMap.slice(index + 1)
+                                                ]
+                                        } else if (sortingData.type == 'DELETED') {
+                                                resultMap = [
+                                                    ...resultMap.slice(0, index),
+                                                    sortingData,
+                                                    ...resultMap.slice(index + 1)
+                                                ]
+                                        } else {
+                                            if (Date.parse(resultMapTmp.createTime) <= Date.parse(sortingData.createTime)) {
+                                                resultMap = [
+                                                    ...resultMap.slice(0, index),
+                                                    sortingData,
+                                                    ...resultMap.slice(index + 1)
+                                                ]
+                                            }
                                         }
                                     }
                                 })
@@ -364,8 +386,14 @@
                         })
                         resolve(resultMap)
                     }).then(function (resolveData) {
-                        me.list = resolveData
-                            console.log(resolveData)
+                        var deleteItemList = []
+                        // console.log(resolveData)
+                        resolveData.forEach(function (deleteTmp, index) {
+                            if(deleteTmp.type == 'DELETED') {
+                                deleteItemList.push(deleteTmp)
+                            }
+                        })
+                        me.list = _.difference(resolveData, deleteItemList)
                     })
                 })
         },
@@ -382,11 +410,14 @@
 
                 me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
 
+                /* Todo : 이벤트 수정
+
+                 */
                 me.evtSource.onmessage = function (e) {
                     // console.log(e.data)
                     var parseMessage = JSON.parse(e.data);
                     var tmpData = JSON.parse(parseMessage.message)
-                    var listUidTmp=[];
+                    var listUidTmp = [];
 
                     me.list.forEach(function (listData) {
                         listUidTmp.push(listData.uid)
@@ -394,11 +425,12 @@
 
                     me.list.some(function (listTmp, index) {
                         if (listTmp.uid == tmpData.uid) {
-                            if (parseMessage.instanceState == 'DELETED') {
+                            if (tmpData.type == 'DELETED') {
                                 me.list = [
                                     ...me.list.slice(0, index),
                                     ...me.list.slice(index + 1)
                                 ]
+                                me.loading = false;
                                 return;
                             } else {
                                 me.list = [
@@ -408,10 +440,10 @@
                                 ]
                                 return;
                             }
-
                         } else if (!listUidTmp.includes(tmpData.uid)) {
-                            if (!(parseMessage.instanceState == 'DELETED')) {
+                            if (!(tmpData.type == 'DELETED')) {
                                 me.list.push(tmpData)
+                                listUidTmp.push(tmpData.uid)
                                 return;
                             }
                         }
@@ -427,7 +459,7 @@
                 var me = this
                 var getURLType;
 
-                this.$confirm('This will permanently delete the file. Continue?', 'Warning', {
+                this.$confirm('삭제하시겠습니까?', 'Warning', {
                     confirmButtonText: 'OK',
                     cancelButtonText: 'Cancel',
                     type: 'warning'
@@ -453,6 +485,7 @@
                             message: '삭제되었습니다. 적용 중 입니다.',
                             type: 'Success'
                         });
+                        me.loading = true;
                     })
                 }).catch(() => {
                     this.$message({
@@ -478,9 +511,17 @@
                     type: 'info'
                 });
             },
+
             postYAML() {
                 var me = this
-                if (me.ruleForm.nameSpace == "" || me.ruleForm.podName == "" || me.plainText == "") {
+                var nameSpace
+                if(me.ruleForm.nameSpace == "") {
+                    nameSpace = 'default'
+                } else {
+                    nameSpace = me.ruleForm.nameSpace
+                }
+
+                if (me.plainText == "") {
                     this.$alert('입력값이 부족합니다.', '알림', {
                         confirmButtonText: 'OK',
                     })
@@ -493,7 +534,7 @@
                 } else {
                     getURLType = me.types
                 }
-                me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.ruleForm.nameSpace, jsonYaml, {
+                me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace, jsonYaml, {
                         headers: {
                             'Content-Type': 'application/json'
                         }
