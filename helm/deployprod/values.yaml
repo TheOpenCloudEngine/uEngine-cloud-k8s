@@ -9,5 +9,5 @@ monitor:
 serviceapi:
   replicas: 1
 
-service-kube-controller:
+kubecontroller:
   replicas: 1

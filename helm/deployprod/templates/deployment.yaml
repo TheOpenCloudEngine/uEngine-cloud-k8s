@@ -21,6 +21,66 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: deploy-monitor
+  labels:
+    app: deploy-monitor
+spec:
+  replicas: {{ .Values.monitor.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: deploy-monitor
+  template:
+    metadata:
+      labels:
+        app: deploy-monitor
+    spec:
+      containers:
+        - name: deploy-monitor
+          image: {{ .Values.repo }}/deploy-monitor
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-monitor
+  labels:
+    app: service-monitor
+spec:
+  replicas: {{ .Values.monitor.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: service-monitor
+  template:
+    metadata:
+      labels:
+        app: service-monitor
+    spec:
+      containers:
+        - name: pod-monitor
+          image: {{ .Values.repo }}/service-monitor
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-kube-controller
+  labels:
+    app: service-kube-controller
+spec:
+  replicas: {{ .Values.kubecontroller.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: service-kube-controller
+  template:
+    metadata:
+      labels:
+        app: service-kube-controller
+    spec:
+      containers:
+        - name: service-kube-controller
+          image: {{ .Values.repo }}/service-kube-controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: serviceapi
   labels:
     app: serviceapi
@@ -41,45 +101,19 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service-kube-controller
+  name: serviceui
   labels:
-    app: service-kube-controller
+    app: serviceui
 spec:
-  replicas: {{ .Values.service-kube-controller.replicas | default 1 }}
+  replicas: 1
   selector:
     matchLabels:
-      app: service-kube-controller
+      app: serviceui
   template:
     metadata:
       labels:
-        app: service-kube-controller
+        app: serviceui
     spec:
       containers:
-        - name: service-kube-controller
-          image: {{ .Values.repo }}/service-kube-controller
----
-
-{{$replicas := .Values.producer.replicas }}
-{{range $i, $e := until (int .Values.producer.replicas | default 1)}}
-apiVersion: batch/v1beta1
-kind: CronJob
-metadata:
-  name: producer-{{$i}}
-spec:
-  schedule: "*/2 * * * *"
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          containers:
-          - name: dowork
-            image: sanaloveyou/jobproduce:v4
-            env:
-            - name: PRODUCER_REPLICAS
-              value: "{{$replicas}}"
-            - name: PRODUCER_ID
-              value: "{{$i}}"
-          restartPolicy: OnFailure
-          
----
-{{end}}
+        - name: serviceui
+          image: {{ .Values.repo }}/serviceui
