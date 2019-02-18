@@ -55,8 +55,14 @@ public class SseRestController {
                     todo : nameSpace 조건 부분
                  */
                 LOGGER.info("appEntityBaseMessage");
+
                 if(appEntityBaseMessage.getInstanceType().equals(emitter.getInstanceType())) {
-                    emitter.send(appEntityBaseMessage);
+                    /*
+                    todo : namespace가 default일때만 메시지를 보냄.
+                    */
+                    if(appEntityBaseMessage.getMessage().contains("\"namespace\":\"default\"")) {
+                        emitter.send(appEntityBaseMessage);
+                    }
                 }
 //
 //                emitter.send(appEntityBaseMessage);
