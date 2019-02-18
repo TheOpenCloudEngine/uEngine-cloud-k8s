@@ -48,7 +48,7 @@ public class PodKafkaService {
         Gson gson = new Gson();
         Pod pod = gson.fromJson(message, Pod.class);
         
-        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
     	Calendar cal = Calendar.getInstance();
     	String today = null;
     	today = formatter.format(cal.getTime());

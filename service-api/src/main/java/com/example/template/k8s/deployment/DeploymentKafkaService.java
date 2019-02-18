@@ -36,7 +36,7 @@ public class DeploymentKafkaService {
     	Deployment dpl = gson.fromJson(message, Deployment.class);
     	
     	
-    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss");
+    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
     	Calendar cal = Calendar.getInstance();
     	String today = null;
     	today = formatter.format(cal.getTime());

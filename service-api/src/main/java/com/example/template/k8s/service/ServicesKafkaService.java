@@ -35,7 +35,7 @@ public class ServicesKafkaService {
     	Gson gson = new Gson();
     	Services svs = gson.fromJson(message, Services.class);
     	
-    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
     	Calendar cal = Calendar.getInstance();
     	String today = null;
     	today = formatter.format(cal.getTime());
