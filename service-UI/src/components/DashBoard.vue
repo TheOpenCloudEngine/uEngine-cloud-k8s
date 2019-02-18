@@ -1,11 +1,8 @@
 <template>
     <div>
-        <el-card class="box-card">
             <!-- Title -->
             <el-row type="flex" class="row-bg" justify="space-between">
                 <el-col :span="6">
-                    <div style="font-size: 20px; font-weight: bold;">{{ types.toUpperCase() }}
-                    </div>
                 </el-col>
                 <el-col :span="6">
                 </el-col>
@@ -22,7 +19,7 @@
                     v-if="types=='pod'"
                     :data="list"
                     style="width: 100%"
-                    height="250"
+                    height="600"
                     :default-sort="{prop: 'namespace', order: 'ascending'}"
                     v-loading="loading"
             >
@@ -67,11 +64,11 @@
                         prop="status"
                         width="80">
                 </el-table-column>
-                <el-table-column
-                        label="Type"
-                        prop="type"
-                        width="100">
-                </el-table-column>
+                <!--<el-table-column-->
+                        <!--label="Type"-->
+                        <!--prop="type"-->
+                        <!--width="100">-->
+                <!--</el-table-column>-->
                 <el-table-column
                         label="CreateTime"
                         prop="createTimeStamp"
@@ -104,7 +101,7 @@
                     v-else-if="types=='service'"
                     :data="list"
                     style="width: 100%"
-                    height="250"
+                    height="600"
                     :default-sort="{prop: 'namespace', order: 'ascending'}"
                     v-loading="loading"
             >
@@ -150,11 +147,11 @@
                         prop="kind"
                         width="80">
                 </el-table-column>
-                <el-table-column
-                        label="Type"
-                        prop="type"
-                        width="140">
-                </el-table-column>
+                <!--<el-table-column-->
+                        <!--label="Type"-->
+                        <!--prop="type"-->
+                        <!--width="140">-->
+                <!--</el-table-column>-->
                 <el-table-column
                         label="CreateTime"
                         prop="createTimeStamp"
@@ -184,7 +181,7 @@
                     v-else-if="types=='deployment'"
                     :data="list"
                     style="width: 100%"
-                    height="250"
+                    height="600"
                     :default-sort="{prop: 'namespace', order: 'ascending'}"
                     v-loading="loading"
             >
@@ -235,11 +232,11 @@
                         prop="kind"
                         width="140">
                 </el-table-column>
-                <el-table-column
-                        label="Type"
-                        prop="type"
-                        width="140">
-                </el-table-column>
+                <!--<el-table-column-->
+                        <!--label="Type"-->
+                        <!--prop="type"-->
+                        <!--width="140">-->
+                <!--</el-table-column>-->
                 <el-table-column
                         label="CreateTime"
                         prop="createTimeStamp"
@@ -308,7 +305,6 @@
                 <el-button type="primary" @click="postYAML">Confirm</el-button>
             </span>
             </el-dialog>
-        </el-card>
     </div>
 </template>
 

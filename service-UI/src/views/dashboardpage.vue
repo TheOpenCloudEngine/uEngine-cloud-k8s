@@ -4,10 +4,24 @@
         <!--<el-button @click="user=[{provider: 'EC2' , name: 'nodes.jjy.k8s.local'}]">User 1</el-button>-->
         <!--<el-button @click="user=[{provider: 'K8S' , name: 'test'}]">User 2</el-button>-->
         <!--<el-button @click="user=[{provider: 'K8S' , name: 'default'}, {provider: 'EC2' , name: 'nodes.jjy.k8s.local'}]">User 3</el-button>-->
-        <DashBoard :types="'pod'" style="margin-top: 20px;"/>
-        <DashBoard :types="'service'"style="margin-top: 20px;" />
-        <DashBoard :types="'deployment'" style="margin-top: 20px;" />
+        <el-tabs :tab-position="tabPosition" style="height: 200px;">
+            <el-tab-pane label="PODS">
+                <DashBoard :types="'pod'" style="margin-top: 20px;"/>
 
+
+            </el-tab-pane>
+            <el-tab-pane label="SERVICE">
+
+                <DashBoard :types="'service'"style="margin-top: 20px;" />
+
+            </el-tab-pane>
+            <el-tab-pane label="DEPELOYMENT">
+                <DashBoard :types="'deployment'" style="margin-top: 20px;" />
+
+
+            </el-tab-pane>
+
+        </el-tabs>
 
     </div>
 </template>
