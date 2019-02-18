@@ -1,5 +1,8 @@
 package com.example.template.k8s.pod;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -7,19 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
-
-import com.example.template.k8s.deployment.Deployment;
-import com.example.template.k8s.service.Services;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class PodService {
@@ -56,12 +51,12 @@ public class PodService {
         return podRepository.findByProviderAndName(provider,name);
     }
     
-    @Cacheable(value="service", key="#namespace")
+    @Cacheable(value="pods", key="#namespace")
     public Iterable<Pod> getPodsByNamespace(String namespace){
         return podRepository.findByNamespace(namespace);
     }
     
-    @Cacheable(value="service", key="#namespace+#name")
+    @Cacheable(value="pods", key="#namespace+#name")
     public Iterable<Pod> getPodsByNamespaceAndName(String namespace, String name){
         return podRepository.findByNamespaceAndName(namespace, name);
     }

@@ -1,5 +1,8 @@
 package com.example.template.k8s.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -10,12 +13,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
-
-import com.example.template.k8s.deployment.Deployment;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class ServicesService {
