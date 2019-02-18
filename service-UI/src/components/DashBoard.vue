@@ -2,7 +2,7 @@
     <div>
         <!-- Title -->
         <el-header>{{ types }}
-            <el-button @click="dialogVisible = true">
+            <el-button @click="dialogVisible = true; status = 'add'">
                 ADD
             </el-button>
         </el-header>
@@ -74,9 +74,11 @@
             <el-table-column
                     label="Operations">
                 <template slot-scope="scope">
-                    <!--<el-button-->
-                    <!--size="mini"-->
-                    <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
+                    <el-button
+                            size="mini"
+                            type="primary"
+                            @click="handleEdit(scope.$index, scope.row); status = 'edit'">Edit
+                    </el-button>
                     <el-button
                             size="mini"
                             type="danger"
@@ -151,9 +153,12 @@
             <el-table-column
                     label="Operations">
                 <template slot-scope="scope">
-                    <!--<el-button-->
-                    <!--size="mini"-->
-                    <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
+
+                    <el-button
+                            size="mini"
+                            type="primary"
+                            @click="handleEdit(scope.$index, scope.row); status = 'edit'">Edit
+                    </el-button>
                     <el-button
                             size="mini"
                             type="danger"
@@ -238,6 +243,11 @@
                     <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
                     <el-button
                             size="mini"
+                            type="primary"
+                            @click="handleEdit(scope.$index, scope.row); status = 'edit'">Edit
+                    </el-button>
+                    <el-button
+                            size="mini"
                             type="danger"
                             @click="handleDelete(scope.$index, scope.row)">Delete
                     </el-button>
@@ -279,7 +289,6 @@
                 <el-button type="primary" @click="postYAML">Confirm</el-button>
             </span>
         </el-dialog>
-
     </div>
 </template>
 
@@ -313,8 +322,10 @@
                 providerFilters: [],
                 dialogVisible: false,
                 plainText: "",
+                selectedRow: "",
                 loading: false,
                 yamlText: "",
+                status: '',
                 ruleForm: {
                     nameSpace: '',
                     name: ''
@@ -410,8 +421,8 @@
 
                 me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
 
-                /* Todo : 이벤트 수정
-
+                /*
+                    Todo : 이벤트 수정
                  */
                 me.evtSource.onmessage = function (e) {
                     // console.log(e.data)
@@ -493,8 +504,15 @@
                         message: 'Delete canceled'
                     });
                 });
-
-
+            },
+            handleEdit(index, row) {
+                var me = this
+                var getURLType;
+                me.dialogVisible = true
+                var yamlData = row.sourceData
+                me.selectedRow = row
+                me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g,'- ').replace(/\\"/g, '\'')
+                me.ruleForm.nameSpace = row.namespace
             },
             handleClose(done) {
                 this.$confirm('Are you sure to close this dialog?')
@@ -527,23 +545,51 @@
                     })
                 }
                 var me = this;
+                // console.log(yaml.load(me.plainText))
+
+                // var lines = me.plainText.split('\n')
+                //
+                // lines.splice(0,1)
+                // for (var i in lines){
+                //     lines[i] = lines[i].substring(2,lines[i].length)
+                // }
+                // var yamltext = lines.join('\n')
+
                 var jsonYaml = yaml.load(me.plainText)
+
+                console.log(jsonYaml)
+
                 var getURLType;
                 if (me.types == 'pod') {
                     getURLType = me.types + 's'
                 } else {
                     getURLType = me.types
                 }
-                me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace, jsonYaml, {
-                        headers: {
-                            'Content-Type': 'application/json'
+                // console.log(jsonYaml)
+                if(me.status == 'add') {
+                    me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace, jsonYaml, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
                         }
-                    }
-                ).then(function () {
-                    me.dialogVisible = false
-                    me.notiOpen()
-                })
+                    ).then(function () {
+                        me.dialogVisible = false
+                        me.notiOpen()
+                        me.status = ''
 
+                    })
+                } else if(me.status == 'edit'){
+                    me.$http.put(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace + '/' + me.selectedRow.name, jsonYaml, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    ).then(function () {
+                        me.dialogVisible = false
+                        me.notiOpen()
+                        me.status = ''
+                    })
+                }
             }
         },
     }
