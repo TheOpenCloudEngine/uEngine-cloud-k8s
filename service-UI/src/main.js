@@ -19,7 +19,7 @@ Vue.use(Element, { locale })
 
 // window.API_HOST = "http://serviceapi:8086"
 if( process.env.NODE_ENV == "development" ){
-  window.API_HOST = process.env.VUE_APP_API_HOST
+  window.API_HOST = "http://localhost:8086";
 }else{
   window.API_HOST = process.env.VUE_APP_API_HOST
 }
