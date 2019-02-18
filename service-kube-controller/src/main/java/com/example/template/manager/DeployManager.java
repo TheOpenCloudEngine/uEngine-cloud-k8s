@@ -41,7 +41,7 @@ public class DeployManager extends KubeManager {
             V1Deployment body = yaml.loadAs((String)data.get("body"), V1Deployment.class);
             AppsV1Api apiInstance = new AppsV1Api(client);
 
-            V1Deployment result = apiInstance.patchNamespacedDeployment(name , (String)data.get("namespace"), body, null, null);
+            V1Deployment result = apiInstance.replaceNamespacedDeployment(name , (String)data.get("namespace"), body, null, null);
 
         }catch (ApiException e){
             e.printStackTrace();

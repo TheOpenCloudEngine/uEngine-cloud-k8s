@@ -45,7 +45,7 @@ public class ServiceManager extends KubeManager{
             V1Service body = yaml.loadAs((String)data.get("body"), V1Service.class);
             CoreV1Api apiInstance = new CoreV1Api(client);
 
-            V1Service result = apiInstance.patchNamespacedService(name, (String)data.get("namespace"), body, null, null);
+            V1Service result = apiInstance.replaceNamespacedService(name, (String)data.get("namespace"), body, null, null);
             System.out.println(result);
 
         }catch (ApiException e){

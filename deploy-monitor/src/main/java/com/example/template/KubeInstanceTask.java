@@ -138,6 +138,8 @@ public class KubeInstanceTask implements InitializingBean {
             	{
             		// CreationTimestamp, Conditions 을 제거해줘야 문제가 발생하지 않는다.
 					item.object.getMetadata().setCreationTimestamp(null);
+                    item.object.getMetadata().getAnnotations().put("kubectl.kubernetes.io/last-applied-configuration", null);
+
 //					item.object.getStatus().setConditions(null);
 					item.object.setStatus(null);
 					dpl.setSourceData(new Gson().toJson(item.object));

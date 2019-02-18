@@ -41,7 +41,7 @@ public class PodManager  extends KubeManager {
             V1Pod body = yaml.loadAs((String)data.get("body"), V1Pod.class);
             CoreV1Api apiInstance = new CoreV1Api(client);
 
-            V1Pod result = apiInstance.patchNamespacedPod(name, (String)data.get("namespace"), body, null, null);
+            V1Pod result = apiInstance.replaceNamespacedPod(name, (String)data.get("namespace"), body, null, null);
 
         }catch (Exception e){
             e.printStackTrace();
