@@ -47,8 +47,8 @@ public class KubeInstanceTask implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.host = environment.getProperty("kube.host");
-        this.token = environment.getProperty("kube.token");
+        this.host = environment.getProperty("kubehost");
+        this.token = environment.getProperty("kubetoken");
 
         // kubenate Configuration setting
         ApiClient client = Config.fromToken(this.getHost(), this.getToken(), false);
