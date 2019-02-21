@@ -7,6 +7,7 @@ import javax.persistence.Table;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.joda.time.DateTime;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -62,13 +63,13 @@ public class Pod implements Serializable {
     @Column(name="status")
     private String status;
     
-    @Column(name="createTime")
-	private Timestamp createTime;
+	@Column(name="createTime", length=6)
+	private DateTime createTime;
 	
-	@Column(name="updateTime")
-	private Timestamp updateTime;
+	@Column(name="updateTime", length=6)
+	private DateTime updateTime;
 	
-	@Column(name="sourceData")
+	@Column(name="sourceData", columnDefinition = "TEXT")
 	private String sourceData;
 	
 	public String getId() {
@@ -191,19 +192,19 @@ public class Pod implements Serializable {
 		this.status = status;
 	}
 
-	public Timestamp getCreateTime() {
+	public DateTime getCreateTime() {
 		return createTime;
 	}
 
-	public void setCreateTime(Timestamp createTime) {
+	public void setCreateTime(DateTime createTime) {
 		this.createTime = createTime;
 	}
 
-	public Timestamp getUpdateTime() {
+	public DateTime getUpdateTime() {
 		return updateTime;
 	}
 
-	public void setUpdateTime(Timestamp updateTime) {
+	public void setUpdateTime(DateTime updateTime) {
 		this.updateTime = updateTime;
 	}
 

@@ -25,5 +25,5 @@ server:
 spring:
   profiles: docker
   kafka:
-    bootstrap-servers: uengine-kube-kafka.kafka.svc.cluster.local:9092
+    bootstrap-servers: uengine-kube-kafka:9092
 #    bootstrap-servers: my-kafka:9092

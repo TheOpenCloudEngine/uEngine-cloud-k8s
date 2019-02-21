@@ -10,6 +10,7 @@ import javax.persistence.Table;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.joda.time.DateTime;
 
 import lombok.Data;
 
@@ -71,13 +72,13 @@ public class Services implements Serializable {
 	@Column(name="ingressIp")
 	private String ingressIp;
 	
-	@Column(name="createTime")
-	private Timestamp createTime;
+	@Column(name="createTime", length=6)
+	private DateTime createTime;
 	
-	@Column(name="updateTime")
-	private Timestamp updateTime;
+	@Column(name="updateTime", length=6)
+	private DateTime updateTime;
 	
-	@Column(name="sourceData")
+	@Column(name="sourceData", columnDefinition = "TEXT")
 	private String sourceData;
 
 	public String getProvider() {
@@ -216,19 +217,19 @@ public class Services implements Serializable {
 		this.ingressIp = ingressIp;
 	}
 	
-	public Timestamp getCreateTime() {
+	public DateTime getCreateTime() {
 		return createTime;
 	}
 
-	public void setCreateTime(Timestamp createTime) {
+	public void setCreateTime(DateTime createTime) {
 		this.createTime = createTime;
 	}
 
-	public Timestamp getUpdateTime() {
+	public DateTime getUpdateTime() {
 		return updateTime;
 	}
 
-	public void setUpdateTime(Timestamp updateTime) {
+	public void setUpdateTime(DateTime updateTime) {
 		this.updateTime = updateTime;
 	}
 
