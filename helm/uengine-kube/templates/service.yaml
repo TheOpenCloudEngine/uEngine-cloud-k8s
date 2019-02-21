@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: serviceapi
+  labels:
+    app: serviceapi
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: serviceapi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: serviceui
+  labels:
+    app: serviceui
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: serviceui
+  type: LoadBalancer
