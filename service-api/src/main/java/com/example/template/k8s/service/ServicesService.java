@@ -29,32 +29,32 @@ public class ServicesService {
     KafkaTemplate kafkaTemplate;
 
 
-    @Cacheable(value="service" ,key="#deployment.id")
+//    @Cacheable(value="service" ,key="#deployment.id")
     public Services checkInstance(Services svs){
         return servicesRepository.findById(svs.getId()).orElse(new Services());
     }
 
-    @Cacheable(value="service")
+//    @Cacheable(value="service")
     public Iterable<Services> getAllServices(){
         return servicesRepository.findAll();
     }
 
-    @Cacheable(value="service", key="#provider")
+//    @Cacheable(value="service", key="#provider")
     public Iterable<Services> getServicesByProvider(String provider){
         return servicesRepository.findByProvider(provider);
     }
 
-    @Cacheable(value="service", key="#provider+#name")
+//    @Cacheable(value="service", key="#provider+#name")
     public Iterable<Services> getServicesByProviderAndName(String provider, String name){
         return servicesRepository.findByProviderAndName(provider,name);
     }
     
-    @Cacheable(value="service", key="#namespace")
+//    @Cacheable(value="service", key="#namespace")
     public Iterable<Services> getServicesByNamespace(String namespace){
         return servicesRepository.findByNamespace(namespace);
     }
     
-    @Cacheable(value="service", key="#namespace+#name")
+//    @Cacheable(value="service", key="#namespace+#name")
     public Iterable<Services> getServicesByNamespaceAndName(String namespace, String name){
         return servicesRepository.findByNamespaceAndName(namespace, name);
     }

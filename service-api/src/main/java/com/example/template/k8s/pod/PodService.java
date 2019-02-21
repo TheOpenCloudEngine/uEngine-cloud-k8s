@@ -31,32 +31,32 @@ public class PodService {
     @Autowired
     PodRepository podRepository;
 
-    @Cacheable(value="pod" ,key="#pod.id")
+//    @Cacheable(value="pod" ,key="#pod.id")
     public Pod checkInstance(Pod pod){
         return podRepository.findById(pod.getId()).orElse(new Pod());
     }
 
-    @Cacheable(value="pods")
+//    @Cacheable(value="pods")
     public Iterable<Pod> getAllPods(){
         return podRepository.findAll();
     }
 
-    @Cacheable(value="pods", key="#provider")
+//    @Cacheable(value="pods", key="#provider")
     public Iterable<Pod> getAllPodsByProvider(String provider){
         return podRepository.findByProvider(provider);
     }
 
-    @Cacheable(value="pods", key="#provider+#name")
+//    @Cacheable(value="pods", key="#provider+#name")
     public Iterable<Pod> getInstanceByProviderAndName(String provider, String name){
         return podRepository.findByProviderAndName(provider,name);
     }
     
-    @Cacheable(value="pods", key="#namespace")
+//    @Cacheable(value="pods", key="#namespace")
     public Iterable<Pod> getPodsByNamespace(String namespace){
         return podRepository.findByNamespace(namespace);
     }
     
-    @Cacheable(value="pods", key="#namespace+#name")
+//    @Cacheable(value="pods", key="#namespace+#name")
     public Iterable<Pod> getPodsByNamespaceAndName(String namespace, String name){
         return podRepository.findByNamespaceAndName(namespace, name);
     }
