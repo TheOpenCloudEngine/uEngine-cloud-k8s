@@ -71,13 +71,13 @@ public class Services implements Serializable {
 	@Column(name="ingressIp")
 	private String ingressIp;
 	
-	@Column(name="createTime")
+	@Column(name="createTime", length=6)
 	private Timestamp createTime;
 	
-	@Column(name="updateTime")
+	@Column(name="updateTime", length=6)
 	private Timestamp updateTime;
 	
-	@Column(name="sourceData")
+	@Column(name="sourceData", columnDefinition = "TEXT")
 	private String sourceData;
 
 	public String getProvider() {
