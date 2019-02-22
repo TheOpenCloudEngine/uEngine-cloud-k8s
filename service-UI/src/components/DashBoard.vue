@@ -1,445 +1,259 @@
 <template>
     <div>
-            <!-- Title -->
-            <el-row type="flex" class="row-bg" justify="space-between">
-                <el-col :span="6">
-                </el-col>
-                <el-col :span="6">
-                </el-col>
-                <el-col :span="6">
-                    <el-button style='font-align: "right;"' @click="dialogVisible = true; status = 'add'">
-                        ADD
-                    </el-button>
-                </el-col>
-            </el-row>
+        <!-- Title -->
+        <div class="md-layout md-alignment-center-right">
+            <md-button class="md-raised md-primary" @click="active = true; status = 'add'">ADD</md-button>
+        </div>
+        <!-- Pods Table Start -->
+        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
+                  v-if="types=='pod'">
+            <md-table-toolbar>
+                <div class="md-toolbar-section-start">
+                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
+                </div>
+
+                <md-field md-clearable class="md-toolbar-section-end">
+                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
+                </md-field>
+            </md-table-toolbar>
+
+            <md-table-empty-state
+                    md-label="No users found"
+                    :md-description="`No {{types}} found for this '${search}' query. Try a different search term or create a new user.`">
+                <md-button class="md-primary md-raised">Create New User</md-button>
+            </md-table-empty-state>
+            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
+                <md-table-cell md-label="Name" md-sort-by="name"> {{ item.name }}</md-table-cell>
+                <md-table-cell md-label="Status" md-sort-by="status">{{ item.status }}</md-table-cell>
+                <md-table-cell md-label="Image" md-sort-by="image">{{ item.image }}</md-table-cell>
+                <md-table-cell md-label="Host IP" md-sort-by="hostIp">{{ item.hostIp }}</md-table-cell>
+                <md-table-cell md-label="Action" style="min-width: 158px;">
+                    <div>
+                        <md-button class="md-fab md-mini md-primary" @click="handleEdit(item); status = 'edit'">
+                            <md-icon>edit</md-icon>
+                        </md-button>
+                        <md-button class="md-fab md-mini md-accent">
+                            <md-icon @click="handleDelete(scope.$index, scope.row);">delete</md-icon>
+                        </md-button>
+                    </div>
+                </md-table-cell>
 
 
-            <!-- Pods Table Start -->
-            <el-table
-                    v-if="types=='pod'"
-                    :data="list"
-                    style="width: 100%"
-                    height="600"
-                    :default-sort="{prop: 'namespace', order: 'ascending'}"
-                    v-loading="loading"
-            >
-                <el-table-column type="expand">
-                    <template slot-scope="props">
-                        <p>Name: {{ props.row.name }}</p>
-                        <p>NameSpace: {{ props.row.namespace }}</p>
-                        <p>Type: {{ props.row.type }}</p>
-                        <p>CreateTime: {{ props.row.createTimeStamp }}</p>
-                        <p>Image: {{ props.row.image }}</p>
-                        <p>Node Name: {{ props.row.nodeName }}</p>
-                        <p>host Ip: {{ props.row.hostIp }}</p>
-                        <p>Pod Ip: {{ props.row.podIp }}</p>
-                        <p>Status: {{ props.row.status }}</p>
-                        <p>UID: {{ props.row.uid }}</p>
-                        <p>provider: {{ props.row.provider }}</p>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        label="Provider"
-                        prop="provider"
-                        width="80">
-                    <template slot-scope="scope">
-                        <div slot="reference" class="name-wrapper">
-                            <el-tag size="medium">{{ scope.row.provider }}</el-tag>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        label="Name"
-                        prop="name">
-                </el-table-column>
-                <el-table-column
-                        label="NameSpace"
-                        prop="namespace"
-                        sortable
-                        width="140"
-                >
-                </el-table-column>
-                <el-table-column
-                        label="Status"
-                        prop="status"
-                        width="80">
-                </el-table-column>
-                <!--<el-table-column-->
-                        <!--label="Type"-->
-                        <!--prop="type"-->
-                        <!--width="100">-->
-                <!--</el-table-column>-->
-                <el-table-column
-                        label="CreateTime"
-                        prop="createTimeStamp"
-                        width="150">
-                </el-table-column>
-                <el-table-column
-                        label="Image"
-                        prop="image">
-                </el-table-column>
-                <el-table-column
-                        label="Operations">
-                    <template slot-scope="scope">
-                        <el-button
-                                size="mini"
-                                type="primary"
-                                @click="handleEdit(scope.$index, scope.row); status = 'edit'">Edit
-                        </el-button>
-                        <el-button
-                                size="mini"
-                                type="danger"
-                                @click="handleDelete(scope.$index, scope.row)">Delete
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <!-- Pods Table End -->
+            </md-table-row>
 
-            <!-- Service Table Start -->
-            <el-table
-                    v-else-if="types=='service'"
-                    :data="list"
-                    style="width: 100%"
-                    height="600"
-                    :default-sort="{prop: 'namespace', order: 'ascending'}"
-                    v-loading="loading"
-            >
-                <el-table-column type="expand">
-                    <template slot-scope="props">
-                        <p>Name: {{ props.row.name }}</p>
-                        <p>NameSpace: {{ props.row.namespace }}</p>
-                        <p>Kind: {{ props.row.kind }}</p>
-                        <p>Type: {{ props.row.type }}</p>
-                        <p>apiVersion: {{ props.row.apiVersion }}</p>
-                        <p>CreateTime: {{ props.row.createTimeStamp }}</p>
-                        <p>Spec Cluster Ip: {{ props.row.specClusterIp }}</p>
-                        <p>Spec Protocol: {{ props.row.specProtocol }}</p>
-                        <p>Spec Session Affinity: {{ props.row.specSessionAffinity }}</p>
-                        <p>Spec Type: {{ props.row.specType }}</p>
-                        <p>HostName: {{ props.row.hostname }}</p>
-                        <p>Ingress Ip: {{ props.row.ingressIp }}</p>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        label="Provider"
-                        prop="provider"
-                        width="80">
-                    <template slot-scope="scope">
-                        <div slot="reference" class="name-wrapper">
-                            <el-tag size="medium">{{ scope.row.provider }}</el-tag>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        label="Name"
-                        prop="name">
-                </el-table-column>
-                <el-table-column
-                        label="NameSpace"
-                        prop="namespace"
-                        sortable
-                        width="140"
-                >
-                </el-table-column>
-                <el-table-column
-                        label="Kind"
-                        prop="kind"
-                        width="80">
-                </el-table-column>
-                <!--<el-table-column-->
-                        <!--label="Type"-->
-                        <!--prop="type"-->
-                        <!--width="140">-->
-                <!--</el-table-column>-->
-                <el-table-column
-                        label="CreateTime"
-                        prop="createTimeStamp"
-                        width="150">
-                </el-table-column>
-                <el-table-column
-                        label="Operations">
-                    <template slot-scope="scope">
+        </md-table>
 
-                        <el-button
-                                size="mini"
-                                type="primary"
-                                @click="handleEdit(scope.$index, scope.row); status = 'edit'">Edit
-                        </el-button>
-                        <el-button
-                                size="mini"
-                                type="danger"
-                                @click="handleDelete(scope.$index, scope.row)">Delete
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <!-- Service Table End -->
+        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
+                  v-if="types=='service'">
+            <md-table-toolbar>
+                <div class="md-toolbar-section-start">
+                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
+                </div>
 
-            <!-- Deployment Table Start -->
-            <el-table
-                    v-else-if="types=='deployment'"
-                    :data="list"
-                    style="width: 100%"
-                    height="600"
-                    :default-sort="{prop: 'namespace', order: 'ascending'}"
-                    v-loading="loading"
-            >
-                <el-table-column type="expand">
-                    <template slot-scope="props">
-                        <p>Name: {{ props.row.name }}</p>
-                        <p>NameSpace: {{ props.row.namespace }}</p>
-                        <p>Kind: {{ props.row.kind }}</p>
-                        <p>Type: {{ props.row.type }}</p>
-                        <p>apiVersion: {{ props.row.apiVersion }}</p>
-                        <p>CreateTime: {{ props.row.createTimeStamp }}</p>
-                        <p>Spec Replicas: {{ props.row.specReplicas }}</p>
-                        <p>Strategy Type: {{ props.row.strategyType }}</p>
-                        <p>UID: {{ props.row.uid }}</p>
+                <md-field md-clearable class="md-toolbar-section-end">
+                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
+                </md-field>
+            </md-table-toolbar>
 
-                        <p v-if="props.row.statusReplicas != null">Status Replicas: {{ props.row.statusReplicas }}</p>
-                        <p v-if="props.row.statusAvailableReplicas != null">Status Available Replicas: {{
-                            props.row.statusAvailableReplicas }}</p>
-                        <p v-if="props.row.statusReadyReplicas != null">Status Ready Replicas: {{
-                            props.row.statusReadyReplicas }}</p>
-                        <p v-if="props.row.statusUpdateReplicas != null">Status Update Replicas: {{
-                            props.row.statusUpdateReplicas }}</p>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        label="Provider"
-                        prop="provider"
-                        width="80">
-                    <template slot-scope="scope">
-                        <div slot="reference" class="name-wrapper">
-                            <el-tag size="medium">{{ scope.row.provider }}</el-tag>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        label="Name"
-                        prop="name">
-                </el-table-column>
-                <el-table-column
-                        label="NameSpace"
-                        prop="namespace"
-                        sortable
-                        width="140"
-                >
-                </el-table-column>
-                <el-table-column
-                        label="Kind"
-                        prop="kind"
-                        width="140">
-                </el-table-column>
-                <!--<el-table-column-->
-                        <!--label="Type"-->
-                        <!--prop="type"-->
-                        <!--width="140">-->
-                <!--</el-table-column>-->
-                <el-table-column
-                        label="CreateTime"
-                        prop="createTimeStamp"
-                        width="150">
-                </el-table-column>
-                <el-table-column
-                        label="Operations">
-                    <template slot-scope="scope">
-                        <!--<el-button-->
-                        <!--size="mini"-->
-                        <!--@click="handleEdit(scope.$index, scope.row)">Edit</el-button>-->
-                        <el-button
-                                size="mini"
-                                type="primary"
-                                @click="handleEdit(scope.$index, scope.row); status = 'edit'">Edit
-                        </el-button>
-                        <el-button
-                                size="mini"
-                                type="danger"
-                                @click="handleDelete(scope.$index, scope.row)">Delete
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <!-- Deployment Table End -->
+            <md-table-empty-state
+                    md-label="No users found"
+                    :md-description="`No user found for this '${search}' query. Try a different search term or create a new user.`">
+                <md-button class="md-primary md-raised">Create New User</md-button>
+            </md-table-empty-state>
 
-            <!-- Dial Button -->
-            <el-dialog
-                    :title="'YAML Editor'"
-                    :visible.sync="dialogVisible"
-                    width="50%"
-                    :before-close="handleClose">
-                <span>Edit Scope : {{types}}</span>
+            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
+                <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
+                <md-table-cell md-label="SpecType" md-sort-by="specType">{{ item.specType }}</md-table-cell>
+                <md-table-cell md-label="Type" md-sort-by="type">{{ item.type }}</md-table-cell>
+                <md-table-cell md-label="CreateTimeStamp" md-sort-by="createTimeStamp">{{ item.createTimeStamp }}
+                </md-table-cell>
+                <md-table-cell md-label="Action">
+                    <md-button>Edit</md-button>
+                    <md-button>Delete</md-button>
+                </md-table-cell>
+
+            </md-table-row>
+        </md-table>
+
+        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
+                  v-if="types=='deployment'">
+            <md-table-toolbar>
+                <div class="md-toolbar-section-start">
+                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
+                </div>
+
+                <md-field md-clearable class="md-toolbar-section-end">
+                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
+                </md-field>
+            </md-table-toolbar>
+
+            <md-table-empty-state
+                    md-label="No users found"
+                    :md-description="`No user found for this '${search}' query. Try a different search term or create a new user.`">
+                <md-button class="md-primary md-raised">Create New User</md-button>
+            </md-table-empty-state>
+            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
+                <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
+                <md-table-cell md-label="Replicas" md-sort-by="statusReplicas" md-numeric>{{ item.statusReplicas }}
+                </md-table-cell>
+                <md-table-cell md-label="strategyType" md-sort-by="strategyType">{{ item.strategyType }}</md-table-cell>
+                <md-table-cell md-label="createTimeStamp" md-sort-by="createTimeStamp">{{ item.createTimeStamp }}
+                </md-table-cell>
+            </md-table-row>
+        </md-table>
+
+        <!-- Dial Button -->
+
+        <md-dialog
+                :md-active.sync="active"
+                style="width: 1000px !important;"
+        >
+            <md-dialog-title>{{ types.toUpperCase() }} YAML Edit</md-dialog-title>
+            <md-dialog-content style="width: 1100px !important;">
                 <codemirror
                         :options="{
-                theme: 'darcula',
+                theme: 'idea',
+                tabSize: 4,
                 mode: 'yaml',
                 lineNumbers: true,
                 lineWrapping: true,
                 }"
-                        :value="plainText"
-                        v-model="plainText"
+                :value="plainText"
+                v-model="plainText"
+                style="width: 900px !important;"
                 >
                 </codemirror>
+                <text-reader @load="plainText = $event" style="width: 900px !important;"></text-reader>
+                <md-button class="md-raised md-primary" @click="active = false; plainText= ''">Cancel</md-button>
+                <md-button class="md-raised md-primary" @click="postYAML">Confirm</md-button>
+            </md-dialog-content>
+            <md-dialog-actions>
 
-                <el-form v-if="status == 'add'" :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px"
-                         class="demo-ruleForm"
-                         style="margin-top: 10px;">
-                    <el-form-item label="NameSpace" prop="nameSpace">
-                        <el-input v-model="ruleForm.nameSpace"></el-input>
-                    </el-form-item>
-                </el-form>
+            </md-dialog-actions>
+        </md-dialog>
 
-                <el-form v-else :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px"
-                         class="demo-ruleForm"
-                         style="margin-top: 10px;">
-                    <el-form-item label="NameSpace" prop="nameSpace">
-                        <el-input :disabled="true" v-model="ruleForm.nameSpace"></el-input>
-                    </el-form-item>
-                </el-form>
+        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
+                     :md-active.sync="showAddSnackbar" md-persistent>
+            <span>{{types.toUpperCase()}} 생성 시작 되었습니다.</span>
+            <md-button class="md-primary" @click="showAddSnackbar = false">확인</md-button>
+        </md-snackbar>
 
-                <text-reader @load="plainText = $event"></text-reader>
+        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
+                     :md-active.sync="showAddSnackbar" md-persistent>
+            <span>{{types.toUpperCase()}} 수정 되었습니다.</span>
+            <md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>
+        </md-snackbar>
 
-                <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">Cancel</el-button>
-                <el-button type="primary" @click="postYAML">Confirm</el-button>
-            </span>
-            </el-dialog>
+        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
+                     :md-active.sync="showAddSnackbar" md-persistent>
+            <span>{{selected.name}} 삭제하였습니다.</span>
+            <md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>
+        </md-snackbar>
     </div>
 </template>
 
 <script>
-    import VueTable from 'vuetable-2'
-    import dropdown from 'vue-dropdowns';
     import TextReader from "@/components/yaml.vue";
     import yaml from 'js-yaml'
     import json2yaml from 'json2yaml'
     import 'vue-codemirror'
     import 'codemirror/mode/yaml/yaml.js'
 
+    const toLower = text => {
+        return text.toString().toLowerCase()
+    }
+
+    const searchByName = (items, term) => {
+        if (term) {
+            return items.filter(item => toLower(item.name).includes(toLower(term)))
+        }
+
+        return items
+    }
+
     export default {
 
         name: 'DashBoard',
         props: {
-            user: Array,
+            namespace: String,
+            namespaceList: Array,
             types: String
         },
         components: {
-            'vuetable': VueTable,
-            'dropdown': dropdown,
             TextReader,
             yaml,
             json2yaml
+        },
+        created() {
         },
         data() {
             return {
                 evtSource: null,
                 list: [],
+                selected: '',
+                searched: [],
+                search: null,
                 providerFilters: [],
-                dialogVisible: false,
                 plainText: "",
                 selectedRow: "",
                 loading: false,
                 yamlText: "",
                 status: '',
-                ruleForm: {
-                    nameSpace: '',
-                    name: ''
-                },
-                rules: {
-                    nameSpace: [
-                        {required: false, message: 'Please Input NameSpace', trigger: 'blur'},
-                    ],
-                }
-
-
+                active: false,
+                position: 'center',
+                duration: 4000,
+                isInfinity: false,
+                showAddSnackbar: false,
+                showEditSnackbar: false
             }
         },
 
         beforeDestroy: function () {
             var me = this
-            // console.log("closing evtSource beforeDestroy");
-            // me.evtSource.close();
+            console.log("closing evtSource beforeDestroy");
+            this.evtSource.close();
         },
 
         mounted() {
-            var me = this
-            var getURLType
-            if (me.types == 'pod') {
-                getURLType = me.types + 's'
-            } else {
-                getURLType = me.types
-            }
-
-
-            /*
-                    TODO : 현재 Default만 받아오도록 설정되어있음.
-            */
-
-            me.$http.get(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/default')
-                .then((result) => {
-                    var tmpData = result.data
-                    var resultMap = []
-                    var usedUid = []
-                    return new Promise((resolve, reject) => {
-                        tmpData.forEach(function (sortingData) {
-                            if (!(usedUid.includes(sortingData.uid))) {
-                                resultMap.push(sortingData)
-                                usedUid.push(sortingData.uid)
-                            } else {
-                                resultMap.forEach(function (resultMapTmp, index) {
-                                    if (resultMapTmp.uid == sortingData.uid) {
-                                        if (resultMapTmp.type == 'DELETED') {
-                                            resultMap = [
-                                                ...resultMap.slice(0, index),
-                                                resultMapTmp,
-                                                ...resultMap.slice(index + 1)
-                                            ]
-                                        } else if (sortingData.type == 'DELETED') {
-                                            resultMap = [
-                                                ...resultMap.slice(0, index),
-                                                sortingData,
-                                                ...resultMap.slice(index + 1)
-                                            ]
-                                        } else {
-                                            if (Date.parse(resultMapTmp.createTime) < Date.parse(sortingData.createTime)) {
-                                                resultMap = [
-                                                    ...resultMap.slice(0, index),
-                                                    sortingData,
-                                                    ...resultMap.slice(index + 1)
-                                                ]
-                                            }
-                                        }
-                                    }
-                                })
-                            }
-                        })
-                        resolve(resultMap)
-                    }).then(function (resolveData) {
-                        var deleteItemList = []
-                        // console.log(resolveData)
-                        resolveData.forEach(function (deleteTmp, index) {
-                            if (deleteTmp.type == 'DELETED') {
-                                deleteItemList.push(deleteTmp)
-                            }
-                        })
-                        me.startSSE()
-                        me.list = _.difference(resolveData, deleteItemList)
-                    })
-                })
+            // this.getList()
         },
         watch: {
-            plainText: function (newVal) {
-                var me = this
+            namespace: function () {
+                this.getList()
             },
+            list: function (newVal) {
+                this.searched = newVal
+            }
         },
 
         methods: {
+            onConfirm() {
+                this.value = 'Agreed'
+            },
+            onCancel() {
+                this.value = 'Disagreed'
+            },
+            onSelect(item) {
+                this.selected = item
+            },
+            searchOnTable() {
+                this.searched = searchByName(this.list, this.search)
+            },
             startSSE: function () {
                 var me = this;
                 // var tmp = [];
+                if (me.evtSource != null) {
+                    me.evtSource.close()
+                }
+                if (me.namespace != null) {
+                    console.log(me.namespace)
 
-                me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types + '&namespace=' + me.namespace)
+                } else if (me.namespace == null) {
+                    console.log(me.namespace)
+
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
+                }
 
                 /*
                     TODO : 이벤트 수정
@@ -486,6 +300,136 @@
                     me.startSSE();
                 }
             },
+            getList() {
+                var me = this
+                var getURLType
+                if (me.types == 'pod') {
+                    getURLType = me.types + 's'
+                } else {
+                    getURLType = me.types
+                }
+
+
+                /*
+                        TODO : 현재 Default만 받아오도록 설정되어있음.
+                */
+                if (me.namespace == null) {
+                    me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
+                        .then((result) => {
+                            var tmpData = result.data
+                            var resultMap = []
+                            var usedUid = []
+                            return new Promise((resolve, reject) => {
+                                tmpData.forEach(function (sortingData) {
+                                    if (!me.namespaceList.includes(sortingData.namespace)) {
+                                        me.namespaceList.push(sortingData.namespace)
+                                    }
+                                    if (!(usedUid.includes(sortingData.uid))) {
+                                        resultMap.push(sortingData)
+                                        usedUid.push(sortingData.uid)
+                                    } else {
+                                        resultMap.forEach(function (resultMapTmp, index) {
+                                            if (resultMapTmp.uid == sortingData.uid) {
+                                                if (resultMapTmp.type == 'DELETED') {
+                                                    resultMap = [
+                                                        ...resultMap.slice(0, index),
+                                                        resultMapTmp,
+                                                        ...resultMap.slice(index + 1)
+                                                    ]
+                                                } else if (sortingData.type == 'DELETED') {
+                                                    resultMap = [
+                                                        ...resultMap.slice(0, index),
+                                                        sortingData,
+                                                        ...resultMap.slice(index + 1)
+                                                    ]
+                                                } else {
+                                                    if (Date.parse(resultMapTmp.createTime) < Date.parse(sortingData.createTime)) {
+                                                        resultMap = [
+                                                            ...resultMap.slice(0, index),
+                                                            sortingData,
+                                                            ...resultMap.slice(index + 1)
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        })
+                                    }
+                                })
+                                resolve(resultMap)
+                            }).then(function (resolveData) {
+                                var deleteItemList = []
+                                // console.log(resolveData)
+                                resolveData.forEach(function (deleteTmp, index) {
+                                    if (deleteTmp.type == 'DELETED') {
+                                        deleteItemList.push(deleteTmp)
+                                    }
+                                })
+                                // me.evtSource.close()
+                                me.startSSE()
+                                me.list = _.difference(resolveData, deleteItemList)
+
+                                me.searched = me.list
+                                me.$emit('update:namespaceList', me.namespaceList)
+
+                            })
+                        })
+                } else if (me.namespace != null) {
+                    me.$http.get(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.namespace)
+                        .then((result) => {
+                            var tmpData = result.data
+                            var resultMap = []
+                            var usedUid = []
+                            return new Promise((resolve, reject) => {
+                                tmpData.forEach(function (sortingData) {
+                                    if (!(usedUid.includes(sortingData.uid))) {
+                                        resultMap.push(sortingData)
+                                        usedUid.push(sortingData.uid)
+                                    } else {
+                                        resultMap.forEach(function (resultMapTmp, index) {
+                                            if (resultMapTmp.uid == sortingData.uid) {
+                                                if (resultMapTmp.type == 'DELETED') {
+                                                    resultMap = [
+                                                        ...resultMap.slice(0, index),
+                                                        resultMapTmp,
+                                                        ...resultMap.slice(index + 1)
+                                                    ]
+                                                } else if (sortingData.type == 'DELETED') {
+                                                    resultMap = [
+                                                        ...resultMap.slice(0, index),
+                                                        sortingData,
+                                                        ...resultMap.slice(index + 1)
+                                                    ]
+                                                } else {
+                                                    if (Date.parse(resultMapTmp.createTime) < Date.parse(sortingData.createTime)) {
+                                                        resultMap = [
+                                                            ...resultMap.slice(0, index),
+                                                            sortingData,
+                                                            ...resultMap.slice(index + 1)
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        })
+                                    }
+                                })
+                                resolve(resultMap)
+                            }).then(function (resolveData) {
+                                var deleteItemList = []
+                                // console.log(resolveData)
+                                resolveData.forEach(function (deleteTmp, index) {
+                                    if (deleteTmp.type == 'DELETED') {
+                                        deleteItemList.push(deleteTmp)
+                                    }
+                                })
+
+                                me.startSSE()
+                                me.list = _.difference(resolveData, deleteItemList)
+
+                                me.searched = me.list
+                            })
+                        })
+                }
+            },
             handleDelete(index, row) {
                 var me = this
                 var getURLType;
@@ -507,10 +451,6 @@
                             }
                         }
                     ).then(function () {
-                        me.list = [
-                            ...me.list.slice(0, index),
-                            ...me.list.slice(index + 1)
-                        ]
                         me.$notify({
                             title: 'Success',
                             message: '삭제되었습니다. 적용 중 입니다.',
@@ -518,45 +458,22 @@
                         });
                         me.loading = true;
                     })
-                }).catch(() => {
-                    this.$message({
-                        type: 'info',
-                        message: 'Delete canceled'
-                    });
-                });
-            },
-            handleEdit(index, row) {
-                var me = this
-                var getURLType;
-                me.dialogVisible = true
-                var yamlData = row.sourceData
-                me.selectedRow = row
-                me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g, '- ').replace(/\\"/g, '\'')
-                me.ruleForm.nameSpace = row.namespace
-            },
-            handleClose(done) {
-                this.$confirm('Are you sure to close this dialog?')
-                    .then(_ => {
-                        done();
-                    })
-                    .catch(_ => {
-                    });
-            },
-            notiOpen() {
-                this.$notify({
-                    title: 'Info',
-                    message: 'YAML파일 적용 중 입니다.',
-                    type: 'info'
-                });
+                })
             },
 
+            handleEdit(item) {
+                var me = this
+                var getURLType;
+                me.active = true
+                var yamlData = item.sourceData
+                me.selectedRow = item
+                me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g, '- ').replace(/\\"/g, '\'')
+            },
             postYAML() {
                 var me = this
-                var nameSpace
-                if (me.ruleForm.nameSpace == "") {
+                var nameSpace = me.namespace;
+                if (nameSpace == null) {
                     nameSpace = 'default'
-                } else {
-                    nameSpace = me.ruleForm.nameSpace
                 }
 
                 if (me.plainText == "") {
@@ -565,15 +482,6 @@
                     })
                 }
                 var me = this;
-                // console.log(yaml.load(me.plainText))
-
-                // var lines = me.plainText.split('\n')
-                //
-                // lines.splice(0,1)
-                // for (var i in lines){
-                //     lines[i] = lines[i].substring(2,lines[i].length)
-                // }
-                // var yamltext = lines.join('\n')
 
                 var jsonYaml = yaml.load(me.plainText)
 
@@ -585,7 +493,6 @@
                 } else {
                     getURLType = me.types
                 }
-                // console.log(jsonYaml)
                 if (me.status == 'add') {
                     me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace, jsonYaml, {
                             headers: {
@@ -593,8 +500,8 @@
                             }
                         }
                     ).then(function () {
-                        me.dialogVisible = false
-                        me.notiOpen()
+                        me.active = false
+                        me.showAddSnackbar = true;
                         me.status = ''
 
                     })
@@ -605,8 +512,8 @@
                             }
                         }
                     ).then(function () {
-                        me.dialogVisible = false
-                        me.notiOpen()
+                        me.active = false
+                        me.showEditnackbar = true;
                         me.status = ''
                     })
                 }
@@ -617,27 +524,4 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-    h3 {
-        margin: 40px 0 0;
-    }
-
-    .table {
-        float: left;
-        width: 100%;
-        margin: 5px;
-    }
-
-    ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    li {
-        display: inline-block;
-        margin: 0 10px;
-    }
-
-    a {
-        color: #42b983;
-    }
 </style>

@@ -29,12 +29,12 @@ public class SseRestController {
     @GetMapping("/")
     public SseEmitter getNewKube(HttpServletRequest request,
                                  HttpServletResponse response,
-                                 @RequestParam(value = "instanceType", required = false) String instanceType
+                                 @RequestParam(value = "instanceType", required = false) String instanceType,
+                                 @RequestParam(value = "namespace", required = false) String namespace
+
     ) {
-//        SseKubeEmitter emitter = new SseKubeEmitter(name, provider);
-    	SseKubeEmitter emitter = new SseKubeEmitter(instanceType);
+        SseKubeEmitter emitter = new SseKubeEmitter(instanceType, namespace);
         userBaseEmitters.add(emitter);
-//        this.nameSpace = nameSpace;
 
         emitter.onCompletion(() -> this.userBaseEmitters.remove(emitter));
         emitter.onTimeout(() -> {
@@ -56,16 +56,14 @@ public class SseRestController {
                  */
                 LOGGER.info("appEntityBaseMessage");
 
-                if(appEntityBaseMessage.getInstanceType().equals(emitter.getInstanceType())) {
-                    /*
-                    todo : namespace가 default일때만 메시지를 보냄.
-                    */
-                    if(appEntityBaseMessage.getMessage().contains("\"namespace\":\"default\"")) {
+                if (appEntityBaseMessage.getInstanceType().equals(emitter.getInstanceType())) {
+                    if (emitter.getNamespace() == null) {
+                        emitter.send(appEntityBaseMessage);
+                    } else if (appEntityBaseMessage.getNamespace().equals(emitter.getNamespace())) {
                         emitter.send(appEntityBaseMessage);
                     }
                 }
-//
-//                emitter.send(appEntityBaseMessage);
+
             } catch (Exception e) {
                 e.printStackTrace();
                 LOGGER.info("dead");

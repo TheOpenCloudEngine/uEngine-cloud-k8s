@@ -1,9 +1,9 @@
 <template>
     <div class="yaml" style="text-align:center; margin: 10px">
-        <label class="text-reader">
-            Read File
-            <input type="file" @change="loadTextFromFile">
-        </label>
+        <md-field>
+            <label>Import YAML</label>
+            <md-file v-model="single" @change="loadTextFromFile"/>
+        </md-field>
     </div>
 </template>
 
@@ -12,14 +12,15 @@
 
         name: 'yaml',
         props: {
-
+            plainText: String
         },
         components: {
 
         },
         data() {
             return {
-
+                fileName: '',
+                single: ''
             }
         },
 
@@ -35,9 +36,14 @@
         },
         methods: {
             loadTextFromFile(ev) {
+
+                this.$emit('update:plainText', '')
+
                 const file = ev.target.files[0];
                 const reader = new FileReader();
 
+                this.fileName = file.name;
+                this.$emit('update:fileName', this.fileName)
                 reader.onload = e => this.$emit("load", e.target.result);
                 reader.readAsText(file);
             }

@@ -17,12 +17,13 @@ public class SseBaseMessageHandler {
     }
 
     @Async
-    public void publish(String instanceType, String jsonData) {
+    public void publish(String instanceType, String jsonData, String namespace) {
         try {
 
             SseBaseMessage message = new SseBaseMessage();
             message.setInstanceType(instanceType);
             message.setMessage(jsonData);
+            message.setNamespace(namespace);
             this.eventPublisher.publishEvent(message);
         } catch (Exception ex) {
             LOGGER.error("Publish Error");

@@ -27,7 +27,7 @@ public class PodKafkaService {
 
     @Autowired
     PodService podService;
-    
+
 
     @Autowired
     private SseBaseMessageHandler messageHandler;
@@ -47,18 +47,18 @@ public class PodKafkaService {
         System.out.println(message);
         Gson gson = new Gson();
         Pod pod = gson.fromJson(message, Pod.class);
-        
+
         SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
     	Calendar cal = Calendar.getInstance();
     	String today = null;
     	today = formatter.format(cal.getTime());
     	Timestamp ts = Timestamp.valueOf(today);
     	pod.setCreateTime(ts);
-        
+
         podService.update(pod);
-        
-        messageHandler.publish("pod", message);
-        
+
+        messageHandler.publish("pod", message, pod.getNamespace());
+
     }
 
 }

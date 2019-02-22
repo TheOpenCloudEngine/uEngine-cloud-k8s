@@ -21,10 +21,10 @@ import com.google.gson.Gson;
 public class DeploymentKafkaService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DeploymentKafkaService.class);
-    
+
     @Autowired
     private DeploymentService deploymentService;
-    
+
     @Autowired
     private SseBaseMessageHandler messageHandler;
 
@@ -34,20 +34,20 @@ public class DeploymentKafkaService {
 
     	Gson gson = new Gson();
     	Deployment dpl = gson.fromJson(message, Deployment.class);
-    	
-    	
+
+
     	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
     	Calendar cal = Calendar.getInstance();
     	String today = null;
     	today = formatter.format(cal.getTime());
     	Timestamp ts = Timestamp.valueOf(today);
     	dpl.setCreateTime(ts);
-    	
+
     	deploymentService.update(dpl);
 //    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
         System.out.println(message);
-        messageHandler.publish("deployment", message);
-        
+        messageHandler.publish("deployment", message, dpl.getNamespace());
+
 //        String bodyData = message.replaceAll("\\\\", "");
 //        System.out.println(bodyData);
 
@@ -63,7 +63,7 @@ public class DeploymentKafkaService {
 //        Gson gson = new Gson();
 //        V1Deployment dpl = gson.fromJson(message, V1Deployment.class);
 //        System.out.println(dpl.toString());
-    	
+
 //    	ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
 //    	V1Deployment dpl1 = null;
 //    	try {
@@ -75,7 +75,7 @@ public class DeploymentKafkaService {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
-//        
+//
 //    	ObjectMapper mapper = new ObjectMapper();
 //    	Watch.Response<V1Deployment> item = null;
 //		try {
@@ -83,33 +83,33 @@ public class DeploymentKafkaService {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
-//    	
+//
 //    	Deployment dpl = new Deployment();
-//    	
+//
 //    	dpl.setProvider("K8S");
 //    	dpl.setId(UUID.randomUUID().toString());
 //    	dpl.setType(item.type);
 //    	dpl.setApiVersion(item.object.getApiVersion());
 //    	dpl.setKind(item.object.getKind());
-//    	
+//
 //    	// deployment의 메타데이터 정보
 //    	{
 //			if (item.object.getMetadata().getCreationTimestamp() != null && item.object.getMetadata().getCreationTimestamp().getMillis() != 0L) {
 //				SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //				dpl.setCreateTimeStamp(transFormat.format(item.object.getMetadata().getCreationTimestamp().getMillis()));
 //			}
-//			
+//
 //			dpl.setName(item.object.getMetadata().getName());
 //			dpl.setNamespace(item.object.getMetadata().getNamespace());
 //			dpl.setUid(item.object.getMetadata().getUid());
 //    	}
-//    	
+//
 //    	// deployment의 spec 정보
 //    	{
 //    		dpl.setStrategyType(item.object.getSpec().getStrategy().getType());
 //    		dpl.setSpecReplicas(item.object.getSpec().getReplicas());
 //    	}
-//    	
+//
 //    	// deployment의 status 정보
 //    	{
 //    		dpl.setStatusReplicas(item.object.getStatus().getReplicas());
@@ -117,10 +117,10 @@ public class DeploymentKafkaService {
 //    		dpl.setStatusReadyReplicas(item.object.getStatus().getReadyReplicas());
 //    		dpl.setStatusUpdateReplicas(item.object.getStatus().getUpdatedReplicas());
 //    	}
-//    	
-//    	
+//
+//
 //    	deploymentService.update(dpl);
-    	
+
     }
 
 }
