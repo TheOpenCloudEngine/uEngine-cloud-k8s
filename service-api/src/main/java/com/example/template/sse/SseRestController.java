@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Controller
-//@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")
 @RequestMapping("/kubesse")
 public class SseRestController {
 
@@ -25,7 +25,7 @@ public class SseRestController {
 
     public String nameSpace = null;
 
-    @CrossOrigin(origins = "*")
+//    @CrossOrigin(origins = "*")
     @GetMapping("/")
     public SseEmitter getNewKube(HttpServletRequest request,
                                  HttpServletResponse response,
