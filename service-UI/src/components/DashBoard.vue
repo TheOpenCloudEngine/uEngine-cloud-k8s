@@ -19,7 +19,7 @@
 
             <md-table-empty-state
                     md-label="No users found"
-                    :md-description="`No {{types}} found for this '${search}' query. Try a different search term or create a new user.`">
+                    :md-description="`No {{ types }} found for this '${search}' query. Try a different search term or create a new user.`">
                 <md-button class="md-primary md-raised">Create New User</md-button>
             </md-table-empty-state>
             <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
@@ -106,29 +106,31 @@
 
         <md-dialog
                 :md-active.sync="active"
-                style="width: 1000px !important;"
+                style="height: 800px;"
         >
-            <md-dialog-title>{{ types.toUpperCase() }} YAML Edit</md-dialog-title>
-            <md-dialog-content style="width: 1100px !important;">
+            <md-dialog-content style="max-width: 1000px;">
                 <codemirror
-                        :options="{
-                theme: 'idea',
-                tabSize: 4,
-                mode: 'yaml',
-                lineNumbers: true,
-                lineWrapping: true,
-                }"
-                :value="plainText"
-                v-model="plainText"
-                style="width: 900px !important;"
+                        ref="mycm"
+                        :options="
+                cmOptions
+                "
+                        :value="plainText"
+                        v-model="plainText"
+                        style="postion: absolute"
+                        @ready="onCmReady"
+                        @focus="onFocus"
                 >
                 </codemirror>
-                <text-reader @load="plainText = $event" style="width: 900px !important;"></text-reader>
+
+            </md-dialog-content>
+
+            <text-reader @load="plainText = $event" style="width: 900px !important;"></text-reader>
+
+
+
+            <md-dialog-actions>
                 <md-button class="md-raised md-primary" @click="active = false; plainText= ''">Cancel</md-button>
                 <md-button class="md-raised md-primary" @click="postYAML">Confirm</md-button>
-            </md-dialog-content>
-            <md-dialog-actions>
-
             </md-dialog-actions>
         </md-dialog>
 
@@ -189,6 +191,14 @@
         data() {
             return {
                 evtSource: null,
+                cmOptions: {
+                    tabSize: 4,
+                    mode: 'yaml',
+                    theme: 'darcula',
+                    lineNumbers: true,
+                    line: true,
+                    viewportMargin: 15,
+                },
                 list: [],
                 selected: '',
                 searched: [],
@@ -213,9 +223,14 @@
             console.log("closing evtSource beforeDestroy");
             this.evtSource.close();
         },
-
+        computed: {
+            codemirror() {
+                console.log(this.$refs.mycm.codemirror)
+                return this.$refs.mycm.codemirror
+            }
+        },
         mounted() {
-            // this.getList()
+            this.getList()
         },
         watch: {
             namespace: function () {
@@ -227,11 +242,21 @@
         },
 
         methods: {
-            onConfirm() {
-                this.value = 'Agreed'
+            onCmReady() {
+                // 임시처리
+                var me = this
+                me.codemirror.setSize(900,500)
+                me.codemirror.setOption('lineWrapping',true)
+                me.codemirror.refresh()
             },
-            onCancel() {
-                this.value = 'Disagreed'
+            onFocus() {
+                var me = this
+                me.codemirror.scrollTo(0,1000)
+                me.codemirror.refresh()
+
+                me.codemirror.scrollTo(0,0)
+                me.codemirror.refresh()
+
             },
             onSelect(item) {
                 this.selected = item
@@ -476,11 +501,12 @@
                     nameSpace = 'default'
                 }
 
-                if (me.plainText == "") {
-                    this.$alert('입력값이 부족합니다.', '알림', {
-                        confirmButtonText: 'OK',
-                    })
-                }
+                // if (me.plainText == "") {
+                //     this.$alert('입력값이 부족합니다.', '알림', {
+                //         confirmButtonText: 'OK',
+                //     })
+                // }
+
                 var me = this;
 
                 var jsonYaml = yaml.load(me.plainText)

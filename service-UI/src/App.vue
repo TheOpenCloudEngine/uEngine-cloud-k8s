@@ -33,13 +33,6 @@
             </md-app-content>
         </md-app>
     </div>
-    <!--<div id="app" style="width: 100%;  height: 100%;">-->
-        <!--<md-app md-waterfall md-mode="flexible">-->
-
-            <!--<md-app-content>-->
-            <!--</md-app-content>-->
-        <!--</md-app>-->
-    <!--</div>-->
 </template>
 <script>
     export default {
