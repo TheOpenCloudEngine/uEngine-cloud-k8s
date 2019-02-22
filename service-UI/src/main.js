@@ -3,21 +3,23 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from 'axios'
-import Element from 'element-ui'
-import locale from 'element-ui/lib/locale/lang/ko'
+
+import VueMaterial from 'vue-material'
+import 'vue-material/dist/vue-material.min.css'
+
 import VueCodemirror from 'vue-codemirror'
 import 'codemirror/lib/codemirror.css'
-// import 'codemirror/theme/blackboard.css'
-
+import 'codemirror/theme/idea.css'
 
 Vue.use(VueCodemirror);
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
-Vue.use(Element, { locale })
+Vue.use(VueMaterial)
 
+Vue.component('router-link', Vue.options.components.RouterLink);
+Vue.component('router-view', Vue.options.components.RouterView);
 
-// window.API_HOST = "http://serviceapi:8086"
 if( process.env.NODE_ENV == "development" ){
   window.API_HOST = "http://localhost:8086";
 }else{
