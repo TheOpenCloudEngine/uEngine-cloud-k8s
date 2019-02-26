@@ -30,6 +30,7 @@
                 :items="list"
                 class="elevation-1"
                 :loading="tableLoad"
+                :search="search"
         >
             <template slot="items" slot-scope="props">
                 <td>{{ props.item.name }}</td>
@@ -483,7 +484,7 @@
 
                                 me.startSSE()
                                 me.list = _.difference(resolveData, deleteItemList)
-                                me.searched = me.list
+                                // me.searched = me.list
                             })
                         })
                 }
