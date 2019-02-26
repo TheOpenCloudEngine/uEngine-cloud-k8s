@@ -1,9 +1,6 @@
 <template>
     <div class="yaml" style="text-align:center; margin: 10px">
-        <md-field>
-            <label>Import YAML</label>
-            <md-file v-model="single" @change="loadTextFromFile"/>
-        </md-field>
+        <input type="file" @change="loadTextFromFile"/>
     </div>
 </template>
 

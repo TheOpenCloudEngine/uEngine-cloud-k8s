@@ -1,61 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.14/semantic.min.css">
-    <!-- import CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/theme/monokai.min.css" rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
-    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/vue-material.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css">
-    <!--<link href="./path/to/vuejs-dialog.min.css" rel="stylesheet">-->
-
-    <!-- import JavaScript -->
+    <title>service-ui</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
-    <!--<script type="text/javascript" src="./path/to/vuejs-dialog.min.js"></script>-->
-    <script>
-
-        var profile = 'local';
-        var config = {};
-
-        /**
-         * Get profile from system env given by dcos
-         */
-        $.ajax({
-            url: "../static/env.txt",
-            type: "get",
-            async: false,
-            success: function (data) {
-                var lines = data.split('\n');
-                $.each(lines, function (i, line) {
-                    // console.log(line);
-                    if (line && line.indexOf('VUE_APP_API_HOST=') == 0) {
-                        api_host = line.split('=')[1];
-                        window.API_HOST = api_host;
-                    }
-
-                });
-            },
-            error: function () {
-                console.log('Failed to get env');
-            }
-        });
-    </script>
-
-    <title>uengine kubernates controller</title>
-</head>
-<body>
-<noscript>
-    <strong>We're sorry but ssepage doesn't work properly without JavaScript enabled. Please enable it to
-        continue.</strong>
-</noscript>
-<div id="app"></div>
-<!-- built files will be auto injected -->
-</body>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but service-ui doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
 </html>

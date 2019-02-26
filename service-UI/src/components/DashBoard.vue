@@ -1,156 +1,158 @@
 <template>
     <div>
+        <v-layout row style="margin-bottom: 10px;">
+            <v-flex
+                    grow
+                    pa-1
+            >
+                <v-text-field
+                        v-model="search"
+                        append-icon="search"
+                        label="Search"
+                        single-line
+                        hide-details
+                ></v-text-field>
+            </v-flex>
+            <v-flex
+                    shrink
+                    pa-1
+            >
+                <v-btn color="info" @click="codeModalShow(); status = 'add'">ADD</v-btn>
+
+            </v-flex>
+        </v-layout>
         <!-- Title -->
-        <div class="md-layout md-alignment-center-right">
-            <md-button class="md-raised md-primary" @click="active = true; status = 'add'">ADD</md-button>
-        </div>
-        <!-- Pods Table Start -->
-        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
-                  v-if="types=='pod'">
-            <md-table-toolbar>
-                <div class="md-toolbar-section-start">
-                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
-                </div>
-
-                <md-field md-clearable class="md-toolbar-section-end">
-                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
-                </md-field>
-            </md-table-toolbar>
-
-            <md-table-empty-state
-                    md-label="No users found"
-                    :md-description="`No {{ types }} found for this '${search}' query. Try a different search term or create a new user.`">
-                <md-button class="md-primary md-raised">Create New User</md-button>
-            </md-table-empty-state>
-            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
-                <md-table-cell md-label="Name" md-sort-by="name"> {{ item.name }}</md-table-cell>
-                <md-table-cell md-label="Status" md-sort-by="status">{{ item.status }}</md-table-cell>
-                <md-table-cell md-label="Image" md-sort-by="image">{{ item.image }}</md-table-cell>
-                <md-table-cell md-label="Host IP" md-sort-by="hostIp">{{ item.hostIp }}</md-table-cell>
-                <md-table-cell md-label="Action" style="min-width: 158px;">
-                    <div>
-                        <md-button class="md-fab md-mini md-primary" @click="handleEdit(item); status = 'edit'">
-                            <md-icon>edit</md-icon>
-                        </md-button>
-                        <md-button class="md-fab md-mini md-accent">
-                            <md-icon @click="handleDelete(scope.$index, scope.row);">delete</md-icon>
-                        </md-button>
-                    </div>
-                </md-table-cell>
 
 
-            </md-table-row>
-
-        </md-table>
-
-        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
-                  v-if="types=='service'">
-            <md-table-toolbar>
-                <div class="md-toolbar-section-start">
-                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
-                </div>
-
-                <md-field md-clearable class="md-toolbar-section-end">
-                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
-                </md-field>
-            </md-table-toolbar>
-
-            <md-table-empty-state
-                    md-label="No users found"
-                    :md-description="`No user found for this '${search}' query. Try a different search term or create a new user.`">
-                <md-button class="md-primary md-raised">Create New User</md-button>
-            </md-table-empty-state>
-
-            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
-                <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
-                <md-table-cell md-label="SpecType" md-sort-by="specType">{{ item.specType }}</md-table-cell>
-                <md-table-cell md-label="Type" md-sort-by="type">{{ item.type }}</md-table-cell>
-                <md-table-cell md-label="CreateTimeStamp" md-sort-by="createTimeStamp">{{ item.createTimeStamp }}
-                </md-table-cell>
-                <md-table-cell md-label="Action">
-                    <md-button>Edit</md-button>
-                    <md-button>Delete</md-button>
-                </md-table-cell>
-
-            </md-table-row>
-        </md-table>
-
-        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
-                  v-if="types=='deployment'">
-            <md-table-toolbar>
-                <div class="md-toolbar-section-start">
-                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
-                </div>
-
-                <md-field md-clearable class="md-toolbar-section-end">
-                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
-                </md-field>
-            </md-table-toolbar>
-
-            <md-table-empty-state
-                    md-label="No users found"
-                    :md-description="`No user found for this '${search}' query. Try a different search term or create a new user.`">
-                <md-button class="md-primary md-raised">Create New User</md-button>
-            </md-table-empty-state>
-            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
-                <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
-                <md-table-cell md-label="Replicas" md-sort-by="statusReplicas" md-numeric>{{ item.statusReplicas }}
-                </md-table-cell>
-                <md-table-cell md-label="strategyType" md-sort-by="strategyType">{{ item.strategyType }}</md-table-cell>
-                <md-table-cell md-label="createTimeStamp" md-sort-by="createTimeStamp">{{ item.createTimeStamp }}
-                </md-table-cell>
-            </md-table-row>
-        </md-table>
-
-        <!-- Dial Button -->
-
-        <md-dialog
-                :md-active.sync="active"
-                style="height: 800px;"
+        <v-data-table
+                :rows-per-page-items="pageItems"
+                :headers="headers"
+                :items="list"
+                class="elevation-1"
+                :loading="tableLoad"
         >
-            <md-dialog-content style="max-width: 1000px;">
+            <template slot="items" slot-scope="props">
+                <td>{{ props.item.name }}</td>
+                <td>{{ props.item.namespace }}</td>
+                <!-- pod Column -->
+                <td class="text-xs-left" v-if="types == 'pod'">{{ props.item.status }}</td>
+                <td class="text-xs-center" v-if="types == 'pod'">{{ props.item.createTimeStamp }}</td>
+                <!-- Deployment Column -->
+                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReadyReplicas }}</td>
+                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReplicas }}</td>
+                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusUpdateReplicas }}</td>
+
+                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusAvailableReplicas }}</td>
+                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.createTimeStamp }}</td>
+                <!-- Service Column -->
+                <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specType }}</td>
+                <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specClusterIp }}</td>
+                <td class="text-xs-left" v-if="types == 'service'">{{ props.item.ingressIp }}</td>
+                <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specPort }}</td>
+                <td class="text-xs-center" v-if="types == 'service'">{{ props.item.createTimeStamp }}</td>
+                <td class="justify-center layout px-0">
+                    <v-icon
+                            small
+                            class="mr-2"
+                            @click="handleEdit(props.item); status = 'edit'"
+                    >
+                        edit
+                    </v-icon>
+                    <v-icon
+                            small
+                            @click="deleteModalShow(props.item)"
+                    >
+                        delete
+                    </v-icon>
+                </td>
+            </template>
+            <template slot="no-data">
+                <!--<v-btn color="primary" @click="initialize">Reset</v-btn>-->
+            </template>
+        </v-data-table>
+
+        <!-- Edit & Add Modal -->
+        <modal ref="modal" name="codeModal" :height='"auto"' :width='800'>
+            <v-card ref="card">
+                <v-card-title class="headline"> {{types.toUpperCase()}} Editor</v-card-title>
                 <codemirror
                         ref="mycm"
-                        :options="
-                cmOptions
-                "
+                        :options="cmOption"
                         :value="plainText"
                         v-model="plainText"
-                        style="postion: absolute"
-                        @ready="onCmReady"
-                        @focus="onFocus"
                 >
                 </codemirror>
+                <text-reader @load="plainText = $event" style="width: 900px !important;"></text-reader>
 
-            </md-dialog-content>
+                <v-btn flat color="orange" @click="codeModalhide">Close</v-btn>
+                <v-btn flat color="orange" @click="postYAML">Confirm</v-btn>
+            </v-card>
+        </modal>
 
-            <text-reader @load="plainText = $event" style="width: 900px !important;"></text-reader>
+        <!-- Delete Modal -->
+        <modal ref="modal" name="deleteModal" :height='"auto"' :width='800'>
+            <v-card ref="card">
+                <v-card-title class="headline"> 삭제 안내</v-card-title>
+                <v-card-text>
+                    <div class="subheading">
+                        Namespace: {{ deleteNamespace }}
+                        <br>
+                        <br>
+                        Name: {{ deleteName }}
+                        <br>
+                        <br>
+                        삭제하시겠습니까?
+                    </div>
+                </v-card-text>
+                <v-btn flat color="orange" @click="deleteModalhide">Close</v-btn>
+                <v-btn flat color="orange" @click="handleDelete(selectedRow)">Confirm</v-btn>
+            </v-card>
+        </modal>
+
+        <v-snackbar
+                v-model="snackbar.status"
+                :bottom="snackbar.y === 'bottom'"
+                :top="snackbar.y === 'top'"
+                :left="snackbar.x === 'left'"
+                :right="snackbar.x === 'right'"
+                :timeout="snackbar.timeout"
+                :color="snackbar.color"
+        >
+            {{ snackbar.text }}
+            <v-btn
+                    dark
+                    flat
+                    @click="snackbar.status = false"
+            >
+                Close
+            </v-btn>
+        </v-snackbar>
+        <!--</md-dialog-content>-->
 
 
+        <!--<md-dialog-actions>-->
+        <!--<md-button class="md-raised md-primary" @click="active = false; plainText= ''">Cancel</md-button>-->
+        <!--<md-button class="md-raised md-primary" @click="postYAML">Confirm</md-button>-->
+        <!--</md-dialog-actions>-->
+        <!--</md-dialog>-->
 
-            <md-dialog-actions>
-                <md-button class="md-raised md-primary" @click="active = false; plainText= ''">Cancel</md-button>
-                <md-button class="md-raised md-primary" @click="postYAML">Confirm</md-button>
-            </md-dialog-actions>
-        </md-dialog>
+        <!--<md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"-->
+        <!--:md-active.sync="showAddSnackbar" md-persistent>-->
+        <!--<span>{{types.toUpperCase()}} 생성 시작 되었습니다.</span>-->
+        <!--<md-button class="md-primary" @click="showAddSnackbar = false">확인</md-button>-->
+        <!--</md-snackbar>-->
 
-        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
-                     :md-active.sync="showAddSnackbar" md-persistent>
-            <span>{{types.toUpperCase()}} 생성 시작 되었습니다.</span>
-            <md-button class="md-primary" @click="showAddSnackbar = false">확인</md-button>
-        </md-snackbar>
+        <!--<md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"-->
+        <!--:md-active.sync="showAddSnackbar" md-persistent>-->
+        <!--<span>{{types.toUpperCase()}} 수정 되었습니다.</span>-->
+        <!--<md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>-->
+        <!--</md-snackbar>-->
 
-        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
-                     :md-active.sync="showAddSnackbar" md-persistent>
-            <span>{{types.toUpperCase()}} 수정 되었습니다.</span>
-            <md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>
-        </md-snackbar>
-
-        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
-                     :md-active.sync="showAddSnackbar" md-persistent>
-            <span>{{selected.name}} 삭제하였습니다.</span>
-            <md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>
-        </md-snackbar>
+        <!--<md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"-->
+        <!--:md-active.sync="showAddSnackbar" md-persistent>-->
+        <!--<span>{{selected.name}} 삭제하였습니다.</span>-->
+        <!--<md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>-->
+        <!--</md-snackbar>-->
     </div>
 </template>
 
@@ -158,20 +160,11 @@
     import TextReader from "@/components/yaml.vue";
     import yaml from 'js-yaml'
     import json2yaml from 'json2yaml'
-    import 'vue-codemirror'
+    import {codemirror} from 'vue-codemirror'
+    import 'codemirror/lib/codemirror.css'
+    import 'codemirror/theme/darcula.css'
     import 'codemirror/mode/yaml/yaml.js'
 
-    const toLower = text => {
-        return text.toString().toLowerCase()
-    }
-
-    const searchByName = (items, term) => {
-        if (term) {
-            return items.filter(item => toLower(item.name).includes(toLower(term)))
-        }
-
-        return items
-    }
 
     export default {
 
@@ -184,49 +177,105 @@
         components: {
             TextReader,
             yaml,
-            json2yaml
+            json2yaml,
+            codemirror
         },
         created() {
+
         },
         data() {
             return {
+                pageItems: [10, 25, {"text": "$vuetify.dataIterator.rowsPerPageAll", "value": -1}],
                 evtSource: null,
-                cmOptions: {
+                cmOption: {
                     tabSize: 4,
                     mode: 'yaml',
                     theme: 'darcula',
                     lineNumbers: true,
-                    line: true,
-                    viewportMargin: 15,
+                    lineWrapping: true
                 },
+                tableLoad: false,
                 list: [],
-                selected: '',
-                searched: [],
-                search: null,
-                providerFilters: [],
+                search: '',
+                visible: false,
                 plainText: "",
-                selectedRow: "",
+                selectedRow: [],
                 loading: false,
                 yamlText: "",
                 status: '',
-                active: false,
-                position: 'center',
-                duration: 4000,
-                isInfinity: false,
-                showAddSnackbar: false,
-                showEditSnackbar: false
+                snackbar: {
+                    status: false,
+                    y: 'top',
+                    x: null,
+                    mode: '',
+                    timeout: 6000,
+                    text: ''
+                }
             }
         },
-
         beforeDestroy: function () {
             var me = this
             console.log("closing evtSource beforeDestroy");
             this.evtSource.close();
         },
         computed: {
-            codemirror() {
-                console.log(this.$refs.mycm.codemirror)
-                return this.$refs.mycm.codemirror
+            deleteName() {
+                return this.selectedRow.name
+            },
+            deleteNamespace() {
+                return this.selectedRow.namespace
+            },
+            headers() {
+                if (this.types == 'pod') {
+                    var result = [
+                        {
+                            text: 'Name',
+                            align: 'left',
+                            sortable: false,
+                            value: 'name'
+                        },
+                        {text: 'Namespace', value: 'namespace', align: 'left', sortable: false},
+                        {text: 'Status', value: 'status', sortable: false},
+                        {text: 'Create Time', value: 'createTimeStamp', align: 'center', sortable: false},
+                        {text: 'Action', value: 'name', sortable: false, align: 'center'},
+                    ]
+                    return result
+                } else if (this.types == 'deployment') {
+                    var result = [
+                        {
+                            text: 'Name',
+                            align: 'left',
+                            sortable: false,
+                            value: 'name'
+                        },
+                        {text: 'Namespace', value: 'namespace', align: 'left', sortable: false},
+                        {text: 'Desire', value: 'statusReadyReplicas', align: 'center', sortable: false},
+                        {text: 'Current', value: 'Current', align: 'center', sortable: false},
+                        {text: 'Up-To-Date', value: 'Up-to-Date', align: 'center', sortable: false},
+                        {text: 'Available', value: 'Available', align: 'center', sortable: false},
+                        {text: 'Create Time', value: 'createTimeStamp', align: 'center', sortable: false},
+                        {text: 'Action', value: 'name', sortable: false, align: 'center'},
+                    ]
+                    return result
+
+                } else if (this.types == 'service') {
+                    var result = [
+                        {
+                            text: 'Name',
+                            align: 'left',
+                            sortable: false,
+                            value: 'name'
+                        },
+                        {text: 'Namespace', value: 'namespace', align: 'left', sortable: false},
+                        {text: 'Type', value: 'type', align: 'left', sortable: false},
+                        {text: 'Cluster IP', value: 'cluster-ip', align: 'center', sortable: false},
+                        {text: 'External IP', value: 'external-ip', align: 'center', sortable: false},
+                        {text: 'PORT(S)', value: 'ports', align: 'center', sortable: false},
+                        {text: 'Create Time', value: 'createTimeStamp', align: 'center', sortable: false},
+                        {text: 'Action', value: 'name', sortable: false, align: 'center'},
+                    ]
+                    return result
+                }
             }
         },
         mounted() {
@@ -236,33 +285,21 @@
             namespace: function () {
                 this.getList()
             },
-            list: function (newVal) {
-                this.searched = newVal
-            }
         },
 
         methods: {
-            onCmReady() {
-                // 임시처리
-                var me = this
-                me.codemirror.setSize(900,500)
-                me.codemirror.setOption('lineWrapping',true)
-                me.codemirror.refresh()
+            codeModalShow() {
+                this.$modal.show('codeModal');
             },
-            onFocus() {
-                var me = this
-                me.codemirror.scrollTo(0,1000)
-                me.codemirror.refresh()
-
-                me.codemirror.scrollTo(0,0)
-                me.codemirror.refresh()
-
+            codeModalhide() {
+                this.$modal.hide('codeModal');
             },
-            onSelect(item) {
-                this.selected = item
+            deleteModalShow(item) {
+                this.selectedRow = item
+                this.$modal.show('deleteModal');
             },
-            searchOnTable() {
-                this.searched = searchByName(this.list, this.search)
+            deleteModalhide() {
+                this.$modal.hide('deleteModal');
             },
             startSSE: function () {
                 var me = this;
@@ -271,12 +308,8 @@
                     me.evtSource.close()
                 }
                 if (me.namespace != null) {
-                    console.log(me.namespace)
-
                     me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types + '&namespace=' + me.namespace)
                 } else if (me.namespace == null) {
-                    console.log(me.namespace)
-
                     me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
                 }
 
@@ -300,7 +333,7 @@
                                     ...me.list.slice(0, index),
                                     ...me.list.slice(index + 1)
                                 ]
-                                me.loading = false;
+                                me.tableLoad = false;
                                 return;
                             } else {
                                 me.list = [
@@ -338,6 +371,7 @@
                 /*
                         TODO : 현재 Default만 받아오도록 설정되어있음.
                 */
+
                 if (me.namespace == null) {
                     me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
                         .then((result) => {
@@ -393,7 +427,7 @@
                                 me.startSSE()
                                 me.list = _.difference(resolveData, deleteItemList)
 
-                                me.searched = me.list
+                                // me.searched = me.list
                                 me.$emit('update:namespaceList', me.namespaceList)
 
                             })
@@ -449,50 +483,47 @@
 
                                 me.startSSE()
                                 me.list = _.difference(resolveData, deleteItemList)
-
                                 me.searched = me.list
                             })
                         })
                 }
             },
-            handleDelete(index, row) {
+            handleDelete(item) {
                 var me = this
-                var getURLType;
-
-                this.$confirm('삭제하시겠습니까?', 'Warning', {
-                    confirmButtonText: 'OK',
-                    cancelButtonText: 'Cancel',
-                    type: 'warning'
-                }).then(() => {
-                    if (me.types == 'pod') {
-                        getURLType = me.types + 's'
-                    } else {
-                        getURLType = me.types
-                    }
-                    // console.log(row)
-                    me.$http.delete(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + row.namespace + '/' + row.name, {
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
+                var getURLType
+                if (me.types == 'pod') {
+                    getURLType = me.types + 's'
+                } else {
+                    getURLType = me.types
+                }
+                me.$http.delete(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + item.namespace + '/' + item.name, {
+                        headers: {
+                            'Content-Type': 'application/json'
                         }
-                    ).then(function () {
-                        me.$notify({
-                            title: 'Success',
-                            message: '삭제되었습니다. 적용 중 입니다.',
-                            type: 'Success'
-                        });
-                        me.loading = true;
-                    })
+                    }
+                ).then(function () {
+                    me.snackbar.text = me.types.toUpperCase() + '삭제 진행중입니다.'
+                    me.snackbar.x = 'right'
+                    me.snackbar.y = 'top'
+                    me.snackbar.timeout = 6000
+                    me.snackbar.status = true
+                    me.snackbar.color = 'cyan darken-2'
+                    me.tableLoad = true;
+
+                    me.status = ''
+                    me.deleteModalhide()
                 })
+
             },
 
             handleEdit(item) {
                 var me = this
-                var getURLType;
-                me.active = true
+                // me.visible = true
+                me.codeModalShow()
                 var yamlData = item.sourceData
                 me.selectedRow = item
                 me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g, '- ').replace(/\\"/g, '\'')
+
             },
             postYAML() {
                 var me = this
@@ -501,17 +532,27 @@
                     nameSpace = 'default'
                 }
 
-                // if (me.plainText == "") {
-                //     this.$alert('입력값이 부족합니다.', '알림', {
-                //         confirmButtonText: 'OK',
-                //     })
-                // }
+                if (me.status == 'edit') {
+                    me.snackbar.text = me.types.toUpperCase() + '수정 진행중입니다.'
+                    me.snackbar.x = 'right'
+                    me.snackbar.y = 'top'
+                    me.snackbar.timeout = 6000
+                    me.snackbar.color = 'info'
+                    me.snackbar.status = true
+                } else if (me.status == 'add') {
+                    me.snackbar.text = me.types.toUpperCase() + '추가 진행중입니다.'
+                    me.snackbar.x = 'right'
+                    me.snackbar.y = 'top'
+                    me.snackbar.timeout = 6000
+                    me.snackbar.color = 'info'
+                    me.snackbar.status = true
+                }
 
                 var me = this;
 
                 var jsonYaml = yaml.load(me.plainText)
 
-                console.log(jsonYaml)
+                me.codeModalhide()
 
                 var getURLType;
                 if (me.types == 'pod') {
@@ -519,6 +560,7 @@
                 } else {
                     getURLType = me.types
                 }
+
                 if (me.status == 'add') {
                     me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace, jsonYaml, {
                             headers: {
@@ -526,8 +568,14 @@
                             }
                         }
                     ).then(function () {
-                        me.active = false
-                        me.showAddSnackbar = true;
+
+                        me.snackbar.text = me.types.toUpperCase() + ' 추가되었습니다.'
+                        me.snackbar.x = 'right'
+                        me.snackbar.y = 'top'
+                        me.snackbar.timeout = 6000
+                        me.snackbar.status = true
+                        me.snackbar.color = 'success'
+
                         me.status = ''
 
                     })
@@ -538,8 +586,13 @@
                             }
                         }
                     ).then(function () {
-                        me.active = false
-                        me.showEditnackbar = true;
+                        me.snackbar.text = me.types.toUpperCase() + '수정 되었습니다.'
+                        me.snackbar.x = 'right'
+                        me.snackbar.y = 'top'
+                        me.snackbar.timeout = 6000
+                        me.snackbar.status = true
+                        me.snackbar.color = 'success'
+
                         me.status = ''
                     })
                 }
@@ -549,5 +602,16 @@
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
+<style scoped lang="css">
+    .CodeMirror-line {
+        text-align: left;
+
+    }
+
+    .CodeMirror {
+        /*all: initial;*/
+        width: 800px;
+        height: 800px;
+    }
+
 </style>
