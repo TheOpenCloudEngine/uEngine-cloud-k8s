@@ -1,7 +1,7 @@
 *** back-end 설치 ***
 
 1. 설치할 helm folder로 이동
- - cd uengine-kube
+``` - cd uengine-kube
 
 2. values.xml 값 수정
  - kubehost: k8s가 설치되어 있는 도메인 주소
