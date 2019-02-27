@@ -53,6 +53,7 @@
             drawer: null,
             items: [
                 {icon: 'dashboard', text: 'Dashboard', route: '/'},
+
                 {icon: 'edit', text: 'YAML Editor', route: '/yaml'},
             ]
         }),

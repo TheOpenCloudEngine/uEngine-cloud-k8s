@@ -73,16 +73,19 @@
         </v-data-table>
 
         <!-- Edit & Add Modal -->
-        <modal ref="modal" name="codeModal" :height='"auto"' :width='800'>
-            <v-card ref="card">
+        <modal ref="modal" name="codeModal" :height='"80%"' :width="'80%'">
+            <v-card ref="card" style="height: 100%">
                 <v-card-title class="headline"> {{types.toUpperCase()}} Editor</v-card-title>
-                <codemirror
-                        ref="mycm"
-                        :options="cmOption"
-                        :value="plainText"
-                        v-model="plainText"
-                >
-                </codemirror>
+                <v-card-text>
+                    <!--<codemirror-->
+                            <!--ref="myCm"-->
+                            <!--:options="cmOption"-->
+                            <!--:value="plainText"-->
+                            <!--v-model="plainText"-->
+                    <!--&gt;-->
+                    <!--</codemirror>-->
+                    <EditYaml :yaml_text_tmp_local.sync="plainText"></EditYaml>
+                </v-card-text>
                 <text-reader @load="plainText = $event" style="width: 900px !important;"></text-reader>
 
                 <v-btn flat color="orange" @click="codeModalhide">Close</v-btn>
@@ -93,7 +96,7 @@
         <!-- Delete Modal -->
         <modal ref="modal" name="deleteModal" :height='"auto"' :width='800'>
             <v-card ref="card">
-                <v-card-title class="headline"> 삭제 안내</v-card-title>
+                <v-card-title class="headline"> 삭제 안내 </v-card-title>
                 <v-card-text>
                     <div class="subheading">
                         Namespace: {{ deleteNamespace }}
@@ -158,7 +161,7 @@
 </template>
 
 <script>
-    import TextReader from "@/components/yaml.vue";
+    // import EditYaml from "@/components/edityamlpage.vue";
     import yaml from 'js-yaml'
     import json2yaml from 'json2yaml'
     import {codemirror} from 'vue-codemirror'
@@ -176,7 +179,6 @@
             types: String
         },
         components: {
-            TextReader,
             yaml,
             json2yaml,
             codemirror
@@ -193,8 +195,11 @@
                     mode: 'yaml',
                     theme: 'darcula',
                     lineNumbers: true,
-                    lineWrapping: true
+                    lineWrapping: true,
+                    viewportMargin: 20
+
                 },
+                modalStatus: false,
                 tableLoad: false,
                 list: [],
                 search: '',
@@ -220,6 +225,9 @@
             this.evtSource.close();
         },
         computed: {
+            codemirror: function () {
+                return this.$refs.myCm.codemirror;
+            },
             deleteName() {
                 return this.selectedRow.name
             },
@@ -290,6 +298,7 @@
 
         methods: {
             codeModalShow() {
+                this.plainText = '';
                 this.$modal.show('codeModal');
             },
             codeModalhide() {
@@ -604,15 +613,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="css">
-    .CodeMirror-line {
-        text-align: left;
-
-    }
-
     .CodeMirror {
-        /*all: initial;*/
-        width: 800px;
-        height: 800px;
+        height: 500px !important;
     }
 
 </style>

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "file-saver": "^2.0.1",
     "json2yaml": "^1.1.0",
     "register-service-worker": "^1.5.2",
     "vue": "^2.6.6",
