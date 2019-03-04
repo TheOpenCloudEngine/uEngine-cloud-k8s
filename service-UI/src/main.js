@@ -19,7 +19,7 @@ Vue.component('text-reader', textReader)
 Vue.prototype.$http = axios
 
 if( process.env.NODE_ENV == "development" ){
-    window.API_HOST = "http://localhost:8086";
+    window.API_HOST = "http://localhost:8080";
 }else{
     window.API_HOST = process.env.VUE_APP_API_HOST
 }

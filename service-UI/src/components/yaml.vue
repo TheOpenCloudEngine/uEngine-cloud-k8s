@@ -1,6 +1,11 @@
 <template>
     <div class="text-reader" style="text-align:center; margin: 10px">
         <input type="file" @change="loadTextFromFile"/>
+        <!--<v-text-field v-else-if="item.ui_type=='number'"-->
+                      <!--v-model="item.val" @focus="onUiFocus()"-->
+                      <!--type="file"-->
+                      <!--:label='item.ui_name'-->
+        <!--&gt;</v-text-field>-->
     </div>
 </template>
 

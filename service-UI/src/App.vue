@@ -52,9 +52,8 @@
             dialog: false,
             drawer: null,
             items: [
-                {icon: 'dashboard', text: 'Dashboard', route: '/'},
-
-                {icon: 'edit', text: 'YAML Editor', route: '/yaml'},
+                {icon: 'home', text: 'Home', route: '/'},
+                {icon: 'dashboard', text: 'Dashboard', route: '/dashboard/pod'},
             ]
         }),
         props: {

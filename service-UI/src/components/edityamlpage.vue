@@ -1,57 +1,58 @@
 <template>
-    <v-layout row wrap>
-        <v-flex xs6>
-            <v-card>
-                <v-card-text>
-                    <v-text-field
-                            v-model="fileName"
-                            label="File Name"
-                    ></v-text-field>
-                    <codemirror
-                            ref="myCm"
-                            :options="{
+    <v-container grid-list-md text-xs-center>
+        <v-layout row wrap>
+            <v-flex xs6>
+                <v-card>
+                    <v-card-text>
+                        <v-text-field
+                                v-model="fileName"
+                                label="File Name"
+                        ></v-text-field>
+                        <codemirror
+                                ref="myCm"
+                                :options="{
                                     theme: 'darcula',
                                     lineNumbers: true,
                                     lineWrapping: true,
                                     }"
-                            :value="yaml_text"
-                            v-model="yaml_text"
-                            @focus="onYamlFocus()"
-                    >
-                    </codemirror>
-                    <text-reader :fileName.sync="fileName"
-                                 :plainText.sync="yaml_text"
-                                 @load="yaml_text = $event">
-                        Load
-                    </text-reader>
-                    <v-btn color="info" @click="createPod()">Deploy Sample</v-btn>
-                    <v-btn color="info" @click="createDeployment()">Deploy Sample</v-btn>
-                    <v-btn color="info" @click="createService()">Service Sample</v-btn>
-                </v-card-text>
+                                :value="yaml_text"
+                                v-model="yaml_text"
+                                @focus="onYamlFocus()"
+                        >
+                        </codemirror>
+                        <text-reader :fileName.sync="fileName"
+                                     :plainText.sync="yaml_text"
+                                     @load="yaml_text = $event">
+                            Load
+                        </text-reader>
+                        <v-btn color="info" @click="createPod()">Deploy Sample</v-btn>
+                        <v-btn color="info" @click="createDeployment()">Deploy Sample</v-btn>
+                        <v-btn color="info" @click="createService()">Service Sample</v-btn>
+                    </v-card-text>
                     <v-btn color="success" block @click="download">Download</v-btn>
-            </v-card>
+                </v-card>
+            </v-flex>
+            <v-flex xs6>
+                <v-card>
+                    <v-card-text>
+                        <template v-for="item in ui_list">
+                            <v-text-field v-if="item.ui_type=='string'"
+                                          :label="item.ui_name"
+                                          v-model="item.val"
+                                          @focus="onUiFocus()"
+                            ></v-text-field>
 
-        </v-flex>
-        <v-flex xs6>
-            <v-card>
-                <v-card-text>
-                    <template v-for="item in ui_list">
-                        <v-text-field v-if="item.ui_type=='string'"
-                                      :label="item.ui_name"
-                                      v-model="item.val"
-                                      @focus="onUiFocus()"
-                        ></v-text-field>
-
-                        <v-text-field v-else-if="item.ui_type=='number'"
-                                      v-model="item.val" @focus="onUiFocus()"
-                                      type="number"
-                                      :label='item.ui_name'
-                        ></v-text-field>
-                    </template>
-                </v-card-text>
-            </v-card>
-        </v-flex>
-    </v-layout>
+                            <v-text-field v-else-if="item.ui_type=='number'"
+                                          v-model="item.val" @focus="onUiFocus()"
+                                          type="number"
+                                          :label='item.ui_name'
+                            ></v-text-field>
+                        </template>
+                    </v-card-text>
+                </v-card>
+            </v-flex>
+        </v-layout>
+    </v-container>
 </template>
 
 
@@ -106,6 +107,8 @@
             codemirror,
             saveAs
         },
+
+
         methods: {
             createPod() {
                 let me = this
@@ -385,13 +388,124 @@
                     "  selector:\n" +
                     "    app: "
             },
+            newLoad(data) {
+                let me = this
+                let json
+                if (data == 'object') {
+                    json = data
+                } else {
+                    try {
+                        json = yaml.load(data)
+                    } catch (e) {
+                        return
+                    }
+                }
+
+                let type = json["kind"]
+                let ui = [
+                    {
+                        key_lists: [
+                            "metadata,name",
+                        ],
+                        ui_name: type + " main name",
+                        ui_type: "string",
+                        val: me.findJson(json, "metadata,name".split(','))
+                    }
+                ];
+
+                if (type.toLowerCase() == 'service') {
+                    ui.push({
+                        key_lists: [
+                            "spec,selector,app"
+                        ],
+                        ui_name: "deployment name",
+                        ui_type: "string",
+                        val: me.findJson(json, "spec,selector,app".split(','))
+                    })
+                    ui.push(
+                        {
+                            key_lists: [
+                                "spec,ports,0,port"
+                            ],
+                            ui_name: "port",
+                            ui_type: "number",
+                            val: me.findJson(json, "spec,ports,0,port".split(',')),
+                        })
+                    ui.push(
+                        {
+                            key_lists: [
+                                "spec,ports,0,targetPort"
+                            ],
+                            ui_name: "target port",
+                            ui_type: "string",
+                            val: me.findJson(json, "spec,ports,0,targetPort".split(',')),
+                        })
+                    ui.push(
+                        {
+                            key_lists: [
+                                "spec,type"
+                            ],
+                            ui_name: "type",
+                            ui_type: "string",
+                            val: me.findJson(json, "spec,type".split(',')),
+                        })
+                } else if (type.toLowerCase() == 'deployment') {
+                    ui.push({
+                        key_lists: [
+                            "spec,template,spec,containers,0,image"
+                        ],
+                        ui_name: "image",
+                        ui_type: "string",
+                        val: me.findJson(json, "spec,template,spec,containers,0,image".split(','))
+                    })
+                    ui.push({
+                        key_lists: [
+                            "spec,replicas"
+                        ],
+                        ui_name: "replicas",
+                        ui_type: "number",
+                        val: me.findJson(json, "spec,replicas".split(','))
+                    })
+                    ui.push({
+                        key_lists: [
+                            "spec,template,spec,containers,0,port"
+                        ],
+                        ui_name: "port",
+                        ui_type: "number",
+                        val: me.findJson(json, "spec,template,spec,containers,0,port".split(','))
+                    })
+                } else if (type.toLowerCase() == 'pod') {
+                    ui.push(
+                        {
+                            key_lists: [
+                                "spec,containers,0,ports,0,containerPort"
+                            ],
+                            ui_name: "pod port",
+                            ui_type: "number",
+                            val: me.findJson(json, "spec,containers,0,ports,0,containerPort".split(',')),
+                        })
+                    ui.push({
+                        key_lists: [
+                            "spec,containers,0,image"
+                        ],
+                        ui_name: "pod image",
+                        ui_type: "string",
+                        val: me.findJson(json, "spec,containers,0,image".split(',')),
+                    })
+                }
+                me.ui_list = ui;
+            },
         },
         watch: {
             yaml_text_tmp_local: {
                 immediate: true,
-                handler (newVal, oldVal) {
+                handler(newVal, oldVal) {
                     var me = this
-                    me.yaml_text = newVal
+                    if (newVal != '') {
+                        me.newLoad(newVal)
+                        me.yaml_text = me.yamlFilter(newVal)
+                        me.json_data = yaml.load(newVal)
+                    }
                 }
             },
             yaml_text: function () {
@@ -423,7 +537,6 @@
                             let check_str = znum.match(/^0[0-9]+/)
                             if (check_str)
                                 me.ui_list[idx].val = parseInt(check_str)
-
                         }
                     }
                     let yaml_text = json2yaml.stringify(JSON.parse(JSON.stringify(me.json_data)))

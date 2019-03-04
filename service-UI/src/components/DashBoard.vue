@@ -86,10 +86,10 @@
                     <!--</codemirror>-->
                     <EditYaml :yaml_text_tmp_local.sync="plainText"></EditYaml>
                 </v-card-text>
-                <text-reader @load="plainText = $event" style="width: 900px !important;"></text-reader>
-
-                <v-btn flat color="orange" @click="codeModalhide">Close</v-btn>
-                <v-btn flat color="orange" @click="postYAML">Confirm</v-btn>
+                <v-card-actions>
+                    <v-btn color="error" @click="codeModalhide">Close</v-btn>
+                    <v-btn color="info" @click="postYAML">Confirm</v-btn>
+                </v-card-actions>
             </v-card>
         </modal>
 
@@ -501,6 +501,7 @@
             handleDelete(item) {
                 var me = this
                 var getURLType
+                console.log(item)
                 if (me.types == 'pod') {
                     getURLType = me.types + 's'
                 } else {
@@ -535,6 +536,7 @@
                 me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g, '- ').replace(/\\"/g, '\'')
 
             },
+
             postYAML() {
                 var me = this
                 var nameSpace = me.namespace;
@@ -616,5 +618,10 @@
     .CodeMirror {
         height: 500px !important;
     }
-
+    .v-card__text {
+        padding: 0px !important;
+    }
+    .v-card__actions {
+        text-align: right !important;
+    }
 </style>

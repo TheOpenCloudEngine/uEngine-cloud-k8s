@@ -1,0 +1,9 @@
+FROM webratio/nodejs-http-server
+VOLUME /tmp
+ADD ../service-UI-back/dist /opt/www
+ADD run.sh /opt/run.sh
+RUN mkdir /opt/www/static
+ARG VUE_APP_API_HOST
+ENV VUE_APP_API_HOST=$VUE_APP_API_HOST
+EXPOSE 8080
+ENTRYPOINT ["sh","/opt/run.sh"]
