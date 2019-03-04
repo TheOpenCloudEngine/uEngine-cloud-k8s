@@ -1,26 +1,47 @@
 <template>
     <div class="dashboardpage">
-        <div class="md-layout-item">
-            <md-field>
-                <label for="namespace">NameSpace</label>
-                <md-select v-model="namespace" name="movie" id="movie" >
-                    <md-option value=null>All</md-option>
-                    <md-option v-for="item in namespaceList" :value="item">{{ item }}</md-option>
-                </md-select>
-            </md-field>
-        </div>
-        <md-tabs md-sync-route>
-            <md-tab id="tab-home" md-label="Pod">
-                <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'pod'" style="margin-top: 20px;"/>
-            </md-tab>
-            <md-tab id="tab-pages" md-label="service">
-                <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'service'" style="margin-top: 20px;"/>
-            </md-tab>
-            <md-tab id="tab-posts" md-label="deployments">
-                <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'deployment'" style="margin-top: 20px;" />
-            </md-tab>
-        </md-tabs>
-
+        <v-card>
+            <v-card-title>
+                <v-select
+                        v-model="namespace"
+                        :items="namespaceList"
+                        label="Namespace"
+                ></v-select>
+            </v-card-title>
+            <v-card-text>
+                <v-tabs fixed-tabs>
+                    <v-tab>
+                        Pods
+                    </v-tab>
+                    <v-tab-item>
+                        <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'pod'"
+                                   style="margin-top: 20px;"/>
+                    </v-tab-item>
+                    <v-tab>
+                        Deployments
+                    </v-tab>
+                    <v-tab-item>
+                        <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'deployment'"
+                                   style="margin-top: 20px;"/>
+                    </v-tab-item>
+                    <v-tab>
+                        Serivce
+                    </v-tab>
+                    <v-tab-item>
+                        <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'service'"
+                                   style="margin-top: 20px;"/>
+                    </v-tab-item>
+                </v-tabs>
+            </v-card-text>
+        </v-card>
+        <!--<md-tabs md-sync-route>-->
+        <!--<md-tab id="tab-home" md-label="Pod">-->
+        <!--</md-tab>-->
+        <!--<md-tab id="tab-pages" md-label="service">-->
+        <!--</md-tab>-->
+        <!--<md-tab id="tab-posts" md-label="deployments">-->
+        <!--</md-tab>-->
+        <!--</md-tabs>-->
     </div>
 </template>
 

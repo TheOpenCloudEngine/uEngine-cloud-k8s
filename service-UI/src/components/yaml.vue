@@ -1,25 +1,21 @@
 <template>
-    <div class="yaml" style="text-align:center; margin: 10px">
-        <md-field>
-            <label>Import YAML</label>
-            <md-file v-model="single" @change="loadTextFromFile"/>
-        </md-field>
+    <div class="text-reader" style="text-align:center; margin: 10px">
+        <input type="file" @change="loadTextFromFile"/>
     </div>
 </template>
 
 <script>
     export default {
-
-        name: 'yaml',
+        name: 'text-reader',
         props: {
-            plainText: String
+            plainText: String,
+            fileName: String
         },
         components: {
 
         },
         data() {
             return {
-                fileName: '',
                 single: ''
             }
         },
@@ -42,8 +38,8 @@
                 const file = ev.target.files[0];
                 const reader = new FileReader();
 
-                this.fileName = file.name;
-                this.$emit('update:fileName', this.fileName)
+                // this.fileName = file.name;
+                this.$emit('update:fileName', file.name)
                 reader.onload = e => this.$emit("load", e.target.result);
                 reader.readAsText(file);
             }

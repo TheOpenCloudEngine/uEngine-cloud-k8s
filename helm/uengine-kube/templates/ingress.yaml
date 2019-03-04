@@ -3,15 +3,16 @@ kind: Ingress
 metadata:
   name: cycle-ingress
   annotations:
-    #ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization,Authentication,access_token,client-key,client-secret,Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization,Authentication,access_token,client-key,client-secret,Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Access-Control-Allow-Origin"
 spec:
   rules:
+  #  - host: ade6f3a8135b811e9a56802910c21b39-209130585.ap-northeast-2.elb.amazonaws.com
     - http:
         paths:
           - path: /kube

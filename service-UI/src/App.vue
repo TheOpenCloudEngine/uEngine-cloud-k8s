@@ -1,71 +1,64 @@
 <template>
-    <div class="page-container">
-        <md-app md-mode="fixed" style="height: 100% !important;">
-            <md-app-toolbar class="md-primary">
-                <md-button class="md-icon-button" @click="menuVisible = !menuVisible">
-                    <md-icon>menu</md-icon>
-                </md-button>
-                <span class="md-title">My Title</span>
-            </md-app-toolbar>
+    <v-app id="inspire">
+        <v-navigation-drawer
+                v-model="drawer"
+                :clipped="$vuetify.breakpoint.lgAndUp"
+                fixed
+                app
+        >
+            <v-list dense>
+                <template v-for="item in items">
+                    <v-list-tile :key="item.text" ripple :to="item.route">
+                        <v-list-tile-action>
+                            <v-icon>{{ item.icon }}</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title>
+                                {{ item.text }}
+                            </v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </template>
+            </v-list>
+        </v-navigation-drawer>
+        <v-toolbar
+                :clipped-left="$vuetify.breakpoint.lgAndUp"
+                color="blue darken-3"
+                dark
+                app
+                fixed
+        >
+            <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
+                <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+                <span class="hidden-sm-and-down">uEngine</span>
+            </v-toolbar-title>
+        </v-toolbar>
+        <v-content>
+            <v-container fluid fill-height>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <router-view/>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+        </v-content>
 
-            <md-app-drawer :md-active.sync="menuVisible">
-                <md-toolbar class="md-transparent" md-elevation="0">Menu</md-toolbar>
-                <md-list>
-                    <md-list-item to="/home">
-                        <md-icon>home</md-icon>
-                        <span class="md-list-item-text">Home</span>
-                    </md-list-item>
-
-                    <md-list-item to="/dashboard">
-                        <md-icon>send</md-icon>
-                        <span class="md-list-item-text">Dashboard</span>
-                    </md-list-item>
-
-                    <md-list-item to="/edityaml">
-                        <md-icon>description</md-icon>
-                        <span class="md-list-item-text">Edit YAML</span>
-                    </md-list-item>
-                </md-list>
-            </md-app-drawer>
-
-            <md-app-content>
-                <router-view/>
-            </md-app-content>
-        </md-app>
-    </div>
+    </v-app>
 </template>
+
 <script>
     export default {
-        created() {
-            // console.log(window.innerHeight)
-        },
-        data() {
-            return {
-                menuVisible: false
-            }
-        },
-        methods: {
-            handleOpen(key, keyPath) {
-                console.log(key, keyPath);
-            },
-            handleClose(key, keyPath) {
-                console.log(key, keyPath);
-            }
+        data: () => ({
+            dialog: false,
+            drawer: null,
+            items: [
+                {icon: 'dashboard', text: 'Dashboard', route: '/'},
+
+                {icon: 'edit', text: 'YAML Editor', route: '/yaml'},
+            ]
+        }),
+        props: {
+            source: String
         }
     }
 </script>
-<style lang="scss">
-    .page-container {
-        height: 100%;
-    }
-    .md-app {
-        height: 100%;
-        border: 1px solid rgba(#000, .12);
-    }
-    .md-overlay {
-        height: 100%;
-    }
-    .md-drawer {
-        width: 230px;
-    }
-</style>

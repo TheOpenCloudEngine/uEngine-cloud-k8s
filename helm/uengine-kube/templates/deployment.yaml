@@ -112,23 +112,3 @@ spec:
       containers:
       - name: serviceapi
         image: {{ .Values.repo }}/serviceapi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: serviceui
-  labels:
-    app: serviceui
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: serviceui
-  template:
-    metadata:
-      labels:
-        app: serviceui
-    spec:
-      containers:
-      - name: serviceui
-        image: {{ .Values.repo }}/serviceui

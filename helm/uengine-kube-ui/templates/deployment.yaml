@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serviceui
+  labels:
+    app: serviceui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: serviceui
+  template:
+    metadata:
+      labels:
+        app: serviceui
+    spec:
+      containers:
+      - name: serviceui
+        image: {{ .Values.repo }}/serviceui
+        env:
+        - name: VUE_APP_API_HOST
+          value: {{ .Values.apihost }}
