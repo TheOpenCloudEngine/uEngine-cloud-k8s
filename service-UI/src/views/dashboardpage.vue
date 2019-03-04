@@ -9,34 +9,21 @@
                 ></v-select>
             </v-card-title>
             <v-card-text>
-                <v-tabs fixed-tabs>
-                    <v-tab :key="'pod'">
+                    <v-btn @click="types='pod'">
                         Pods
-                    </v-tab>
+                    </v-btn>
 
-                    <v-tab :key="'deployment'">
+                    <v-btn @click="types='deployment'">
                         Deployments
-                    </v-tab>
+                    </v-btn>
 
-                    <v-tab :key="'service'">
+                    <v-btn @click="types='service'">
                         Serivce
-                    </v-tab>
+                    </v-btn>
 
-                    <v-tab-item :key="'service'">
-                        <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'service'"
-                                   style="margin-top: 20px;"/>
-                    </v-tab-item>
-
-                    <v-tab-item :key="'deployment'">
-                        <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'deployment'"
-                                   style="margin-top: 20px;"/>
-                    </v-tab-item>
-
-                    <v-tab-item :key="'pod'">
-                        <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'pod'"
-                                   style="margin-top: 20px;"/>
-                    </v-tab-item>
-                </v-tabs>
+                    <DashBoard v-if="show"
+                                :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="types"
+                               style="margin-top: 20px;"/>
             </v-card-text>
         </v-card>
         <!--<md-tabs md-sync-route>-->
@@ -60,10 +47,24 @@
             return {
                 namespace: null,
                 namespaceList: [],
+                types : '',
+                show: true
             }
         },
         components: {
             DashBoard
+        },
+        watch: {
+            types: function () {
+              var me = this;
+
+              me.show = false;
+
+              me.$nextTick(function (){
+                  console.log("re-render");
+                  me.show = true;
+              })
+          }
         }
     }
 </script>

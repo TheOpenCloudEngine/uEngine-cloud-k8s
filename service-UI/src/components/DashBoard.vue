@@ -75,13 +75,17 @@
         <!-- Edit & Add Modal -->
         <modal ref="modal" name="codeModal" :height='"80%"' :width="'80%'">
             <v-card ref="card" style="height: 100%">
-                <v-card-title class="headline"> {{types.toUpperCase()}} Editor</v-card-title>
+                <v-card-title class="headline"> {{types.toUpperCase()}} Editor
+                    <v-btn flat icon large color="black" @click="toFull">
+                        <v-icon>fullscreen</v-icon>
+                    </v-btn>
+                </v-card-title>
                 <v-card-text>
                     <!--<codemirror-->
-                            <!--ref="myCm"-->
-                            <!--:options="cmOption"-->
-                            <!--:value="plainText"-->
-                            <!--v-model="plainText"-->
+                    <!--ref="myCm"-->
+                    <!--:options="cmOption"-->
+                    <!--:value="plainText"-->
+                    <!--v-model="plainText"-->
                     <!--&gt;-->
                     <!--</codemirror>-->
                     <EditYaml :yaml_text_tmp_local.sync="plainText"></EditYaml>
@@ -93,10 +97,28 @@
             </v-card>
         </modal>
 
+        <!-- FullScreen -->
+        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+            <v-card>
+                <v-toolbar dark color="primary">
+                    <v-btn icon dark @click="dialog = false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                    <v-toolbar-title> {{types.toUpperCase()}} Editor </v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-toolbar-items>
+                        <v-btn dark flat @click="dialog = false">Save</v-btn>
+                    </v-toolbar-items>
+                </v-toolbar>
+
+                <EditYaml :yaml_text_tmp_local.sync="plainText"></EditYaml>
+            </v-card>
+        </v-dialog>
+
         <!-- Delete Modal -->
-        <modal ref="modal" name="deleteModal" :height='"auto"' :width='800'>
+        <modal scrollable ref="modal" name="deleteModal" :height='"auto"' :width='800'>
             <v-card ref="card">
-                <v-card-title class="headline"> 삭제 안내 </v-card-title>
+                <v-card-title class="headline"> 삭제 안내</v-card-title>
                 <v-card-text>
                     <div class="subheading">
                         Namespace: {{ deleteNamespace }}
@@ -216,7 +238,8 @@
                     mode: '',
                     timeout: 6000,
                     text: ''
-                }
+                },
+                dialog: false
             }
         },
         beforeDestroy: function () {
@@ -536,7 +559,13 @@
                 me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g, '- ').replace(/\\"/g, '\'')
 
             },
-
+            toFull() {
+                var me = this
+                this.codeModalhide();
+                me.$nextTick(function () {
+                    me.dialog = true;
+                })
+            },
             postYAML() {
                 var me = this
                 var nameSpace = me.namespace;
@@ -618,9 +647,11 @@
     .CodeMirror {
         height: 500px !important;
     }
+
     .v-card__text {
         padding: 0px !important;
     }
+
     .v-card__actions {
         text-align: right !important;
     }

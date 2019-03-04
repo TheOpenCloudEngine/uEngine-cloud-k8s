@@ -509,7 +509,7 @@
                 }
             },
             yaml_text: function () {
-                let me = this
+                var me = this
                 if (me.auto_edit) {
                     try {
                         if (!(me.yaml_text == me.temp_text)) {
