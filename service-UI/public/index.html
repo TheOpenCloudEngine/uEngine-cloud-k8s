@@ -19,34 +19,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js"></script>
     <!--<script type="text/javascript" src="./path/to/vuejs-dialog.min.js"></script>-->
-    <script>
 
-        var profile = 'local';
-        var config = {};
-
-        /**
-         * Get profile from system env given by dcos
-         */
-        $.ajax({
-            url: "../static/env.txt",
-            type: "get",
-            async: false,
-            success: function (data) {
-                var lines = data.split('\n');
-                $.each(lines, function (i, line) {
-                    // console.log(line);
-                    if (line && line.indexOf('VUE_APP_API_HOST=') == 0) {
-                        api_host = line.split('=')[1];
-                        window.API_HOST = api_host;
-                    }
-
-                });
-            },
-            error: function () {
-                console.log('Failed to get env');
-            }
-        });
-    </script>
 
     <title>uengine kubernates controller</title>
 </head>
@@ -58,4 +31,32 @@
 <div id="app"></div>
 <!-- built files will be auto injected -->
 </body>
+<script>
+
+    var profile = 'local';
+    var config = {};
+
+    /**
+     * Get profile from system env given by dcos
+     */
+    $.ajax({
+        url: "../static/env.txt",
+        type: "get",
+        async: false,
+        success: function (data) {
+            var lines = data.split('\n');
+            $.each(lines, function (i, line) {
+                // console.log(line);
+                if (line && line.indexOf('VUE_APP_API_HOST=') == 0) {
+                    api_host = line.split('=')[1];
+                    window.API_HOST = api_host;
+                }
+
+            });
+        },
+        error: function () {
+            console.log('Failed to get env');
+        }
+    });
+</script>
 </html>
