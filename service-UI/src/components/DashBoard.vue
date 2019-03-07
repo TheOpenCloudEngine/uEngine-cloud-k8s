@@ -88,7 +88,7 @@
                     <!--v-model="plainText"-->
                     <!--&gt;-->
                     <!--</codemirror>-->
-                    <EditYaml :yaml_text_tmp_local.sync="plainText"></EditYaml>
+                    <EditYaml :plainText.sync="plainText"></EditYaml>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="error" @click="codeModalhide">Close</v-btn>
@@ -111,7 +111,7 @@
                     </v-toolbar-items>
                 </v-toolbar>
 
-                <EditYaml :yaml_text_tmp_local.sync="plainText"></EditYaml>
+                <EditYaml :plainText="plainText"></EditYaml>
             </v-card>
         </v-dialog>
 
@@ -317,6 +317,9 @@
             namespace: function () {
                 this.getList()
             },
+            plainText: function (newVal) {
+                console.log('newVal!')
+            }
         },
 
         methods: {

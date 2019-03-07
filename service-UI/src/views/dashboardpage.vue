@@ -65,6 +65,9 @@
                   me.show = true;
               })
           }
+        },
+        created() {
+            this.types = 'pod'
         }
     }
 </script>

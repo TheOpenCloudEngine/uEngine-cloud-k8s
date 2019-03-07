@@ -78,7 +78,7 @@
     export default {
         name: 'EditYaml',
         props:
-            ['yaml_text_tmp_local'],
+            ['plainText'],
         data() {
             return {
                 fileName: '',
@@ -261,16 +261,18 @@
                 }
             },
             yamlFilter(yaml_text) {
-                yaml_text = yaml_text.replace(/"/g, '')
-                yaml_text = yaml_text.replace(/- \n[ ]+/g, '- ')
-                let lines = yaml_text.split('\n')
-                lines.splice(0, 1)
-                for (let i in lines) {
-                    lines[i] = lines[i].substring(2, lines[i].length)
-                }
-                yaml_text = lines.join('\n')
-                yaml_text = yaml_text.replace(/ null/g, ' ')
-                return yaml_text
+                // if(yaml_text.match('---')) {
+                    yaml_text = yaml_text.replace(/"/g, '')
+                    yaml_text = yaml_text.replace(/- \n[ ]+/g, '- ')
+                    let lines = yaml_text.split('\n')
+                    lines.splice(0, 1)
+                    for (let i in lines) {
+                        lines[i] = lines[i].substring(2, lines[i].length)
+                    }
+                    yaml_text = lines.join('\n')
+                    yaml_text = yaml_text.replace(/ null/g, ' ')
+                    return yaml_text
+                // }
             },
             createDeployment() {
                 let me = this
@@ -497,31 +499,44 @@
             },
         },
         watch: {
-            yaml_text_tmp_local: {
+            plainText: {
                 immediate: true,
                 handler(newVal, oldVal) {
                     var me = this
                     if (newVal != '') {
+                        // console.log('new Plain Text: \n' + newVal)
+                        // console.log('old Plain Text: \n' + oldVal)
                         me.newLoad(newVal)
-                        me.yaml_text = me.yamlFilter(newVal)
+                        if(oldVal == undefined) {
+                            me.yaml_text = me.yamlFilter(newVal)
+                        } else {
+                            me.yaml_text = newVal
+                        }
                         me.json_data = yaml.load(newVal)
                     }
                 }
             },
-            yaml_text: function () {
-                var me = this
-                if (me.auto_edit) {
-                    try {
-                        if (!(me.yaml_text == me.temp_text)) {
-                            me.temp_text = me.yaml_text
-                            me.cursor_pos = me.codemirror.getCursor("start")
-                            me.json_data = yaml.load(me.yaml_text)
+            yaml_text: {
+                // immediate: true,
+                handler (newVal) {
+                    if(newVal != '') {
+                        var me = this
+                        // console.log(newVal)
+                        me.$emit('update:plainText', newVal);
+                        if (me.auto_edit) {
+                            try {
+                                if (!(me.yaml_text == me.temp_text)) {
+                                    me.temp_text = me.yaml_text
+                                    me.cursor_pos = me.codemirror.getCursor("start")
+                                    me.json_data = yaml.load(me.yaml_text)
+                                }
+                                me.jsonToUi()
+                                this.$nextTick(function () {
+                                    me.codemirror.setCursor(me.cursor_pos)
+                                });
+                            } catch (e) {
+                            }
                         }
-                        me.jsonToUi()
-                        this.$nextTick(function () {
-                            me.codemirror.setCursor(me.cursor_pos)
-                        });
-                    } catch (e) {
                     }
                 }
             },
