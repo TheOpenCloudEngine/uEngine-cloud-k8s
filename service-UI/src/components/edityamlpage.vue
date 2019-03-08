@@ -25,11 +25,41 @@
                                      @load="yaml_text = $event">
                             Load
                         </text-reader>
-                        <v-btn color="info" @click="createPod()">Deploy Sample</v-btn>
-                        <v-btn color="info" @click="createDeployment()">Deploy Sample</v-btn>
-                        <v-btn color="info" @click="createService()">Service Sample</v-btn>
+                        <!--<v-btn color="info" @click="createPod()">Pod Sample</v-btn>-->
+                        <!--<v-btn color="info" @click="createDeployment()">Deploy Sample</v-btn>-->
+                        <!--<v-btn color="info" @click="createService()">Service Sample</v-btn>-->
+                        <v-layout row wrap>
+                            <v-flex xs6>
+                                <v-menu open-on-hover top offset-y >
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn
+                                                color="primary"
+                                                dark
+                                                v-on="on"
+                                                block
+                                        >
+                                            Sample
+                                        </v-btn>
+                                    </template>
+
+                                    <v-list>
+                                        <v-list-tile @click="createPod()">
+                                            <v-list-tile-title>Pod Sample</v-list-tile-title>
+                                        </v-list-tile>
+                                        <v-list-tile @click="createDeployment()">
+                                            <v-list-tile-title>Deploy Sample</v-list-tile-title>
+                                        </v-list-tile>
+                                        <v-list-tile @click="createService()">
+                                            <v-list-tile-title>Service Sample</v-list-tile-title>
+                                        </v-list-tile>
+                                    </v-list>
+                                </v-menu>
+                            </v-flex>
+                            <v-flex xs6>
+                                <v-btn color="success" block @click="download">Download</v-btn>
+                            </v-flex>
+                        </v-layout>
                     </v-card-text>
-                    <v-btn color="success" block @click="download">Download</v-btn>
                 </v-card>
             </v-flex>
             <v-flex xs6>
@@ -81,6 +111,7 @@
             ['plainText'],
         data() {
             return {
+                fab: false,
                 fileName: '',
                 temp_text: "",
                 ui_list: [],
@@ -99,6 +130,18 @@
             codemirror: function () {
                 return this.$refs.myCm.codemirror;
             },
+            activeFab() {
+                switch (this.tabs) {
+                    case 'one':
+                        return {'class': 'purple', icon: 'account_circle'}
+                    case 'two':
+                        return {'class': 'red', icon: 'edit'}
+                    case 'three':
+                        return {'class': 'green', icon: 'keyboard_arrow_up'}
+                    default:
+                        return {}
+                }
+            }
         },
         components: {
             TextReader,
@@ -262,16 +305,16 @@
             },
             yamlFilter(yaml_text) {
                 // if(yaml_text.match('---')) {
-                    yaml_text = yaml_text.replace(/"/g, '')
-                    yaml_text = yaml_text.replace(/- \n[ ]+/g, '- ')
-                    let lines = yaml_text.split('\n')
-                    lines.splice(0, 1)
-                    for (let i in lines) {
-                        lines[i] = lines[i].substring(2, lines[i].length)
-                    }
-                    yaml_text = lines.join('\n')
-                    yaml_text = yaml_text.replace(/ null/g, ' ')
-                    return yaml_text
+                yaml_text = yaml_text.replace(/"/g, '')
+                yaml_text = yaml_text.replace(/- \n[ ]+/g, '- ')
+                let lines = yaml_text.split('\n')
+                lines.splice(0, 1)
+                for (let i in lines) {
+                    lines[i] = lines[i].substring(2, lines[i].length)
+                }
+                yaml_text = lines.join('\n')
+                yaml_text = yaml_text.replace(/ null/g, ' ')
+                return yaml_text
                 // }
             },
             createDeployment() {
@@ -507,7 +550,7 @@
                         // console.log('new Plain Text: \n' + newVal)
                         // console.log('old Plain Text: \n' + oldVal)
                         me.newLoad(newVal)
-                        if(oldVal == undefined) {
+                        if (oldVal == undefined) {
                             me.yaml_text = me.yamlFilter(newVal)
                         } else {
                             me.yaml_text = newVal
@@ -518,8 +561,8 @@
             },
             yaml_text: {
                 // immediate: true,
-                handler (newVal) {
-                    if(newVal != '') {
+                handler(newVal) {
+                    if (newVal != '') {
                         var me = this
                         // console.log(newVal)
                         me.$emit('update:plainText', newVal);
@@ -533,6 +576,7 @@
                                 me.jsonToUi()
                                 this.$nextTick(function () {
                                     me.codemirror.setCursor(me.cursor_pos)
+                                    me.codemirror.refresh()
                                 });
                             } catch (e) {
                             }

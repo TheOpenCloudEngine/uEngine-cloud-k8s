@@ -99,6 +99,7 @@
 
         <!-- FullScreen -->
         <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+
             <v-card>
                 <v-toolbar dark color="primary">
                     <v-btn icon dark @click="dialog = false">
