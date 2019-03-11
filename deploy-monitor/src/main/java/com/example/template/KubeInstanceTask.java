@@ -70,14 +70,14 @@ public class KubeInstanceTask implements InitializingBean {
     @Scheduled(fixedRate = 10000)
     public void watchPod() throws IOException, ApiException{
     	ObjectMapper objectMapper = new ObjectMapper();
-    	
+
     	AppsV1Api av1api = new AppsV1Api();
-    	
+
     	Watch<V1Deployment> watch = Watch.createWatch(
                 client,
                 av1api.listDeploymentForAllNamespacesCall(null, null, null, null, null, null, null, null, Boolean.TRUE, null, null),
                 new TypeToken<Watch.Response<V1Deployment>>() {}.getType());
-    	
+
     	try {
             for (Watch.Response<V1Deployment> item : watch) {
 
@@ -100,33 +100,33 @@ public class KubeInstanceTask implements InitializingBean {
 //                System.out.println(body);
 //            	kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, item.object.getMetadata().getUid() , data));
 
-                
+
             	Deployment dpl = new Deployment();
-            	
+
             	dpl.setProvider("K8S");
             	dpl.setId(UUID.randomUUID().toString());
             	dpl.setType(item.type);
             	dpl.setApiVersion(item.object.getApiVersion());
             	dpl.setKind(item.object.getKind());
-            	
+
             	// deployment의 메타데이터 정보
             	{
     				if (item.object.getMetadata().getCreationTimestamp() != null && item.object.getMetadata().getCreationTimestamp().getMillis() != 0L) {
     					SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     					dpl.setCreateTimeStamp(transFormat.format(item.object.getMetadata().getCreationTimestamp().getMillis()));
     				}
-    				
+
     				dpl.setName(item.object.getMetadata().getName());
     				dpl.setNamespace(item.object.getMetadata().getNamespace());
     				dpl.setUid(item.object.getMetadata().getUid());
             	}
-            	
+
             	// deployment의 spec 정보
             	{
             		dpl.setStrategyType(item.object.getSpec().getStrategy().getType());
             		dpl.setSpecReplicas(item.object.getSpec().getReplicas());
             	}
-            	
+
             	// deployment의 status 정보
             	{
             		dpl.setStatusReplicas(item.object.getStatus().getReplicas());
@@ -134,7 +134,7 @@ public class KubeInstanceTask implements InitializingBean {
             		dpl.setStatusReadyReplicas(item.object.getStatus().getReadyReplicas());
             		dpl.setStatusUpdateReplicas(item.object.getStatus().getUpdatedReplicas());
             	}
-            	
+
             	{
             		// CreationTimestamp, Conditions 을 제거해줘야 문제가 발생하지 않는다.
 					item.object.getMetadata().setCreationTimestamp(null);
@@ -146,14 +146,18 @@ public class KubeInstanceTask implements InitializingBean {
             	}
 
                 kafkaTemplate.send(new ProducerRecord<String, Deployment>(instanceTopic, item.object.getMetadata().getNamespace() , dpl));
-                
+
                 System.out.printf("%s : %s %n" , dpl.getType(), dpl.toString() );
-                
+
             }
         } finally {
+            Deployment dpl = new Deployment();
+            dpl.setProvider("DELETE");
+            kafkaTemplate.send(new ProducerRecord<String, Deployment>(instanceTopic, "DELETE ALL" , dpl));
+
             watch.close();
         }
-    	
+
     }
 
 }

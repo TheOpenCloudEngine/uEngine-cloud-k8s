@@ -48,17 +48,21 @@ public class ServicesService {
     public Iterable<Services> getServicesByProviderAndName(String provider, String name){
         return servicesRepository.findByProviderAndName(provider,name);
     }
-    
+
 //    @Cacheable(value="service", key="#namespace")
     public Iterable<Services> getServicesByNamespace(String namespace){
         return servicesRepository.findByNamespace(namespace);
     }
-    
+
 //    @Cacheable(value="service", key="#namespace+#name")
     public Iterable<Services> getServicesByNamespaceAndName(String namespace, String name){
         return servicesRepository.findByNamespaceAndName(namespace, name);
     }
 
+    public String delete() {
+        servicesRepository.deleteAll();
+        return "";
+    }
 
     public String update(Services svs) {
     	servicesRepository.save(svs);

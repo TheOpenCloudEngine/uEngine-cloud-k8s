@@ -35,17 +35,21 @@ public class ServicesKafkaService {
     	Gson gson = new Gson();
     	Services svs = gson.fromJson(message, Services.class);
 
-    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
-    	Calendar cal = Calendar.getInstance();
-    	String today = null;
-    	today = formatter.format(cal.getTime());
-    	Timestamp ts = Timestamp.valueOf(today);
-    	svs.setCreateTime(ts);
+    	if(svs.getProvider() == "DELETE") {
+    		servicesService.delete();
+		} else {
+			SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
+			Calendar cal = Calendar.getInstance();
+			String today = null;
+			today = formatter.format(cal.getTime());
+			Timestamp ts = Timestamp.valueOf(today);
+			svs.setCreateTime(ts);
 
 
-    	servicesService.update(svs);
-    	messageHandler.publish("service", message, svs.getNamespace());
-        System.out.println(message);
+			servicesService.update(svs);
+			messageHandler.publish("service", message, svs.getNamespace());
+			System.out.println(message);
+		}
     }
 
 
