@@ -43,22 +43,24 @@ public class PodKafkaService {
 
     @KafkaListener(topics = "${topic.podeMsgTopic}")
     public void listenByObject(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
-
         System.out.println(message);
         Gson gson = new Gson();
         Pod pod = gson.fromJson(message, Pod.class);
+        if("DELETE".equals(pod.getProvider())) {
+            podService.delete();
+        } else {
+            SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
+            Calendar cal = Calendar.getInstance();
+            String today = null;
+            today = formatter.format(cal.getTime());
+            Timestamp ts = Timestamp.valueOf(today);
+            pod.setCreateTime(ts);
 
-        SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
-    	Calendar cal = Calendar.getInstance();
-    	String today = null;
-    	today = formatter.format(cal.getTime());
-    	Timestamp ts = Timestamp.valueOf(today);
-    	pod.setCreateTime(ts);
+            podService.update(pod);
 
-        podService.update(pod);
+            messageHandler.publish("pod", message, pod.getNamespace());
 
-        messageHandler.publish("pod", message, pod.getNamespace());
-
+        }
     }
 
 }

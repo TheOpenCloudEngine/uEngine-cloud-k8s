@@ -51,17 +51,21 @@ public class PodService {
     public Iterable<Pod> getInstanceByProviderAndName(String provider, String name){
         return podRepository.findByProviderAndName(provider,name);
     }
-    
+
 //    @Cacheable(value="pods", key="#namespace")
     public Iterable<Pod> getPodsByNamespace(String namespace){
         return podRepository.findByNamespace(namespace);
     }
-    
+
 //    @Cacheable(value="pods", key="#namespace+#name")
     public Iterable<Pod> getPodsByNamespaceAndName(String namespace, String name){
         return podRepository.findByNamespaceAndName(namespace, name);
     }
 
+    public String delete() {
+        podRepository.deleteAllInQuery();
+        return "";
+    }
 
     /**
      * 단건을 업데이트 한다
@@ -72,7 +76,7 @@ public class PodService {
 //    public String update(Pod instance) {
 //        return "";
 //    }
-    
+
     public void update(Pod pod) {
     	podRepository.save(pod);
     }

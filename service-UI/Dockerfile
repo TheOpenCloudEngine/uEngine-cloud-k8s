@@ -1,6 +1,6 @@
 FROM webratio/nodejs-http-server
 VOLUME /tmp
-ADD ../service-UI-back/dist /opt/www
+ADD dist /opt/www
 ADD run.sh /opt/run.sh
 RUN mkdir /opt/www/static
 ARG VUE_APP_API_HOST

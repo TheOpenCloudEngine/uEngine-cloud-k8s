@@ -49,17 +49,21 @@ public class DeploymentService {
     public Iterable<Deployment> getDeploymentByProviderAndName(String provider, String name){
         return deploymentRepository.findByProviderAndName(provider,name);
     }
-    
+
 //    @Cacheable(value="deployment", key="#namespace")
     public Iterable<Deployment> getDeploymentByNamespace(String namespace){
         return deploymentRepository.findByNamespace(namespace);
     }
-    
+
 //    @Cacheable(value="deployment", key="#namespace+#name")
     public Iterable<Deployment> getDeploymentByNamespaceAndName(String namespace, String name){
         return deploymentRepository.findByNamespaceAndName(namespace, name);
     }
 
+    public String delete() {
+        deploymentRepository.deleteAllInQuery();
+        return "";
+    }
 
     public String update(Deployment deployment) {
     	deploymentRepository.save(deployment);

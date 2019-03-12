@@ -54,7 +54,7 @@ public class KubeInstanceTask implements InitializingBean {
         // kubenate Configuration setting
         ApiClient client = Config.fromToken(this.getHost(), this.getToken(), false);
         this.client = client;
-        client.getHttpClient().setReadTimeout(10000, TimeUnit.MINUTES);
+        client.getHttpClient().setReadTimeout(10, TimeUnit.MINUTES);
         Configuration.setDefaultApiClient(client);
     }
 
@@ -68,55 +68,60 @@ public class KubeInstanceTask implements InitializingBean {
 
     @Scheduled(fixedRate = 10000)
     public void watchPod() throws IOException, ApiException{
-    	
+		Services deleteObj = new Services();
+		deleteObj.setProvider("DELETE");
+
+		kafkaTemplate.send(new ProducerRecord<String, Services>(instanceTopic, "DELETE ALL" , deleteObj));
+		System.out.printf("%s : %s %n" , "DELETE", deleteObj.toString() );
+
     	CoreV1Api av1api = new CoreV1Api();
-    	
+
     	Watch<V1Service> watch = Watch.createWatch(
                 client,
                 av1api.listServiceForAllNamespacesCall(null, null, null, null, null, null, null, null, Boolean.TRUE, null, null),
                 new TypeToken<Watch.Response<V1Service>>() {}.getType());
-    	
+
     	try {
             for (Watch.Response<V1Service> item : watch) {
-            	
+
 //            	kafkaTemplate.send(new ProducerRecord<String, Watch.Response<V1Service>>(instanceTopic, item.object.getMetadata().getNamespace() , item));
-            	
+
             	Services svs = new Services();
-            	
+
             	svs.setProvider("K8S");
             	svs.setId(UUID.randomUUID().toString());
             	svs.setType(item.type);
             	svs.setApiVersion(item.object.getApiVersion());
             	svs.setKind(item.object.getKind());
-            	
+
             	// service의 메타데이터 정보
             	{
     				if (item.object.getMetadata().getCreationTimestamp() != null && item.object.getMetadata().getCreationTimestamp().getMillis() != 0L) {
     					SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     					svs.setCreateTimeStamp(transFormat.format(item.object.getMetadata().getCreationTimestamp().getMillis()));
     				}
-    				
+
     				svs.setName(item.object.getMetadata().getName());
     				svs.setNamespace(item.object.getMetadata().getNamespace());
     				svs.setUid(item.object.getMetadata().getUid());
             	}
-            	
+
             	// service의 spec 정보
             	{
 //            		svs.setStrategyType(item.object.getSpec().getStrategy().getType());
 //            		svs.setSpecReplicas(item.object.getSpec().getReplicas());
-            		
+
             		svs.setSpecSessionAffinity(item.object.getSpec().getSessionAffinity());
             		for(V1ServicePort vsport : item.object.getSpec().getPorts()) {
             			svs.setSpecPort(vsport.getPort());
             			svs.setSpecProtocol(vsport.getProtocol());
 //            			svs.setSpecTargetPort(vsport.getTargetPort().getStrValue());
             		}
-            		
+
             		svs.setSpecType(item.object.getSpec().getType());
-            		
+
             	}
-            	
+
             	// service의 status 정보
             	{
             		if(item.object.getStatus().getLoadBalancer() != null && item.object.getStatus().getLoadBalancer().getIngress() != null) {
@@ -126,22 +131,22 @@ public class KubeInstanceTask implements InitializingBean {
             			}
             		}
             	}
-            	
+
             	{
             		// CreationTimestamp, Conditions 을 제거해줘야 문제가 발생하지 않는다.
 					item.object.getMetadata().setCreationTimestamp(null);
 					item.object.setStatus(null);
 					svs.setSourceData(new Gson().toJson(item.object));
             	}
-            	
+
                 kafkaTemplate.send(new ProducerRecord<String, Services>(instanceTopic, item.object.getMetadata().getNamespace() , svs));
 
                 System.out.printf("%s : %s %n" , svs.getType(), svs.toString() );
             }
         } finally {
-            watch.close();
+			watch.close();
         }
-    	
+
     }
 
 }

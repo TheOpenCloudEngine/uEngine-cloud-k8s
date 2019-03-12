@@ -31,22 +31,22 @@ public class DeploymentKafkaService {
 
     @KafkaListener(topics = "${topic.delpoyMsgTopic}")
     public void listenByDeployment(@Payload String message) throws ParseException {
+        Gson gson = new Gson();
+        Deployment dpl = gson.fromJson(message, Deployment.class);
+        if("DELETE".equals(dpl.getProvider())) {
+            deploymentService.delete();
+        } else {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+            Calendar cal = Calendar.getInstance();
+            String today = null;
+            today = formatter.format(cal.getTime());
+            Timestamp ts = Timestamp.valueOf(today);
+            dpl.setCreateTime(ts);
 
-    	Gson gson = new Gson();
-    	Deployment dpl = gson.fromJson(message, Deployment.class);
-
-
-    	SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
-    	Calendar cal = Calendar.getInstance();
-    	String today = null;
-    	today = formatter.format(cal.getTime());
-    	Timestamp ts = Timestamp.valueOf(today);
-    	dpl.setCreateTime(ts);
-
-    	deploymentService.update(dpl);
+            deploymentService.update(dpl);
 //    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
-        System.out.println(message);
-        messageHandler.publish("deployment", message, dpl.getNamespace());
+            System.out.println(message);
+            messageHandler.publish("deployment", message, dpl.getNamespace());
 
 //        String bodyData = message.replaceAll("\\\\", "");
 //        System.out.println(bodyData);
@@ -121,6 +121,7 @@ public class DeploymentKafkaService {
 //
 //    	deploymentService.update(dpl);
 
+        }
     }
 
 }

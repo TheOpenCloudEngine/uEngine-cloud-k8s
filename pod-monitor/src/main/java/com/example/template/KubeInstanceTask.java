@@ -57,7 +57,7 @@ public class KubeInstanceTask implements InitializingBean {
         // kubenate Configuration setting
         ApiClient client = Config.fromToken(this.getHost(), this.getToken(), false);
         this.client = client;
-        client.getHttpClient().setReadTimeout(10000, TimeUnit.MINUTES);
+        client.getHttpClient().setReadTimeout(10, TimeUnit.MINUTES);
         Configuration.setDefaultApiClient(client);
     }
 
@@ -73,6 +73,12 @@ public class KubeInstanceTask implements InitializingBean {
 
     @Scheduled(fixedRate = 10000)
     public void watchPod() throws IOException, ApiException{
+
+        Pod deleteObj = new Pod();
+        deleteObj.setProvider("DELETE");
+        kafkaTemplate.send(new ProducerRecord<String, Pod>(instanceTopic, "DELETE ALL" , deleteObj));
+        System.out.printf("%s : %s %n" , "DELETE", deleteObj.toString() );
+
         CoreV1Api api = new CoreV1Api();
         Watch<V1Pod> watch =
                 Watch.createWatch(
@@ -84,22 +90,22 @@ public class KubeInstanceTask implements InitializingBean {
         try {
             for (Watch.Response<V1Pod> item : watch) {
                 Pod pod = new Pod();
-                
+
                 pod.setProvider("K8S");
                 pod.setId(UUID.randomUUID().toString());
                 pod.setType(item.type);
-                
+
                 {
     				if (item.object.getMetadata().getCreationTimestamp() != null && item.object.getMetadata().getCreationTimestamp().getMillis() != 0L) {
     					SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     					pod.setCreateTimeStamp(transFormat.format(item.object.getMetadata().getCreationTimestamp().getMillis()));
     				}
-    				
+
     				pod.setName(item.object.getMetadata().getName());
     				pod.setNamespace(item.object.getMetadata().getNamespace());
     				pod.setUid(item.object.getMetadata().getUid());
             	}
-                
+
                 {
                 	pod.setNodeName(item.object.getSpec().getNodeName());
                 	pod.setRestartPolicy(item.object.getSpec().getRestartPolicy());
@@ -109,32 +115,32 @@ public class KubeInstanceTask implements InitializingBean {
                 			pod.setImage(coctainer.getImage());
                 		}
                 	}
-                		
+
                 }
-                
+
                 {
                 	pod.setHostIp(item.object.getStatus().getHostIP());
                 	pod.setPodIp(item.object.getStatus().getPodIP());
                 	if(item.object.getStatus().getConditions() != null) {
                 		for(V1PodCondition podcondition : item.object.getStatus().getConditions())
                 		{
-                			
+
                 		}
                 	}
                 }
-                
+
                 {
             		// CreationTimestamp, Conditions 을 제거해줘야 문제가 발생하지 않는다.
 					item.object.getMetadata().setCreationTimestamp(null);
 //					item.object.getStatus().setConditions(null);
-					
+
 					pod.setStatus(item.object.getStatus().getPhase());
 					item.object.setStatus(null);
-					
+
 					pod.setSourceData(new Gson().toJson(item.object));
             	}
-                
-                
+
+
 
 //                JSONObject properties = new JSONObject();
 //                properties.put("apiVersion", item.object.getApiVersion());
@@ -149,7 +155,7 @@ public class KubeInstanceTask implements InitializingBean {
 //                    pod.setInstanceState(InstanceState.MODIFY);
 //                }
 //                System.out.println("Message: " + item.type + " sent to topic: " + item.object.getMetadata().getName());
-                
+
                 kafkaTemplate.send(new ProducerRecord<String, Pod>(instanceTopic, item.object.getMetadata().getNamespace() , pod));
 
                 System.out.printf("%s : %s %n" , item.type, pod.toString() );
