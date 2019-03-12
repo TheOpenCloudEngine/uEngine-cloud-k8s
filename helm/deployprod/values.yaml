@@ -11,3 +11,5 @@ serviceapi:
 
 kubecontroller:
   replicas: 1
+
+apihost: ac4a8a4dd3e3d11e9a56802910c21b39-782863456.ap-northeast-2.elb.amazonaws.com

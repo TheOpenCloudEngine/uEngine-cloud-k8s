@@ -66,6 +66,8 @@ cd ..
  - kubetoken: k8s 접근하기 위한 토큰 정보
 
 3. helm install
+ - helm repo add googleapis https://kubernetes-charts-incubator.storage.googleapis.com/
+ - helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
  - helm dependency update
  - helm init
  - helm install --name uengine-kube  --set mysql.mysqlRootPassword=test,mysql.mysqlUser=test,mysql.mysqlPassword=test,mysql.mysqlDatabase=uengine .

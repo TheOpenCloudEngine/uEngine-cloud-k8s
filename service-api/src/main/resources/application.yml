@@ -10,6 +10,9 @@ topic:
   delpoyMsgTopic: delpoyMsgTopic
   serviceMsgTopic: serviceMsgTopic
 
+kubehost: https://api.k8s.bzdvops.com
+kubetoken: eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImNsb3VkdXNlci10b2tlbi16cmtqaiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJjbG91ZHVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI0ZmJmNzk0YS0zNTgwLTExZTktYTU2OC0wMjkxMGMyMWIzOTgiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVmYXVsdDpjbG91ZHVzZXIifQ.APncfC7biCYEre4LZ3S-TVcf641qpQlo7r_BN0khN8ovnT7rR3DWGTaUDLP2eFQBLUvEVSAgTT1g0wF1OFsqEx-Sn3fHByyf1r8t15wvN_XJFM2_V_ZZBosUeZCciklcky0jwF6AWcSpUo9nKa23yBtylJ9d6EPjAq8KtURdX7IVb5i8j0InSExyOQZv5xJ-yv55GB_yRrI9rQ6cwxt_PdFaQiFLjSjnp6SvZj3nPACw_qb98w2I4p_O8DZ5SE-b4OetZj0xmZM7ELXBbceMDepT0UHrU1ZcIc54aWNnhyGFdxspxwrGWSDtNL4T6KKbTqU6HVXkiJTKCw1w9E9hHg
+
 ---
 spring:
   profiles: default
@@ -58,7 +61,8 @@ server:
 spring:
   profiles: docker
   kafka:
-    bootstrap-servers: uengine-kube-kafka:9092
+    bootstrap-servers: my-kafka.kafka.svc.cluster.local:9092
+#    bootstrap-servers: uengine-kube-kafka:9092
     #    bootstrap-servers: my-kafka:9092
     consumer:
       enable-auto-commit: true
@@ -72,14 +76,20 @@ spring:
         dialect: org.hibernate.dialect.MySQL57Dialect
         show_sql: true
 
+#  datasource:
+#    url: jdbc:mysql://uengine-kube-mysql:3306/uengine
+#    username: test
+#    password: test
+#    # mybatis 설정시에는 driverClassName 을 넣어주어야함
+#    driverClassName: com.mysql.cj.jdbc.Driver
   datasource:
-    url: jdbc:mysql://uengine-kube-mysql:3306/uengine
-    username: test
-    password: test
+    url: jdbc:mysql://uengine.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com:3306/uengine
+    username: root
+    password: my-secret-pw
     # mybatis 설정시에는 driverClassName 을 넣어주어야함
     driverClassName: com.mysql.cj.jdbc.Driver
   redis:
-    host: uengine-kube-redis-master
+    host: my-redis-master
     port: 6379
     lettuce:
       pool:

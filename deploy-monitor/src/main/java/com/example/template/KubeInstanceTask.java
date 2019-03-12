@@ -53,7 +53,7 @@ public class KubeInstanceTask implements InitializingBean {
         // kubenate Configuration setting
         ApiClient client = Config.fromToken(this.getHost(), this.getToken(), false);
         this.client = client;
-        client.getHttpClient().setReadTimeout(10000, TimeUnit.MINUTES);
+        client.getHttpClient().setReadTimeout(60, TimeUnit.MINUTES);
         Configuration.setDefaultApiClient(client);
     }
 
