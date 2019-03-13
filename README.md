@@ -6,8 +6,10 @@
 - 커스텀 리소스 유형 생성 관리
 - 토폴로지 모델링 및 디플로이 
 
-[화면 캡쳐1]
-[화면 캡쳐2]
+![image](https://user-images.githubusercontent.com/487999/54256571-cfcdd300-459f-11e9-89d3-c457a50676c0.png)
+
+![image](https://user-images.githubusercontent.com/487999/54256645-0e638d80-45a0-11e9-9e09-74b2fece8956.png)
+
 
 ## back-end 설치 
 ```
