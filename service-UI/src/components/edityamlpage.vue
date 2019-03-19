@@ -66,6 +66,13 @@
                                           v-else
                                           readonly
                             ></v-text-field>
+                            <v-text-field v-if="item.ui_type=='string' && status !='edit' && !item.ui_name.includes('name')"
+                                          :label="item.ui_name"
+                                          v-model="item.val"
+                                          @focus="onUiFocus()"
+                                          v-else
+                                          readonly
+                            ></v-text-field>
                             <v-text-field v-else-if="item.ui_type=='number'"
                                           v-model="item.val" @focus="onUiFocus()"
                                           type="number"
