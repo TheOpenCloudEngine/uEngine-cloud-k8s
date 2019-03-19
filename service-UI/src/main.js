@@ -10,13 +10,12 @@ import VModal from 'vue-js-modal'
 import EditYaml from './components/edityamlpage.vue'
 import textReader from './components/yaml.vue'
 
-
 Vue.use(VModal)
 Vue.component('EditYaml', EditYaml)
 Vue.component('text-reader', textReader)
 
-
 Vue.prototype.$http = axios
+Vue.prototype.$EventBus = new Vue()
 
 if( process.env.NODE_ENV == "development" ){
     window.API_HOST = "http://a83d5e3453ee611e9a56802910c21b39-157320908.ap-northeast-2.elb.amazonaws.com";

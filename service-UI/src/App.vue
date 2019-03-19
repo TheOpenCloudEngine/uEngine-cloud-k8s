@@ -32,6 +32,13 @@
                 <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
                 <span class="hidden-sm-and-down">uEngine</span>
             </v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn flat color="white">
+                Login
+            </v-btn>
+            <v-btn icon @click="dialog = true">
+                <v-icon>settings</v-icon>
+            </v-btn>
         </v-toolbar>
         <v-content>
             <v-container fluid fill-height>
@@ -43,6 +50,47 @@
             </v-container>
         </v-content>
 
+        <!-- Setting Dialog -->
+        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+            <v-card>
+                <v-toolbar dark color="primary">
+                    <v-btn icon dark @click="dialog = false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>Settings</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-toolbar-items>
+                        <v-btn dark flat @click="dialog = false">Save</v-btn>
+                    </v-toolbar-items>
+                </v-toolbar>
+                <v-list three-line subheader>
+                    <v-subheader>Connection Setting</v-subheader>
+                    <v-list-tile avatar>
+                        <v-list-tile-content>
+                            <v-list-tile-sub-title>
+                                <v-text-field
+                                        label="Kube Host"
+                                        v-model="kubeHost"
+                                        hint="Ex) https://api.k8s.bzdvops.com"
+                                        outline
+                                ></v-text-field>
+                            </v-list-tile-sub-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile avatar>
+                        <v-list-tile-content>
+                            <v-list-tile-sub-title>
+                                <v-text-field
+                                        label="Kube Token"
+                                        v-model="kubeToken"
+                                        outline
+                                ></v-text-field>
+                            </v-list-tile-sub-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </v-list>
+            </v-card>
+        </v-dialog>
     </v-app>
 </template>
 
@@ -51,9 +99,10 @@
         data: () => ({
             dialog: false,
             drawer: null,
+            kubeHost: '',
+            kubeToken: '',
             items: [
                 {icon: 'home', text: 'Home', route: '/'},
-                {icon: 'dashboard', text: 'Dashboard', route: '/dashboard/pod'},
             ]
         }),
         props: {

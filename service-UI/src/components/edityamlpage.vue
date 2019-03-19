@@ -5,6 +5,13 @@
                 <v-card>
                     <v-card-text>
                         <v-text-field
+                                v-if="status == 'edit'"
+                                v-model="fileName"
+                                label="File Name"
+                                readonly
+                        ></v-text-field>
+                        <v-text-field
+                                v-if="status == 'add'"
                                 v-model="fileName"
                                 label="File Name"
                         ></v-text-field>
@@ -25,35 +32,16 @@
                                      @load="yaml_text = $event">
                             Load
                         </text-reader>
-                        <!--<v-btn color="info" @click="createPod()">Pod Sample</v-btn>-->
-                        <!--<v-btn color="info" @click="createDeployment()">Deploy Sample</v-btn>-->
-                        <!--<v-btn color="info" @click="createService()">Service Sample</v-btn>-->
                         <v-layout row wrap>
                             <v-flex xs6>
-                                <v-menu open-on-hover top offset-y >
-                                    <template v-slot:activator="{ on }">
-                                        <v-btn
-                                                color="primary"
-                                                dark
-                                                v-on="on"
-                                                block
-                                        >
-                                            Sample
-                                        </v-btn>
-                                    </template>
-
-                                    <v-list>
-                                        <v-list-tile @click="createPod()">
-                                            <v-list-tile-title>Pod Sample</v-list-tile-title>
-                                        </v-list-tile>
-                                        <v-list-tile @click="createDeployment()">
-                                            <v-list-tile-title>Deploy Sample</v-list-tile-title>
-                                        </v-list-tile>
-                                        <v-list-tile @click="createService()">
-                                            <v-list-tile-title>Service Sample</v-list-tile-title>
-                                        </v-list-tile>
-                                    </v-list>
-                                </v-menu>
+                                <v-btn
+                                        color="primary"
+                                        dark
+                                        block
+                                        @click="templateLoad()"
+                                >
+                                    Template
+                                </v-btn>
                             </v-flex>
                             <v-flex xs6>
                                 <v-btn color="success" block @click="download">Download</v-btn>
@@ -66,12 +54,18 @@
                 <v-card>
                     <v-card-text>
                         <template v-for="item in ui_list">
-                            <v-text-field v-if="item.ui_type=='string'"
+                            <v-text-field v-if="item.ui_type=='string' && status =='add' && item.ui_name.includes('name')"
                                           :label="item.ui_name"
                                           v-model="item.val"
                                           @focus="onUiFocus()"
                             ></v-text-field>
-
+                            <v-text-field v-if="item.ui_type=='string' && status =='edit' && item.ui_name.includes('name')"
+                                          :label="item.ui_name"
+                                          v-model="item.val"
+                                          @focus="onUiFocus()"
+                                          v-else
+                                          readonly
+                            ></v-text-field>
                             <v-text-field v-else-if="item.ui_type=='number'"
                                           v-model="item.val" @focus="onUiFocus()"
                                           type="number"
@@ -108,11 +102,10 @@
     export default {
         name: 'EditYaml',
         props:
-            ['plainText'],
+            ['plainText', 'types', 'status'],
         data() {
             return {
                 fab: false,
-                fileName: '',
                 temp_text: "",
                 ui_list: [],
                 yaml_text: "",
@@ -123,9 +116,12 @@
             }
         },
         created: function () {
-
+            var me = this
+            me.$EventBus.$on('postYAML', function () {
+                me.$emit('update:plainText', me.yaml_text)
+                console.log(me.yaml_text)
+            });
         },
-
         computed: {
             codemirror: function () {
                 return this.$refs.myCm.codemirror;
@@ -141,6 +137,30 @@
                     default:
                         return {}
                 }
+            },
+            fileName: {
+                get: function () {
+                    var me = this
+                    var result;
+
+                    me.ui_list.some(function (listTmp) {
+                        if (listTmp.ui_name.includes('name')) {
+                            return result = listTmp.val;
+                        }
+                    })
+
+                    return result;
+                },
+                set: function(newVal) {
+                    var me = this
+                    me.ui_list.some(function (listTmp) {
+                        if (listTmp.ui_name.includes('name')) {
+                            listTmp.val = newVal;
+                            return me.uiToJson()
+                        }
+                    })
+
+                }
             }
         },
         components: {
@@ -150,8 +170,6 @@
             codemirror,
             saveAs
         },
-
-
         methods: {
             createPod() {
                 let me = this
@@ -182,7 +200,6 @@
                         ui_type: "string",
                         val: "image",
                     },
-
                 ]
 
                 me.yaml_text =
@@ -197,7 +214,7 @@
                     "  - name: \n" +
                     "    image: \n" +
                     "    ports:\n" +
-                    "    - containerPort: 0"
+                    "    - containerPort: 80"
 
             },
             download() {
@@ -205,13 +222,8 @@
 
                 var text = me.yaml_text;
 
-                var filename = me.fileName;
+                var filename = me.fileName + '.yaml';
 
-                if (filename == undefined) {
-                    filename = 'nonamefile.yaml'
-                } else if (!filename.includes('.yaml')) {
-                    filename += '.yaml'
-                }
 
                 var file = new File([text], filename, {type: "text/yaml;charset=utf-8"});
                 FileSaver.saveAs(file);
@@ -321,7 +333,7 @@
                 let me = this
                 me.ui_list = [
                     {
-                        key_lists: [
+                        key_lists: [,
                             'metadata,name',
                             "metadata,labels,app",
                             "spec,selector,matchLabels,app",
@@ -346,16 +358,16 @@
                         ],
                         ui_name: "replicas",
                         ui_type: "number",
-                        val: "0",
+                        val: "1",
                     }
                     ,
                     {
                         key_lists: [
-                            "spec,template,spec,containers,0,port"
+                            "spec,template,spec,containers,0,ports,0,containerPort"
                         ],
                         ui_name: "port",
                         ui_type: "number",
-                        val: "0",
+                        val: "80",
                     }
 
                 ];
@@ -370,16 +382,17 @@
                     "  selector:\n" +
                     "    matchLabels:\n" +
                     "      app:  \n" +
-                    "  replicas: 0\n" +
+                    "  replicas: 1\n" +
                     "  template:\n" +
                     "    metadata:\n" +
                     "      labels: \n" +
-                    "        app: \n" +
+                    "          app: \n" +
                     "    spec:\n" +
                     "      containers:\n" +
                     "        - name: \n" +
                     "          image: \n" +
-                    "          port: 0"
+                    "          ports: \n" +
+                    "            - containerPort: 80"
                 ;
             },
             createService() {
@@ -408,7 +421,7 @@
                         ],
                         ui_name: "port",
                         ui_type: "number",
-                        val: "0",
+                        val: "80",
                     },
                     {
                         key_lists: [
@@ -416,7 +429,7 @@
                         ],
                         ui_name: "target port",
                         ui_type: "number",
-                        val: "0",
+                        val: "80",
                     }
                 ];
                 me.yaml_text =
@@ -428,8 +441,8 @@
                     "    app: \n" +
                     "spec:\n" +
                     "  ports:\n" +
-                    "    - port: 0\n" +
-                    "      targetPort: 0\n" +
+                    "    - port: 80\n" +
+                    "      targetPort: 80\n" +
                     "  selector:\n" +
                     "    app: "
             },
@@ -540,6 +553,16 @@
                 }
                 me.ui_list = ui;
             },
+            templateLoad() {
+                var me = this;
+                if (me.types == 'pod') {
+                    me.createPod()
+                } else if (me.types == 'deployment') {
+                    me.createDeployment()
+                } else if (me.types == 'service') {
+                    me.createService()
+                }
+            }
         },
         watch: {
             plainText: {
@@ -547,14 +570,13 @@
                 handler(newVal, oldVal) {
                     var me = this
                     if (newVal != '') {
-                        // console.log('new Plain Text: \n' + newVal)
-                        // console.log('old Plain Text: \n' + oldVal)
                         me.newLoad(newVal)
                         if (oldVal == undefined) {
                             me.yaml_text = me.yamlFilter(newVal)
-                        } else {
-                            me.yaml_text = newVal
                         }
+                        // else {
+                        //     me.yaml_text = newVal
+                        // }
                         me.json_data = yaml.load(newVal)
                     }
                 }
@@ -565,7 +587,6 @@
                     if (newVal != '') {
                         var me = this
                         // console.log(newVal)
-                        me.$emit('update:plainText', newVal);
                         if (me.auto_edit) {
                             try {
                                 if (!(me.yaml_text == me.temp_text)) {
@@ -577,6 +598,7 @@
                                 this.$nextTick(function () {
                                     me.codemirror.setCursor(me.cursor_pos)
                                     me.codemirror.refresh()
+
                                 });
                             } catch (e) {
                             }
@@ -600,9 +622,15 @@
                     }
                     let yaml_text = json2yaml.stringify(JSON.parse(JSON.stringify(me.json_data)))
                     me.yaml_text = me.yamlFilter(yaml_text)
-                }, deep: true
+                    // console.log(me.yaml_text)
+                    // me.$nextTick(function () {
+                    //     console.log(me.yaml_text)
+                    // })
+                },
+                deep: true
             },
         }
     }
+
 
 </script>

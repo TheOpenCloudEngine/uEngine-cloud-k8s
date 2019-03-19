@@ -22,8 +22,6 @@
             </v-flex>
         </v-layout>
         <!-- Title -->
-
-
         <v-data-table
                 :rows-per-page-items="pageItems"
                 :headers="headers"
@@ -42,7 +40,6 @@
                 <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReadyReplicas }}</td>
                 <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReplicas }}</td>
                 <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusUpdateReplicas }}</td>
-
                 <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusAvailableReplicas }}</td>
                 <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.createTimeStamp }}</td>
                 <!-- Service Column -->
@@ -68,7 +65,6 @@
                 </td>
             </template>
             <template slot="no-data">
-                <!--<v-btn color="primary" @click="initialize">Reset</v-btn>-->
             </template>
         </v-data-table>
 
@@ -76,19 +72,9 @@
         <modal ref="modal" name="codeModal" :height='"80%"' :width="'80%'">
             <v-card ref="card" style="height: 100%">
                 <v-card-title class="headline"> {{types.toUpperCase()}} Editor
-                    <v-btn flat icon large color="black" @click="toFull">
-                        <v-icon>fullscreen</v-icon>
-                    </v-btn>
                 </v-card-title>
                 <v-card-text>
-                    <!--<codemirror-->
-                    <!--ref="myCm"-->
-                    <!--:options="cmOption"-->
-                    <!--:value="plainText"-->
-                    <!--v-model="plainText"-->
-                    <!--&gt;-->
-                    <!--</codemirror>-->
-                    <EditYaml :plainText.sync="plainText"></EditYaml>
+                    <EditYaml :status="status" :plainText.sync="plainText" :types="types"></EditYaml>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="error" @click="codeModalhide">Close</v-btn>
@@ -97,43 +83,21 @@
             </v-card>
         </modal>
 
-        <!-- FullScreen -->
-        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
-
-            <v-card>
-                <v-toolbar dark color="primary">
-                    <v-btn icon dark @click="dialog = false">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                    <v-toolbar-title> {{types.toUpperCase()}} Editor </v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-toolbar-items>
-                        <v-btn dark flat @click="dialog = false">Save</v-btn>
-                    </v-toolbar-items>
-                </v-toolbar>
-
-                <EditYaml :plainText="plainText"></EditYaml>
-            </v-card>
-        </v-dialog>
-
         <!-- Delete Modal -->
-        <modal scrollable ref="modal" name="deleteModal" :height='"auto"' :width='800'>
-            <v-card ref="card">
-                <v-card-title class="headline"> 삭제 안내</v-card-title>
-                <v-card-text>
-                    <div class="subheading">
-                        Namespace: {{ deleteNamespace }}
-                        <br>
-                        <br>
-                        Name: {{ deleteName }}
-                        <br>
-                        <br>
-                        삭제하시겠습니까?
+        <modal scrollable ref="modal" name="deleteModal" :height='"auto"' :width='500'>
+            <v-card>
+                <v-card-title primary-title>
+                    <div>
+                        <div class="headline">삭제 안내</div>
+                        <span class="text-capitalize"> {{ deleteName }}를 삭제하시겠습니까?</span>
                     </div>
-                </v-card-text>
-                <v-btn flat color="orange" @click="deleteModalhide">Close</v-btn>
-                <v-btn flat color="orange" @click="handleDelete(selectedRow)">Confirm</v-btn>
-            </v-card>
+                </v-card-title>
+
+                <v-card-actions>
+                    <v-btn color="primary" @click="deleteModalhide">Close</v-btn>
+                    <v-btn color="primary" @click="handleDelete(selectedRow)">Confirm</v-btn>
+                </v-card-actions>
+           </v-card>
         </modal>
 
         <v-snackbar
@@ -154,32 +118,6 @@
                 Close
             </v-btn>
         </v-snackbar>
-        <!--</md-dialog-content>-->
-
-
-        <!--<md-dialog-actions>-->
-        <!--<md-button class="md-raised md-primary" @click="active = false; plainText= ''">Cancel</md-button>-->
-        <!--<md-button class="md-raised md-primary" @click="postYAML">Confirm</md-button>-->
-        <!--</md-dialog-actions>-->
-        <!--</md-dialog>-->
-
-        <!--<md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"-->
-        <!--:md-active.sync="showAddSnackbar" md-persistent>-->
-        <!--<span>{{types.toUpperCase()}} 생성 시작 되었습니다.</span>-->
-        <!--<md-button class="md-primary" @click="showAddSnackbar = false">확인</md-button>-->
-        <!--</md-snackbar>-->
-
-        <!--<md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"-->
-        <!--:md-active.sync="showAddSnackbar" md-persistent>-->
-        <!--<span>{{types.toUpperCase()}} 수정 되었습니다.</span>-->
-        <!--<md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>-->
-        <!--</md-snackbar>-->
-
-        <!--<md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"-->
-        <!--:md-active.sync="showAddSnackbar" md-persistent>-->
-        <!--<span>{{selected.name}} 삭제하였습니다.</span>-->
-        <!--<md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>-->
-        <!--</md-snackbar>-->
     </div>
 </template>
 
@@ -240,7 +178,6 @@
                     timeout: 6000,
                     text: ''
                 },
-                dialog: false
             }
         },
         beforeDestroy: function () {
@@ -346,7 +283,7 @@
                 }
                 if (me.namespace != null) {
                     me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types + '&namespace=' + me.namespace)
-                } else if (me.namespace == null) {
+                } else if (me.namespace == 'All') {
                     me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
                 }
 
@@ -388,7 +325,6 @@
                             }
                         }
                     })
-
                 }
                 me.evtSource.onerror = function (e) {
                     me.evtSource.close();
@@ -409,7 +345,7 @@
                         TODO : 현재 Default만 받아오도록 설정되어있음.
                 */
 
-                if (me.namespace == null) {
+                if (me.namespace == 'All') {
                     me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
                         .then((result) => {
                             var tmpData = result.data
@@ -469,7 +405,7 @@
 
                             })
                         })
-                } else if (me.namespace != null) {
+                } else if (me.namespace != 'All') {
                     me.$http.get(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.namespace)
                         .then((result) => {
                             var tmpData = result.data
@@ -563,17 +499,12 @@
                 me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g, '- ').replace(/\\"/g, '\'')
 
             },
-            toFull() {
-                var me = this
-                this.codeModalhide();
-                me.$nextTick(function () {
-                    me.dialog = true;
-                })
-            },
             postYAML() {
                 var me = this
+                me.$EventBus.$emit('postYAML')
+                console.log(me.plainText)
                 var nameSpace = me.namespace;
-                if (nameSpace == null) {
+                if (nameSpace == 'All') {
                     nameSpace = 'default'
                 }
 

@@ -51,6 +51,4 @@ public class ServicesKafkaService {
 			System.out.println(message);
 		}
     }
-
-
 }

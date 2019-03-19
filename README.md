@@ -1,10 +1,12 @@
 # uEnginecloud for Kubernetes
-
-- 리소스 조회 모니터링 (Pod, Service, Deployment)
-- 리소스 생성 Yaml 템플리에서 리소스 생성
-- 리소스 삭제, 수정
+- [UI 설명서](https://github.com/TheOpenCloudEngine/uEngine-cloud-k8s/wiki/UI-%EC%84%A4%EB%AA%85)
+  - [리소스 조회 모니터링 (Pod, Service, Deployment)](https://github.com/TheOpenCloudEngine/uEngine-cloud-k8s/wiki/1.-%EC%A3%BC%EC%9A%94-%EC%82%AC%EC%9A%A9%EB%B0%A9%EB%B2%95-_-%EC%A1%B0%ED%9A%8C) 
+  - [리소스 생성 Yaml 템플리에서 리소스 생성](https://github.com/TheOpenCloudEngine/uEngine-cloud-k8s/wiki/2.-%EC%A3%BC%EC%9A%94-%EC%82%AC%EC%9A%A9%EB%B0%A9%EB%B2%95-_-%EC%B6%94%EA%B0%80)
+  - [리소스 삭제](https://github.com/TheOpenCloudEngine/uEngine-cloud-k8s/wiki/3.-%EC%A3%BC%EC%9A%94-%EC%82%AC%EC%9A%A9%EB%B0%A9%EB%B2%95-_-%EC%88%98%EC%A0%95)
+  - [리소스 수정](https://github.com/TheOpenCloudEngine/uEngine-cloud-k8s/wiki/4.-%EC%A3%BC%EC%9A%94-%EC%82%AC%EC%9A%A9%EB%B0%A9%EB%B2%95-_-%EC%82%AD%EC%A0%9C)
 - 커스텀 리소스 유형 생성 관리
 - 토폴로지 모델링 및 디플로이 
+
 
 ![image](https://user-images.githubusercontent.com/487999/54256571-cfcdd300-459f-11e9-89d3-c457a50676c0.png)
 
@@ -24,6 +26,11 @@
  - helm repo add googleapis https://kubernetes-charts-incubator.storage.googleapis.com/
  - helm repo add incubator http://storage.googleapis.com/kubernetes-charts-incubator
  - helm dependency update
+  // 만약 dependency update가 되지 않는다면,
+   # helm repo add incubator https://kubernetes-charts.storage.googleapis.com/
+   # helm repo add chart https://kubernetes-charts.storage.googleapis.com/
+   명령어로 repo를 추가해주어야함.
+   
  - helm init
  - helm install --name uengine-kube  --set mysql.mysqlRootPassword=test,mysql.mysqlUser=test,mysql.mysqlPassword=test,mysql.mysqlDatabase=uengine .
   -- DB 유저 및 tablespace 명을 바꾸면 실행되지 않는다.
