@@ -12,28 +12,36 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 //@Component
 //@NoArgsConstructor
 public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {
 
+    private RequestCache requestCache = new HttpSessionRequestCache();
+    private RedirectStrategy redirectStratgy = new DefaultRedirectStrategy();
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         try {
+            setUseReferer(true);
             if (authentication.isAuthenticated()) {
 
                 String CLIENT_ID = AuthorizationServerConfig.CLIENT_ID;
@@ -57,8 +65,14 @@ public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTa
 //                    System.out.println(accessToken.getBody());
 //                    return accessToken.getBody();
 
+                    clearAuthenticationAttributes(request);
+
                     if( request.getHeader("referer") != null ){
-                        response.sendRedirect(request.getHeader("referer") + "?access_token=" + accessToken.getBody());
+                        String host = request.getHeader("referer");
+                        if(request.getSession().getAttribute("originReferer") != null ){
+                            host = (String)request.getSession().getAttribute("originReferer");
+                        }
+                        response.sendRedirect(host + "?access_token=" + accessToken.getBody());
                     }else{
                         StringBuffer url = request.getRequestURL();
                         String uri = request.getRequestURI();
@@ -74,4 +88,11 @@ public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTa
             ex.printStackTrace();
         }
     }
+
+    protected void clearAuthenticationAttributes(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if(session==null) return;
+        session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+    }
+
 }

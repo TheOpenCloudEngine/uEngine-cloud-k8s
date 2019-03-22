@@ -34,9 +34,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CompositeFilter;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.filter.GenericFilterBean;
 
 import javax.annotation.Resource;
-import javax.servlet.Filter;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +104,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticated().and().exceptionHandling()
 //                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/"))
                 .and()
+                .addFilterBefore(new CustomFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class)
                 ;
         // logout
@@ -185,6 +189,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         public ResourceServerProperties getResource() {
             return resource;
+        }
+    }
+
+    public class CustomFilter extends GenericFilterBean {
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+            HttpServletRequest hRequest = (HttpServletRequest) request;
+            if( "".equals(hRequest.getQueryString()) || hRequest.getQueryString() == null ){
+                String originReferer = hRequest.getHeader("referer");
+                hRequest.getSession().setAttribute("originReferer" , originReferer);
+            }
+            chain.doFilter(request, response);
         }
     }
 }
