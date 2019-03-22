@@ -33,7 +33,7 @@
                 <span class="hidden-sm-and-down">uEngine</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn flat color="white">
+            <v-btn flat color="white" @click="googleLogin()">
                 Login
             </v-btn>
             <v-btn icon @click="dialog = true">
@@ -99,6 +99,7 @@
         data: () => ({
             dialog: false,
             drawer: null,
+            isLogin: false,
             kubeHost: '',
             kubeToken: '',
             items: [
@@ -107,6 +108,20 @@
         }),
         props: {
             source: String
+        },
+        methods: {
+            googleLogin() {
+                var me = this;
+                // var redirect_url = "https://localhost:8081";
+                var redirect_url = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '')
+                window.location.href = "https://localhost:8082/login/google";
+                // window.location.href = "https://localhost:8082/login/google?redirect_url="+redirect_url;
+                // me.$http.get(`https://localhost:8082/login/google`)
+                //     .then((result) => {
+                //         console.log(result);
+                //         // var tmpData = result.data
+                //     })
+            }
         }
     }
 </script>
