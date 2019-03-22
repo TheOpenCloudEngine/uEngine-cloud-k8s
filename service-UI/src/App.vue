@@ -33,10 +33,13 @@
                 <span class="hidden-sm-and-down">uEngine</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn flat color="white" @click="googleLogin()">
+            <v-btn flat color="white" @click="googleLogin()" v-if="!authorized">
                 Login
             </v-btn>
-            <v-btn icon @click="dialog = true">
+            <v-btn flat color="white" @click="logout()" v-if="authorized">
+                Logout
+            </v-btn>
+            <v-btn icon @click="dialog = true" v-if="authorized">
                 <v-icon>settings</v-icon>
             </v-btn>
         </v-toolbar>
@@ -104,24 +107,54 @@
             kubeToken: '',
             items: [
                 {icon: 'home', text: 'Home', route: '/'},
-            ]
+            ],
         }),
         props: {
             source: String
         },
+        computed: {
+            authorized () {
+                if(window.localStorage.getItem("access_token") == null) {
+                    return false
+                } else if (window.localStorage.getItem("access_token")) {
+                    return true
+                }
+            }
+        },
+        created: function () {
+            // localStorage.removeItem("access_token")
+            if(window.localStorage.getItem("access_token") == null) {
+                if(this.$route.query.access_token) {
+                    console.log("get token")
+                    localStorage.setItem("access_token", this.$route.query.access_token)
+
+                    var tmpURL = window.location.href;
+                    var deleteURL = window.location.search;
+
+                    tmpURL = tmpURL.replace(deleteURL, '')
+                    window.location.href = tmpURL;
+                } else {
+                }
+            } else {
+                console.log('have token')
+                this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.access_token}`;
+            }
+        },
         methods: {
             googleLogin() {
                 var me = this;
-                // var redirect_url = "https://localhost:8081";
                 var redirect_url = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '')
-                window.location.href = "https://localhost:8082/login/google";
-                // window.location.href = "https://localhost:8082/login/google?redirect_url="+redirect_url;
-                // me.$http.get(`https://localhost:8082/login/google`)
-                //     .then((result) => {
-                //         console.log(result);
-                //         // var tmpData = result.data
-                //     })
+                window.location.href = "https://localhost:8082/login/google"
+            },
+            logout() {
+                window.localStorage.removeItem("access_token");
+                var tmpURL = window.location.href;
+                var deleteURL = window.location.search;
+
+                tmpURL = tmpURL.replace(deleteURL, '')
+                window.location.href = tmpURL;
             }
         }
     }
 </script>
+
