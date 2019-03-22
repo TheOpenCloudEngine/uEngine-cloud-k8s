@@ -57,7 +57,15 @@ public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTa
 //                    System.out.println(accessToken.getBody());
 //                    return accessToken.getBody();
 
-                    response.sendRedirect(request.getHeader("referer") + "?access_token=" + accessToken.getBody());
+                    if( request.getHeader("referer") != null ){
+                        response.sendRedirect(request.getHeader("referer") + "?access_token=" + accessToken.getBody());
+                    }else{
+                        StringBuffer url = request.getRequestURL();
+                        String uri = request.getRequestURI();
+                        String host = url.substring(0, url.indexOf(uri));
+                        response.sendRedirect(host);
+                    }
+
                 } catch (HttpRequestMethodNotSupportedException e) {
                     e.printStackTrace();
                 }

@@ -35,13 +35,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-//@RestController
+@RestController
 public class UserController {
 
     @Autowired
     TokenEndpoint tokenEndpoint;
 
-//    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public OAuth2AccessToken home(HttpServletRequest request, Principal principal) {
 
         String CLIENT_ID = AuthorizationServerConfig.CLIENT_ID;
