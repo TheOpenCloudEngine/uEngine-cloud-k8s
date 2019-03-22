@@ -153,6 +153,8 @@
 
                 tmpURL = tmpURL.replace(deleteURL, '')
                 window.location.href = tmpURL;
+
+                this.$http.defaults.headers.common['Authorization'] = null;
             }
         }
     }
