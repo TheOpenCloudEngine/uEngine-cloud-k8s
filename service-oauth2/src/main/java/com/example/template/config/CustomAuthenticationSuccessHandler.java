@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -33,9 +34,6 @@ import java.util.*;
 //@Component
 //@NoArgsConstructor
 public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {
-
-    private RequestCache requestCache = new HttpSessionRequestCache();
-    private RedirectStrategy redirectStratgy = new DefaultRedirectStrategy();
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -65,18 +63,20 @@ public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTa
 //                    System.out.println(accessToken.getBody());
 //                    return accessToken.getBody();
 
-                    clearAuthenticationAttributes(request);
+                    clearAuthenticationAttributes(request, response);
 
                     if( request.getHeader("referer") != null ){
                         String host = request.getHeader("referer");
                         if(request.getSession().getAttribute("originReferer") != null ){
                             host = (String)request.getSession().getAttribute("originReferer");
                         }
+                        clearAuthenticationAttributes(request, response);
                         response.sendRedirect(host + "?access_token=" + accessToken.getBody());
                     }else{
                         StringBuffer url = request.getRequestURL();
                         String uri = request.getRequestURI();
                         String host = url.substring(0, url.indexOf(uri));
+                        clearAuthenticationAttributes(request, response);
                         response.sendRedirect(host);
                     }
 
@@ -89,10 +89,18 @@ public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTa
         }
     }
 
-    protected void clearAuthenticationAttributes(HttpServletRequest request) {
+    protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if(session==null) return;
         session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            cookie.setMaxAge(0);
+            cookie.setValue(null);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }
     }
 
 }
