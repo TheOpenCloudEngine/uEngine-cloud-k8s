@@ -158,20 +158,23 @@
                 var me = this
                 var token = localStorage.getItem('accessToken');
                 console.log("Bearer " + token)
+
+                var url = 'http://localhost:8080/kube/v1/pods/namespaces/default'
                 $.ajax({
-                    url: 'http://localhost:8080/kube/v1/pods/namespaces/kafka',
-                    method: "get",
-                    dataType: 'json',
-                    header: {
-                        "Authorization": "Bearer " + token
+                    url: url,
+                    type: "get",
+                    headers: {
+                        "Authorization": 'Bearer' + token
                     },
                     success: function (data) {
-                        console.log(data)
+                        console.log('111');
+                        console.log(data);
                     },
-                    error: function (jqXHR, textStatus, errorThrown) {
-
+                    error: function () {
+                        console.log('Failed to get env');
                     }
                 });
+
             },
             saveSetting() {
                 var me = this;
