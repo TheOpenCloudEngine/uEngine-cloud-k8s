@@ -130,6 +130,14 @@
                 } else if (window.localStorage.getItem("accessToken")) {
                     return true
                 }
+            },
+            userInfo() {
+                if(this.authorized == true) {
+                    console.log(this.$jwt.hasToken())
+                    return this.$jwt.decode()
+                } else {
+                    return null
+                }
             }
         },
         created: function () {
@@ -186,13 +194,15 @@
             },
             logout() {
                 window.localStorage.removeItem("accessToken");
+
                 var tmpURL = window.location.href;
                 var deleteURL = window.location.search;
 
                 tmpURL = tmpURL.replace(deleteURL, '')
+
                 window.location.href = tmpURL;
 
-                this.$http.defaults.headers.common['Authorization'] = null;
+                // this.$http.defaults.headers.common['Authorization'] = null;
             }
         }
     }
