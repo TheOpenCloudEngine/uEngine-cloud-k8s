@@ -17,4 +17,17 @@ public interface DeploymentRepository extends CrudRepository<Deployment, String>
     @Modifying
     @Query("delete from Deployment")
     void deleteAllInQuery();
+
+    @Modifying
+    @Transactional
+    @Query(value="DELETE FROM DEPLOYMENT WHERE host=?1",
+            nativeQuery = true)
+    void deleteByHost(@Param("host") String host);
+
+    @Modifying
+    @Transactional
+    @Query(value="DELETE FROM DEPLOYMENT WHERE host=?1 and namespace=?2 and name =?3 ",
+            nativeQuery = true)
+    void deleteDeploy(@Param("host") String host, @Param("namespace") String namespace, @Param("name") String name);
+
 }

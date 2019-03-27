@@ -1,9 +1,15 @@
 package com.example.template.k8s.deployment;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.UUID;
 
+import io.kubernetes.client.models.V1Deployment;
+import io.kubernetes.client.models.V1Pod;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +35,8 @@ public class DeploymentKafkaService {
     private SseBaseMessageHandler messageHandler;
 
 
-    @KafkaListener(topics = "${topic.delpoyMsgTopic}")
-    public void listenByDeployment(@Payload String message) throws ParseException {
+//    @KafkaListener(topics = "${topic.delpoyMsgTopic}")
+    public void listenByDeploymentOld(@Payload String message) throws ParseException {
         Gson gson = new Gson();
         Deployment dpl = gson.fromJson(message, Deployment.class);
         if("DELETE".equals(dpl.getProvider())) {
@@ -44,83 +50,84 @@ public class DeploymentKafkaService {
             dpl.setCreateTime(ts);
 
             deploymentService.update(dpl);
-//    	messageHandler.publish(dpl.getName(), dpl.getProvider(), message);
-            System.out.println(message);
             messageHandler.publish("deployment", message, dpl.getNamespace());
 
-//        String bodyData = message.replaceAll("\\\\", "");
-//        System.out.println(bodyData);
+        }
+    }
 
-//        JSONParser parser = new JSONParser();
-//        JSONObject json = (JSONObject) parser.parse(message);
-//        String bodyData = json.get("object").toString();
-//        bodyData = bodyData.replace("\\\"", "'");
-//        bodyData = bodyData.replaceAll("\\\\", "");
-//        Yaml yaml = new Yaml();
-//        V1Deployment body = yaml.loadAs(bodyData, V1Deployment.class);
-//        System.out.println(body);
+    @KafkaListener(topics = "${topic.delpoyMsgTopic}")
+    public void listenByDeployment(@Payload String message, ConsumerRecord<?, ?> consumerRecord) throws ParseException {
+        String host = (String)consumerRecord.key();
 
-//        Gson gson = new Gson();
-//        V1Deployment dpl = gson.fromJson(message, V1Deployment.class);
-//        System.out.println(dpl.toString());
+        Header[] h = consumerRecord.headers().toArray();
+        // 객체의 DataTime 이 정상적으로 변환이 안되서 header 에 담아서 처리함
+        String createTimeStamp = null;
+        String status = null;
+        for (Header header : h) {
+            if (header.key().equals("CreateTimeStamp")) {
+                createTimeStamp = new String(header.value(), StandardCharsets.UTF_8);
+            }
+            if (header.key().equals("status")) {
+                status = new String(header.value(), StandardCharsets.UTF_8);
+            }
+        }
 
-//    	ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-//    	V1Deployment dpl1 = null;
-//    	try {
-//			dpl1 = yamlReader.readValue(message, V1Deployment.class);
-//		} catch (JsonParseException e) {
-//			e.printStackTrace();
-//		} catch (JsonMappingException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//    	ObjectMapper mapper = new ObjectMapper();
-//    	Watch.Response<V1Deployment> item = null;
-//		try {
-//			item = mapper.readValue(message, new TypeReference<Watch.Response<V1Deployment>>(){});
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//    	Deployment dpl = new Deployment();
-//
-//    	dpl.setProvider("K8S");
-//    	dpl.setId(UUID.randomUUID().toString());
-//    	dpl.setType(item.type);
-//    	dpl.setApiVersion(item.object.getApiVersion());
-//    	dpl.setKind(item.object.getKind());
-//
-//    	// deployment의 메타데이터 정보
-//    	{
-//			if (item.object.getMetadata().getCreationTimestamp() != null && item.object.getMetadata().getCreationTimestamp().getMillis() != 0L) {
-//				SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//				dpl.setCreateTimeStamp(transFormat.format(item.object.getMetadata().getCreationTimestamp().getMillis()));
-//			}
-//
-//			dpl.setName(item.object.getMetadata().getName());
-//			dpl.setNamespace(item.object.getMetadata().getNamespace());
-//			dpl.setUid(item.object.getMetadata().getUid());
-//    	}
-//
-//    	// deployment의 spec 정보
-//    	{
-//    		dpl.setStrategyType(item.object.getSpec().getStrategy().getType());
-//    		dpl.setSpecReplicas(item.object.getSpec().getReplicas());
-//    	}
-//
-//    	// deployment의 status 정보
-//    	{
-//    		dpl.setStatusReplicas(item.object.getStatus().getReplicas());
-//    		dpl.setStatusAvailableReplicas(item.object.getStatus().getAvailableReplicas());
-//    		dpl.setStatusReadyReplicas(item.object.getStatus().getReadyReplicas());
-//    		dpl.setStatusUpdateReplicas(item.object.getStatus().getUpdatedReplicas());
-//    	}
-//
-//
-//    	deploymentService.update(dpl);
+        if( "DELETE_ALL".equals(message)){
+            deploymentService.deleteByHost(host);
+            return;
+        }
 
+        Gson gson = new Gson();
+        V1Deployment item = gson.fromJson(message, V1Deployment.class);
+        String namespace = item.getMetadata().getNamespace();
+        String name = item.getMetadata().getName();
+
+        if("DELETED".equals(status)) {
+            deploymentService.delete(host, namespace, name);
+        }else {
+            Deployment dpl = new Deployment();
+
+            dpl.setProvider("K8S");
+            dpl.setId(item.getMetadata().getUid());
+            dpl.setHost(host);
+            dpl.setApiVersion(item.getApiVersion());
+            dpl.setKind(item.getKind());
+
+            // deployment의 메타데이터 정보
+            {
+                dpl.setCreateTimeStamp(createTimeStamp);
+                dpl.setName(item.getMetadata().getName());
+                dpl.setNamespace(item.getMetadata().getNamespace());
+            }
+
+            // deployment의 spec 정보
+            {
+                dpl.setStrategyType(item.getSpec().getStrategy().getType());
+                dpl.setSpecReplicas(item.getSpec().getReplicas());
+            }
+
+            // deployment의 status 정보
+            {
+                dpl.setStatusReplicas(item.getStatus().getReplicas());
+                dpl.setStatusAvailableReplicas(item.getStatus().getAvailableReplicas());
+                dpl.setStatusReadyReplicas(item.getStatus().getReadyReplicas());
+                dpl.setStatusUpdateReplicas(item.getStatus().getUpdatedReplicas());
+            }
+
+            {
+                dpl.setSourceData(new Gson().toJson(item));
+            }
+            {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+                Calendar cal = Calendar.getInstance();
+                String today = null;
+                today = formatter.format(cal.getTime());
+                Timestamp ts = Timestamp.valueOf(today);
+                dpl.setCreateTime(ts);
+            }
+
+            deploymentService.update(dpl);
+            messageHandler.publish("deployment", message, dpl.getNamespace());
         }
     }
 

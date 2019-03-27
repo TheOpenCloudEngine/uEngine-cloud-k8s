@@ -1,10 +1,17 @@
 package com.example.template.k8s.pod;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.UUID;
 
+import io.kubernetes.client.models.V1Container;
+import io.kubernetes.client.models.V1Pod;
+import io.kubernetes.client.models.V1PodCondition;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +48,8 @@ public class PodKafkaService {
      * @param consumerRecord
      */
 
-    @KafkaListener(topics = "${topic.podeMsgTopic}")
-    public void listenByObject(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
+//    @KafkaListener(topics = "${topic.podeMsgTopic}")
+    public void listenByObjectOld(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
         System.out.println(message);
         Gson gson = new Gson();
         Pod pod = gson.fromJson(message, Pod.class);
@@ -60,6 +67,94 @@ public class PodKafkaService {
 
             messageHandler.publish("pod", message, pod.getNamespace());
 
+        }
+    }
+
+    @KafkaListener(topics = "${topic.podMsgTopic}")
+    public void listenByObject(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
+
+        String host = (String)consumerRecord.key();
+
+        Header[] h = consumerRecord.headers().toArray();
+        // V1Pod 객체의 DataTime 이 정상적으로 변환이 안되서 header 에 담아서 처리함
+        String createTimeStamp = null;
+        String status = null;
+        for (Header header : h) {
+            if (header.key().equals("CreateTimeStamp")) {
+                createTimeStamp = new String(header.value(), StandardCharsets.UTF_8);
+            }
+            if (header.key().equals("status")) {
+                status = new String(header.value(), StandardCharsets.UTF_8);
+            }
+        }
+
+        if( "DELETE_ALL".equals(message)){
+            podService.deleteByHost(host);
+            return;
+        }
+
+
+        Gson gson = new Gson();
+        V1Pod item = gson.fromJson(message, V1Pod.class);
+        String namespace = item.getMetadata().getNamespace();
+        String name = item.getMetadata().getName();
+
+        if("DELETED".equals(status)) {
+            podService.delete(host, namespace, name);
+        }else {
+
+            Pod pod = new Pod();
+            pod.setProvider("K8S");
+            pod.setId(item.getMetadata().getUid());
+            pod.setHost(host);
+
+            String apiVersion = item.getApiVersion();
+            if( apiVersion == null ){
+
+            }
+            String kind = item.getKind();
+            pod.setApiVersion(apiVersion);
+            pod.setKind(kind);
+
+            {
+                pod.setCreateTimeStamp(createTimeStamp);
+                pod.setName(item.getMetadata().getName());
+                pod.setNamespace(item.getMetadata().getNamespace());
+            }
+
+            {
+                pod.setNodeName(item.getSpec().getNodeName());
+                pod.setRestartPolicy(item.getSpec().getRestartPolicy());
+                pod.setServiceAccount(item.getSpec().getServiceAccount());
+                if (item.getSpec().getContainers() != null && item.getSpec().getContainers().size() > 0) {
+                    pod.setImage(item.getSpec().getContainers().get(0).getImage());
+                }
+
+            }
+
+            {
+                pod.setHostIp(item.getStatus().getHostIP());
+                pod.setPodIp(item.getStatus().getPodIP());
+            }
+
+            {
+                pod.setStatus(status);
+                item.setStatus(null);
+
+                pod.setSourceData(new Gson().toJson(item));
+            }
+
+            {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+                Calendar cal = Calendar.getInstance();
+                String today = null;
+                today = formatter.format(cal.getTime());
+                Timestamp ts = Timestamp.valueOf(today);
+                pod.setCreateTime(ts);
+            }
+
+            podService.update(pod);
+            messageHandler.publish("pod", message, pod.getNamespace());
         }
     }
 

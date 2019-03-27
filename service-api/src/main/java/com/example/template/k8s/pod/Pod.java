@@ -22,21 +22,21 @@ public class Pod implements Serializable {
 
     @Column(name="provider")
     private String provider;
-    
-    @Column(name="type")
-    private String type;
 
-    @Column(name="kind")
-    private String kind;
+	@Column(name="apiVersion")
+	private String apiVersion;
+
+	@Column(name="kind")
+	private String kind;
+    
+    @Column(name="host")
+    private String host;
 
     @Column(name="name")
     private String name;
 
     @Column(name="namespace")
     private String namespace;
-
-    @Column(name="uid")
-    private String uid;
 
     @Column(name="createTimeStamp")
     private String createTimeStamp;
@@ -79,20 +79,12 @@ public class Pod implements Serializable {
 		this.id = id;
 	}
 
-	public String getProvider() {
-		return provider;
+	public String getApiVersion() {
+		return apiVersion;
 	}
 
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
+	public void setApiVersion(String apiVersion) {
+		this.apiVersion = apiVersion;
 	}
 
 	public String getKind() {
@@ -101,6 +93,22 @@ public class Pod implements Serializable {
 
 	public void setKind(String kind) {
 		this.kind = kind;
+	}
+
+	public String getProvider() {
+		return provider;
+	}
+
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
 	}
 
 	public String getName() {
@@ -117,14 +125,6 @@ public class Pod implements Serializable {
 
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
-	}
-
-	public String getUid() {
-		return uid;
-	}
-
-	public void setUid(String uid) {
-		this.uid = uid;
 	}
 
 	public String getCreateTimeStamp() {

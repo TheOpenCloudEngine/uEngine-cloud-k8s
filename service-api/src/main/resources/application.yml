@@ -6,7 +6,7 @@ topic:
   instanceTopic: instanceTopic
   orderTopic: orderTopic
   stateMsgTopic: stateMsgTopic
-  podeMsgTopic: podeMsgTopic
+  podMsgTopic: podMsgTopic
   delpoyMsgTopic: delpoyMsgTopic
   serviceMsgTopic: serviceMsgTopic
 

@@ -26,8 +26,8 @@ public class Deployment implements Serializable {
 	@Id
 	private String id;
 	
-	@Column(name="type")
-	private String type;
+	@Column(name="host")
+	private String host;
 	
 	@Column(name="apiVersion")
 	private String apiVersion;
@@ -43,9 +43,6 @@ public class Deployment implements Serializable {
 	
 	@Column(name="namespace")
 	private String namespace;
-	
-	@Column(name="uid")
-	private String uid;
 	
 	@Column(name="specReplicas")
 	private Integer specReplicas;
@@ -90,12 +87,12 @@ public class Deployment implements Serializable {
 		this.id = id;
 	}
 
-	public String getType() {
-		return type;
+	public String getHost() {
+		return host;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setHost(String host) {
+		this.host = host;
 	}
 
 	public String getApiVersion() {
@@ -136,14 +133,6 @@ public class Deployment implements Serializable {
 
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
-	}
-
-	public String getUid() {
-		return uid;
-	}
-
-	public void setUid(String uid) {
-		this.uid = uid;
 	}
 
 	public Integer getSpecReplicas() {

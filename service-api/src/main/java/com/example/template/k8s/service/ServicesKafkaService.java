@@ -1,10 +1,19 @@
 package com.example.template.k8s.service;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.UUID;
 
+import io.kubernetes.client.models.V1LoadBalancerIngress;
+import io.kubernetes.client.models.V1Pod;
+import io.kubernetes.client.models.V1Service;
+import io.kubernetes.client.models.V1ServicePort;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +38,8 @@ public class ServicesKafkaService {
     private SseBaseMessageHandler messageHandler;
 
 
-    @KafkaListener(topics = "${topic.serviceMsgTopic}")
-    public void listenByServices(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
+//    @KafkaListener(topics = "${topic.serviceMsgTopic}")
+    public void listenByServicesOld(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
 
     	Gson gson = new Gson();
     	Services svs = gson.fromJson(message, Services.class);
@@ -49,6 +58,90 @@ public class ServicesKafkaService {
 			servicesService.update(svs);
 			messageHandler.publish("service", message, svs.getNamespace());
 			System.out.println(message);
+		}
+    }
+
+    @KafkaListener(topics = "${topic.serviceMsgTopic}")
+    public void listenByServices(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
+
+		String host = (String)consumerRecord.key();
+
+		Header[] h = consumerRecord.headers().toArray();
+		// V1Pod 객체의 DataTime 이 정상적으로 변환이 안되서 header 에 담아서 처리함
+		String createTimeStamp = null;
+		String status = null;
+		for (Header header : h) {
+			if (header.key().equals("CreateTimeStamp")) {
+				createTimeStamp = new String(header.value(), StandardCharsets.UTF_8);
+			}
+			if (header.key().equals("status")) {
+				status = new String(header.value(), StandardCharsets.UTF_8);
+			}
+		}
+
+		if( "DELETE_ALL".equals(message)){
+			servicesService.deleteByHost(host);
+			return;
+		}
+
+
+		Gson gson = new Gson();
+		V1Service item = gson.fromJson(message, V1Service.class);
+		String namespace = item.getMetadata().getNamespace();
+		String name = item.getMetadata().getName();
+
+		if("DELETED".equals(status)) {
+			servicesService.delete(host, namespace, name);
+		}else {
+
+			Services svs = new Services();
+
+			svs.setProvider("K8S");
+			svs.setId(item.getMetadata().getUid());
+			svs.setHost(host);
+			svs.setApiVersion(item.getApiVersion());
+			svs.setKind(item.getKind());
+
+			// service의 메타데이터 정보
+			{
+				svs.setCreateTimeStamp(createTimeStamp);
+				svs.setName(item.getMetadata().getName());
+				svs.setNamespace(item.getMetadata().getNamespace());
+			}
+
+			// service의 spec 정보
+			{
+				svs.setSpecSessionAffinity(item.getSpec().getSessionAffinity());
+				svs.setSpecPorts(new Gson().toJson(item.getSpec().getPorts()));
+				svs.setSpecType(item.getSpec().getType());
+
+			}
+
+			// service의 status 정보
+			{
+				if (item.getStatus().getLoadBalancer() != null && item.getStatus().getLoadBalancer().getIngress() != null) {
+					for (V1LoadBalancerIngress v1Ingress : item.getStatus().getLoadBalancer().getIngress()) {
+						svs.setHostname(v1Ingress.getHostname());
+						svs.setIngressIp(v1Ingress.getIp());
+					}
+				}
+			}
+
+			{
+				svs.setSourceData(new Gson().toJson(item));
+			}
+
+			{
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+				Calendar cal = Calendar.getInstance();
+				String today = null;
+				today = formatter.format(cal.getTime());
+				Timestamp ts = Timestamp.valueOf(today);
+				svs.setCreateTime(ts);
+			}
+
+			servicesService.update(svs);
+			messageHandler.publish("service", message, svs.getNamespace());
 		}
     }
 }

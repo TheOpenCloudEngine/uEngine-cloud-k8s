@@ -6,6 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Id;
+
 public interface PodRepository extends CrudRepository<Pod, String> {
 
     Iterable<Pod> findByProvider(@Param("provider") String provider);
@@ -17,4 +19,16 @@ public interface PodRepository extends CrudRepository<Pod, String> {
     @Modifying
     @Query("delete from Pod")
     void deleteAllInQuery();
+
+    @Modifying
+    @Transactional
+    @Query(value="DELETE FROM POD WHERE host=?1",
+            nativeQuery = true)
+    void deleteByHost(@Param("host") String host);
+
+    @Modifying
+    @Transactional
+    @Query(value="DELETE FROM POD WHERE host=?1 and namespace=?2 and name =?3 ",
+            nativeQuery = true)
+    void deletePod(@Param("host") String host, @Param("namespace") String namespace, @Param("name") String name);
 }

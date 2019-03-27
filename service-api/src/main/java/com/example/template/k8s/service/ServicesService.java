@@ -1,16 +1,14 @@
 package com.example.template.k8s.service;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import com.example.template.k8s.common.TempUser;
+import com.example.template.k8s.user.TempUser;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
@@ -64,6 +62,16 @@ public class ServicesService {
         servicesRepository.deleteAllInQuery();
         return "";
     }
+
+    public String deleteByHost(String host) {
+        servicesRepository.deleteByHost(host);
+        return "";
+    }
+
+    public void delete(String host, String namespace, String name) {
+        servicesRepository.deleteService(host, namespace, name);
+    }
+
 
     public String update(Services svs) {
     	servicesRepository.save(svs);

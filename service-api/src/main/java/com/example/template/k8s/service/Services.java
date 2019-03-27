@@ -8,12 +8,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import io.kubernetes.client.models.V1ServicePort;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import lombok.Data;
 
-@Data
 @Entity
 @Table(name = "SERVICES")
 public class Services implements Serializable {
@@ -25,10 +25,10 @@ public class Services implements Serializable {
 
 	@Id
 	private String id;
-	
-	@Column(name="type")
-	private String type;
-	
+
+	@Column(name="host")
+	private String host;
+
 	@Column(name="apiVersion")
 	private String apiVersion;
 	
@@ -44,21 +44,12 @@ public class Services implements Serializable {
 	@Column(name="namespace")
 	private String namespace;
 	
-	@Column(name="uid")
-	private String uid;
-	
 	@Column(name="specClusterIp")
 	private String specClusterIp;
 	
-	@Column(name="specPort")
-	private Integer specPort;
-	
-	@Column(name="specProtocol")
-	private String specProtocol;
-	
-//	@Column(name="specTargetPort")
-//	private String specTargetPort;
-	
+	@Column(name="specPorts")
+	private String specPorts;
+
 	@Column(name="specSessionAffinity")
 	private String specSessionAffinity;
 	
@@ -94,14 +85,6 @@ public class Services implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	public String getApiVersion() {
@@ -144,12 +127,20 @@ public class Services implements Serializable {
 		this.namespace = namespace;
 	}
 
-	public String getUid() {
-		return uid;
+	public String getHost() {
+		return host;
 	}
 
-	public void setUid(String uid) {
-		this.uid = uid;
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getSpecPorts() {
+		return specPorts;
+	}
+
+	public void setSpecPorts(String specPorts) {
+		this.specPorts = specPorts;
 	}
 
 	public String getSpecClusterIp() {
@@ -160,21 +151,6 @@ public class Services implements Serializable {
 		this.specClusterIp = specClusterIp;
 	}
 
-	public Integer getSpecPort() {
-		return specPort;
-	}
-
-	public void setSpecPort(Integer specPort) {
-		this.specPort = specPort;
-	}
-
-	public String getSpecProtocol() {
-		return specProtocol;
-	}
-
-	public void setSpecProtocol(String specProtocol) {
-		this.specProtocol = specProtocol;
-	}
 
 //	public String getSpecTargetPort() {
 //		return specTargetPort;
