@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import './registerServiceWorker'
+import VueJWT from 'vuejs-jwt'
 
 import VModal from 'vue-js-modal'
 import EditYaml from './components/edityamlpage.vue'
@@ -12,6 +13,11 @@ import textReader from './components/yaml.vue'
 Vue.use(VModal)
 Vue.component('EditYaml', EditYaml)
 Vue.component('text-reader', textReader)
+
+var options = {'keyName' : 'accessToken'};
+
+Vue.use(VueJWT, options)
+
 
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
