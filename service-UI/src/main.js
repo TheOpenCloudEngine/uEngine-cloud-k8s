@@ -3,7 +3,6 @@ import './plugins/vuetify'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import axios from 'axios'
 import './registerServiceWorker'
 
 import VModal from 'vue-js-modal'
@@ -14,7 +13,9 @@ Vue.use(VModal)
 Vue.component('EditYaml', EditYaml)
 Vue.component('text-reader', textReader)
 
-Vue.prototype.$http = axios
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 Vue.prototype.$EventBus = new Vue()
 
 if( process.env.NODE_ENV == "development" ){

@@ -36,10 +36,13 @@
             <v-btn flat color="white" @click="googleLogin()" v-if="!authorized">
                 Login
             </v-btn>
+            <v-btn flat color="white" @click="callCurl()">
+                Call
+            </v-btn>
             <v-btn flat color="white" @click="logout()" v-if="authorized">
                 Logout
             </v-btn>
-            <v-btn icon @click="dialog = true" v-if="authorized">
+            <v-btn icon @click="dialog = true">
                 <v-icon>settings</v-icon>
             </v-btn>
         </v-toolbar>
@@ -57,13 +60,13 @@
         <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
             <v-card>
                 <v-toolbar dark color="primary">
-                    <v-btn icon dark @click="dialog = false">
+                    <v-btn icon dark @click="dialog = false; kubeToken=''; kubeHost='';">
                         <v-icon>close</v-icon>
                     </v-btn>
                     <v-toolbar-title>Settings</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn dark flat @click="dialog = false">Save</v-btn>
+                        <v-btn dark flat @click="saveSetting()">Save</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
                 <v-list three-line subheader>
@@ -98,35 +101,43 @@
 </template>
 
 <script>
+    import axios from 'axios'
+    import https from 'https'
+
     export default {
         data: () => ({
             dialog: false,
             drawer: null,
             isLogin: false,
-            kubeHost: '',
-            kubeToken: '',
+            kubeHost: 'http://localhost:8080',
+            kubeToken: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImNsb3VkdXNlci10b2tlbi16cmtqaiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJjbG91ZHVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI0ZmJmNzk0YS0zNTgwLTExZTktYTU2OC0wMjkxMGMyMWIzOTgiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVmYXVsdDpjbG91ZHVzZXIifQ.APncfC7biCYEre4LZ3S-TVcf641qpQlo7r_BN0khN8ovnT7rR3DWGTaUDLP2eFQBLUvEVSAgTT1g0wF1OFsqEx-Sn3fHByyf1r8t15wvN_XJFM2_V_ZZBosUeZCciklcky0jwF6AWcSpUo9nKa23yBtylJ9d6EPjAq8KtURdX7IVb5i8j0InSExyOQZv5xJ-yv55GB_yRrI9rQ6cwxt_PdFaQiFLjSjnp6SvZj3nPACw_qb98w2I4p_O8DZ5SE-b4OetZj0xmZM7ELXBbceMDepT0UHrU1ZcIc54aWNnhyGFdxspxwrGWSDtNL4T6KKbTqU6HVXkiJTKCw1w9E9hHg',
             items: [
                 {icon: 'home', text: 'Home', route: '/'},
             ],
+            api: []
         }),
         props: {
             source: String
         },
+        components: {
+            axios,
+            https
+        },
         computed: {
-            authorized () {
-                if(window.localStorage.getItem("access_token") == null) {
+            authorized() {
+                if (window.localStorage.getItem("accessToken") == null) {
                     return false
-                } else if (window.localStorage.getItem("access_token")) {
+                } else if (window.localStorage.getItem("accessToken")) {
                     return true
                 }
             }
         },
         created: function () {
+            var me = this
             // localStorage.removeItem("access_token")
-            if(window.localStorage.getItem("access_token") == null) {
-                if(this.$route.query.access_token) {
-                    console.log("get token")
-                    localStorage.setItem("access_token", this.$route.query.access_token)
+            if (window.localStorage.getItem("accessToken") == null) {
+                if (this.$route.query.access_token) {
+                    localStorage.setItem("accessToken", this.$route.query.access_token)
 
                     var tmpURL = window.location.href;
                     var deleteURL = window.location.search;
@@ -136,18 +147,45 @@
                 } else {
                 }
             } else {
-                console.log('have token')
-                this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.access_token}`;
+                this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.accessToken}`;
             }
         },
+        watch: {
+
+        },
         methods: {
+            callCurl() {
+                var me = this
+                var token = localStorage.getItem('accessToken');
+                console.log("Bearer " + token)
+                $.ajax({
+                    url: 'http://localhost:8080/kube/v1/pods/namespaces/kafka',
+                    method: "get",
+                    dataType: 'json',
+                    header: {
+                        "Authorization": "Bearer " + token
+                    },
+                    success: function (data) {
+                        console.log(data)
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                    }
+                });
+            },
+            saveSetting() {
+                var me = this;
+                me.dialog = false;
+            },
             googleLogin() {
                 var me = this;
-                var redirect_url = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '')
+                if (localStorage.accessToken) {
+                    localStorage.removeItem('accessToken')
+                }
                 window.location.href = "https://localhost:8082/login/google"
             },
             logout() {
-                window.localStorage.removeItem("access_token");
+                window.localStorage.removeItem("accessToken");
                 var tmpURL = window.location.href;
                 var deleteURL = window.location.search;
 

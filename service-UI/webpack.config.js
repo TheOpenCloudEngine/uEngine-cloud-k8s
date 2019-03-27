@@ -6,5 +6,8 @@ module.exports = {
                 use: [ 'style-loader', 'css-loader', 'cssimportant-loader' ]
             }
         ]
-    }
+    },
+    devServer: {
+        port: 8081
+    },
 }
