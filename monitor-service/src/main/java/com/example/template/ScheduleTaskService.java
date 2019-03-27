@@ -132,6 +132,15 @@ public class ScheduleTaskService {
             Map<String, Object> currentData = new HashMap<>();
 
             for (V1Service item : list.getItems()) {
+                String apiVersion = "v1";
+                String kind = "Service";
+                if( item.getApiVersion() == null ){
+                    item.setApiVersion(apiVersion);
+                }
+                if( item.getKind() == null ){
+                    item.setKind(kind);
+                }
+
                 currentData.put(item.getMetadata().getName(), item);
                 if(init){
                     this.prevData.put(item.getMetadata().getName(), item);

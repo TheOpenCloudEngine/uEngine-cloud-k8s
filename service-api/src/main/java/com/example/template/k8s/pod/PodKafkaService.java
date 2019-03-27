@@ -108,13 +108,8 @@ public class PodKafkaService {
             pod.setId(item.getMetadata().getUid());
             pod.setHost(host);
 
-            String apiVersion = item.getApiVersion();
-            if( apiVersion == null ){
-
-            }
-            String kind = item.getKind();
-            pod.setApiVersion(apiVersion);
-            pod.setKind(kind);
+            pod.setApiVersion(item.getApiVersion());
+            pod.setKind(item.getKind());
 
             {
                 pod.setCreateTimeStamp(createTimeStamp);
