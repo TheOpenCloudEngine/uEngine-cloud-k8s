@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/kube/user")
@@ -28,11 +29,17 @@ public class UserController {
     private String stateMsgTopic;
 
     @RequestMapping(value = "/getUserDetail", method = RequestMethod.GET)
-    public void getUserDetail(HttpServletRequest request, @RequestParam String username) {
+    public UserDetail getUserDetail(HttpServletRequest request, @RequestParam String username) {
         //로그인한 사용자 ID 가져오기
         if( username != null) {
             System.out.println(username);
+
+            Optional<UserDetail> userDetail = userDetailRepository.findById(username);
+
+            return userDetail.orElse(null);
         }
+
+        return null;
     }
 
     @RequestMapping(value = "/saveUserDetail", method = RequestMethod.PUT)
