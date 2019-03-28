@@ -1,20 +1,20 @@
 <template>
     <v-container grid-list-md text-xs-center>
         <v-layout row wrap>
-            <v-flex xs6>
-                <v-card>
+            <v-flex grow style="max-width: 70%">
+                <v-card flat>
                     <v-card-text>
-                        <v-text-field
-                                v-if="status == 'edit'"
-                                v-model="fileName"
-                                label="File Name"
-                                readonly
-                        ></v-text-field>
-                        <v-text-field
-                                v-if="status == 'add'"
-                                v-model="fileName"
-                                label="File Name"
-                        ></v-text-field>
+                        <!--<v-text-field-->
+                        <!--v-if="status == 'edit'"-->
+                        <!--v-model="fileName"-->
+                        <!--label="File Name"-->
+                        <!--readonly-->
+                        <!--&gt;</v-text-field>-->
+                        <!--<v-text-field-->
+                        <!--v-if="status == 'add'"-->
+                        <!--v-model="fileName"-->
+                        <!--label="File Name"-->
+                        <!--&gt;</v-text-field>-->
                         <codemirror
                                 ref="myCm"
                                 :options="{
@@ -27,48 +27,49 @@
                                 @focus="onYamlFocus()"
                         >
                         </codemirror>
-                        <text-reader :fileName.sync="fileName"
-                                     :plainText.sync="yaml_text"
-                                     @load="yaml_text = $event">
-                            Load
-                        </text-reader>
                         <v-layout row wrap>
-                            <v-flex xs6>
-                                <v-btn
-                                        color="primary"
-                                        dark
-                                        block
-                                        @click="templateLoad()"
-                                >
-                                    Template
-                                </v-btn>
+                            <v-flex xs4>
+                                <v-btn v-if="importFile == false" color="success" block @click="importFile = true">LocalFile</v-btn>
+                                <text-reader
+                                        v-if="importFile == true"
+                                        :fileName.sync="fileName"
+                                        :plainText.sync="yaml_text"
+                                        @load="yaml_text = $event">
+                                </text-reader>
                             </v-flex>
-                            <v-flex xs6>
+                            <v-flex xs4>
                                 <v-btn color="success" block @click="download">Download</v-btn>
+                            </v-flex>
+                            <v-flex xs4>
+                                <v-btn color="info" block @click="this.$parent.$options.methods.postYAML()">Deploy
+                                </v-btn>
                             </v-flex>
                         </v-layout>
                     </v-card-text>
                 </v-card>
             </v-flex>
-            <v-flex xs6>
-                <v-card>
+            <v-flex shrink style="width: 35%;">
+                <v-card flat>
                     <v-card-text>
                         <template v-for="item in ui_list">
-                            <v-text-field v-if="item.ui_type=='string' && status =='add' && item.ui_name.includes('name')"
-                                          :label="item.ui_name"
-                                          v-model="item.val"
-                                          @focus="onUiFocus()"
+                            <v-text-field
+                                    v-if="item.ui_type=='string' && status =='add' && item.ui_name.includes('name')"
+                                    :label="item.ui_name"
+                                    v-model="item.val"
+                                    @focus="onUiFocus()"
                             ></v-text-field>
-                            <v-text-field v-if="item.ui_type=='string' && status =='edit' && item.ui_name.includes('name')"
-                                          :label="item.ui_name"
-                                          v-model="item.val"
-                                          @focus="onUiFocus()"
-                                          readonly
+                            <v-text-field
+                                    v-if="item.ui_type=='string' && status =='edit' && item.ui_name.includes('name')"
+                                    :label="item.ui_name"
+                                    v-model="item.val"
+                                    @focus="onUiFocus()"
+                                    readonly
                             ></v-text-field>
-                            <v-text-field v-if="item.ui_type=='string' && status !='edit' && !item.ui_name.includes('name')"
-                                          :label="item.ui_name"
-                                          v-model="item.val"
-                                          @focus="onUiFocus()"
+                            <v-text-field
+                                    v-if="item.ui_type=='string' && status !='edit' && !item.ui_name.includes('name')"
+                                    :label="item.ui_name"
+                                    v-model="item.val"
+                                    @focus="onUiFocus()"
                             ></v-text-field>
                             <v-text-field v-else-if="item.ui_type=='number'"
                                           v-model="item.val" @focus="onUiFocus()"
@@ -117,6 +118,7 @@
                 cursor_pos: "",
                 channel: "yaml",
                 auto_edit: true,
+                importFile: false
             }
         },
         created: function () {
@@ -125,6 +127,16 @@
                 me.$emit('update:plainText', me.yaml_text)
                 console.log(me.yaml_text)
             });
+            if (me.status == 'add') {
+                if (me.types == 'pod') {
+                    me.createPod()
+                } else if (me.types == 'service') {
+                    me.createService()
+                } else if (me.types == 'deployment') {
+                    me.createDeployment()
+                }
+
+            }
         },
         computed: {
             codemirror: function () {
@@ -155,7 +167,7 @@
 
                     return result;
                 },
-                set: function(newVal) {
+                set: function (newVal) {
                     var me = this
                     me.ui_list.some(function (listTmp) {
                         if (listTmp.ui_name.includes('name')) {
