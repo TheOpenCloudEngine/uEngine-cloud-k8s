@@ -69,17 +69,30 @@
         </v-data-table>
 
         <!-- Edit & Add Modal -->
-        <modal ref="modal" name="codeModal" :height='"80%"' :width="'80%'">
+        <modal ref="modal" name="codeModal" :height='"60%"' :width="'80%'">
+
             <v-card ref="card" style="height: 100%">
-                <v-card-title class="headline"> {{types.toUpperCase()}} Editor
-                </v-card-title>
+                <v-layout justify-space-between>
+                    <v-flex>
+                        <v-card-title class="headline">
+                            {{types.toUpperCase()}} Editor
+                        </v-card-title>
+                    </v-flex>
+                    <v-flex style="text-align: right">
+                        <v-btn fab flat >
+                            <v-icon>
+                                clear
+                            </v-icon>
+                        </v-btn>
+                    </v-flex>
+                </v-layout>
+
                 <v-card-text>
                     <EditYaml :status="status" :plainText.sync="plainText" :types="types"></EditYaml>
                 </v-card-text>
-                <v-card-actions>
-                    <v-btn color="error" @click="codeModalhide">Close</v-btn>
-                    <v-btn color="info" @click="postYAML">Confirm</v-btn>
-                </v-card-actions>
+                <!--<v-card-actions>-->
+                <!--<v-btn color="error" @click="codeModalhide">Close</v-btn>-->
+                <!--</v-card-actions>-->
             </v-card>
         </modal>
 
@@ -97,7 +110,7 @@
                     <v-btn color="primary" @click="deleteModalhide">Close</v-btn>
                     <v-btn color="primary" @click="handleDelete(selectedRow)">Confirm</v-btn>
                 </v-card-actions>
-           </v-card>
+            </v-card>
         </modal>
 
         <v-snackbar
@@ -294,14 +307,14 @@
                     // console.log(e.data)
                     var parseMessage = JSON.parse(e.data);
                     var tmpData = JSON.parse(parseMessage.message)
-                    var listUidTmp = [];
+                    var listIdTmp = [];
 
                     me.list.forEach(function (listData) {
-                        listUidTmp.push(listData.uid)
+                        listIdTmp.push(listData.id)
                     });
 
                     me.list.some(function (listTmp, index) {
-                        if (listTmp.uid == tmpData.uid) {
+                        if (listTmp.id == tmpData.id) {
                             if (tmpData.type == 'DELETED') {
                                 me.list = [
                                     ...me.list.slice(0, index),
@@ -317,10 +330,10 @@
                                 ]
                                 return;
                             }
-                        } else if (!listUidTmp.includes(tmpData.uid)) {
+                        } else if (!listIdTmp.includes(tmpData.id)) {
                             if (!(tmpData.type == 'DELETED')) {
                                 me.list.push(tmpData)
-                                listUidTmp.push(tmpData.uid)
+                                listIdTmp.push(tmpData.id)
                                 return;
                             }
                         }
@@ -349,18 +362,18 @@
                         .then((result) => {
                             var tmpData = result.data
                             var resultMap = []
-                            var usedUid = []
+                            var usedId = []
                             return new Promise((resolve, reject) => {
                                 tmpData.forEach(function (sortingData) {
                                     if (!me.namespaceList.includes(sortingData.namespace)) {
                                         me.namespaceList.push(sortingData.namespace)
                                     }
-                                    if (!(usedUid.includes(sortingData.uid))) {
+                                    if (!(usedId.includes(sortingData.id))) {
                                         resultMap.push(sortingData)
-                                        usedUid.push(sortingData.uid)
+                                        usedId.push(sortingData.id)
                                     } else {
                                         resultMap.forEach(function (resultMapTmp, index) {
-                                            if (resultMapTmp.uid == sortingData.uid) {
+                                            if (resultMapTmp.id == sortingData.id) {
                                                 if (resultMapTmp.type == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
@@ -409,15 +422,15 @@
                         .then((result) => {
                             var tmpData = result.data
                             var resultMap = []
-                            var usedUid = []
+                            var usedId = []
                             return new Promise((resolve, reject) => {
                                 tmpData.forEach(function (sortingData) {
-                                    if (!(usedUid.includes(sortingData.uid))) {
+                                    if (!(usedId.includes(sortingData.id))) {
                                         resultMap.push(sortingData)
-                                        usedUid.push(sortingData.uid)
+                                        usedId.push(sortingData.id)
                                     } else {
                                         resultMap.forEach(function (resultMapTmp, index) {
-                                            if (resultMapTmp.uid == sortingData.uid) {
+                                            if (resultMapTmp.id == sortingData.id) {
                                                 if (resultMapTmp.type == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),

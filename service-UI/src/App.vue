@@ -128,6 +128,7 @@
                 if (window.localStorage.getItem("accessToken") == null) {
                     return false
                 } else if (window.localStorage.getItem("accessToken")) {
+                    this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.accessToken}`;
                     return true
                 }
             },
@@ -155,7 +156,7 @@
                 } else {
                 }
             } else {
-                this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.accessToken}`;
+                // this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.accessToken}`;
             }
         },
         watch: {
@@ -172,10 +173,9 @@
                     url: url,
                     type: "get",
                     headers: {
-                        "Authorization": 'Bearer' + token
+                        "Authorization": 'Bearer ' + token
                     },
                     success: function (data) {
-                        console.log('111');
                         console.log(data);
                     },
                     error: function () {
@@ -205,7 +205,7 @@
 
                 window.location.href = tmpURL;
 
-                // this.$http.defaults.headers.common['Authorization'] = null;
+                this.$http.defaults.headers.common['Authorization'] = null;
             }
         }
     }

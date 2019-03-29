@@ -12,7 +12,7 @@ export default new Router({
         {
             path: '/',
             name: 'Dashboard',
-            component: Home
+            component: Dashboard
         },
         // {
         //     path: '/yaml',
