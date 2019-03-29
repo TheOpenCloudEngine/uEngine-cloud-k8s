@@ -2,34 +2,47 @@
 server:
   port: 8080
 
-security:
-  oauth2:
-    resource:
-      jwt:
-        key-value: as466gf
+
+#          jwk-set-uri: https://idp.example.com/.well-known/jwks.json
+
+#security:
+#  oauth2:
+#    resource:
+#      jwt:
+#        key-value: as466gf
 #        key-value: 123
+
+
 ---
 spring:
   profiles: default
-
-zuul:
-  routes:
-    serviceapi:
-      path: /kube/**
-      url: http://localhost:8086
-      stripPrefix: false
-    servicesse:
-      path: /kubesse/**
-      url: http://localhost:8086
-      stripPrefix: false
-    login:
-      path: /login/**
-      url: http://localhost:8082
-      stripPrefix: false
-    oauth:
-      path: /oauth/**
-      url: http://localhost:8082
-      stripPrefix: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/.well-known/jwks.json
+  cloud:
+    gateway:
+      routes:
+        - id: serviceapi
+          uri: http://localhost:8086
+          predicates:
+            - Path=/kube/**
+        - id: servicesse
+          uri: http://localhost:8086
+          predicates:
+            - Path=/kubesse/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+              - "null"
+              - "localhost"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
 
 ---
 spring:

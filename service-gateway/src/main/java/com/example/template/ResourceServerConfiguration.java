@@ -1,42 +1,56 @@
 package com.example.template;
 
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+
+import java.security.KeyPair;
 
 @Configuration
-@EnableResourceServer
-public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
+@EnableWebFluxSecurity
+public class ResourceServerConfiguration {
 
-    @Override
-    public void configure(final HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers("/oauth/**","/login/**")
-                .permitAll()
-                .antMatchers("/**")
-                .authenticated();
+    @Bean
+    SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+        http
+                .authorizeExchange()
+                .pathMatchers("/.well-known/jwks.json")
+                .permitAll();
+
+        http
+                .authorizeExchange()
+                .pathMatchers("/oauth/**","/login/**").permitAll()
+                .anyExchange().authenticated()
+                .and()
+                .oauth2ResourceServer()
+                .jwt()
+                ;
+
+        return http.build();
     }
 
     @Bean
-    public FilterRegistrationBean authCorsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("*");
-        config.addAllowedOrigin("null");
-        config.addAllowedOrigin("localhost");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return bean;
+    public KeyPair makeKeyPair(){
+        KeyPair keyPair = new KeyStoreKeyFactory(
+                new ClassPathResource("server.jks"), "qweqwe".toCharArray())
+                .getKeyPair("uengine", "qweqwe".toCharArray());
+        return keyPair;
     }
+
+//    @Override
+//    public void configure(final HttpSecurity http) throws Exception {
+//        http.authorizeRequests()
+//                .antMatchers("/oauth/**","/login/**")
+//                .permitAll()
+//                .antMatchers("/**")
+//                .authenticated();
+//    }
+
 }

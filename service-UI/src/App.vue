@@ -193,7 +193,7 @@
                 if (localStorage.accessToken) {
                     localStorage.removeItem('accessToken')
                 }
-                window.location.href = "https://localhost:8082/login/google"
+                window.location.href = "http://localhost:8082/login/google"
             },
             logout() {
                 window.localStorage.removeItem("accessToken");

@@ -25,10 +25,11 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 Vue.prototype.$EventBus = new Vue()
 
 if( process.env.NODE_ENV == "development" ){
-    window.API_HOST = "http://localhost:8080";
+    window.API_HOST = "http://localhost:8086";
+    // window.API_HOST = "http://localhost:8080";
     // window.API_HOST = "http://a83d5e3453ee611e9a56802910c21b39-157320908.ap-northeast-2.elb.amazonaws.com";
 }else{
-    // window.API_HOST = process.env.VUE_APP_API_HOST
+    window.API_HOST = process.env.VUE_APP_API_HOST
 }
 
 Vue.config.productionTip = false

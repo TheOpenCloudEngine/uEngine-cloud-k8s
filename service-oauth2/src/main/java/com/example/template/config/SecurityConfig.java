@@ -102,7 +102,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.antMatcher("/**").authorizeRequests().antMatchers("/", "/login**").permitAll().anyRequest()
                 .authenticated().and().exceptionHandling()
-//                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/"))
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/"))
                 .and()
                 .addFilterBefore(new CustomFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class)
@@ -114,7 +114,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/")
                 .permitAll();
-
     }
 
     @Bean
