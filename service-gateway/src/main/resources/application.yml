@@ -2,17 +2,6 @@
 server:
   port: 8080
 
-
-#          jwk-set-uri: https://idp.example.com/.well-known/jwks.json
-
-#security:
-#  oauth2:
-#    resource:
-#      jwt:
-#        key-value: as466gf
-#        key-value: 123
-
-
 ---
 spring:
   profiles: default
@@ -32,13 +21,15 @@ spring:
           uri: http://localhost:8086
           predicates:
             - Path=/kubesse/**
+        - id: google
+          uri: https://localhost:8082/login/google
+          predicates:
+            - Path=/login/**
       globalcors:
         corsConfigurations:
           '[/**]':
             allowedOrigins:
               - "*"
-              - "null"
-              - "localhost"
             allowedMethods:
               - "*"
             allowedHeaders:
@@ -47,3 +38,20 @@ spring:
 ---
 spring:
   profiles: docker
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/.well-known/jwks.json
+  cloud:
+    gateway:
+      routes:
+        - id: serviceapi
+          uri: http://localhost:8086
+          predicates:
+            - Path=/kube/**
+        - id: servicesse
+          uri: http://localhost:8086
+          predicates:
+            - Path=/kubesse/**
+
