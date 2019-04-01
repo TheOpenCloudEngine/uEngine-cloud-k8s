@@ -54,7 +54,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	@Bean
+//	@Bean
 	public KeyPair makeKeyPair(){
 		KeyPair keyPair = new KeyStoreKeyFactory(
 				new ClassPathResource("server.jks"), "qweqwe".toCharArray())
@@ -65,8 +65,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 	@Bean
 	public JwtAccessTokenConverter accessTokenConverter() {
 		JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-		converter.setKeyPair(this.makeKeyPair());
-//		converter.setSigningKey("as466gf");
+//		converter.setKeyPair(this.makeKeyPair());	// use Spring cloud gateway
+		converter.setSigningKey("as466gf");
 		return converter;
 	}
 
