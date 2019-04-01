@@ -1,7 +1,7 @@
 <template>
     <v-container grid-list-md text-xs-center>
         <v-layout row wrap>
-            <v-flex grow style="max-width: 70%">
+            <v-flex grow style="max-width: 65%">
                 <v-card flat>
                     <v-card-text>
                         <!--<v-text-field-->
@@ -135,14 +135,13 @@
                 } else if (me.types == 'deployment') {
                     me.createDeployment()
                 }
-
             }
         },
         beforeDestroy: function () {
             var me = this
             console.log("destory")
-            this.$EventBus.$off('deployStart')
             this.$EventBus.$off('postYAML')
+            // this.$EventBus.$off('deployStart')
         },
         computed: {
             codemirror: function () {

@@ -70,30 +70,21 @@
 
         <!-- Edit & Add Modal -->
         <modal ref="modal" name="codeModal" :height='"60%"' :width="'80%'">
-
-            <v-card ref="card" style="height: 100%">
-                <v-layout justify-space-between>
-                    <v-flex>
-                        <v-card-title class="headline">
-                            {{types.toUpperCase()}} Editor
-                        </v-card-title>
-                    </v-flex>
-                    <v-flex style="text-align: right">
-                        <v-btn fab flat @click="codeModalhide">
-                            <v-icon>
-                                clear
-                            </v-icon>
-                        </v-btn>
-                    </v-flex>
-                </v-layout>
-
-                <v-card-text>
-                    <EditYaml :status="status" :plainText.sync="plainText" :types="types"></EditYaml>
-                </v-card-text>
-                <!--<v-card-actions>-->
-                <!--<v-btn color="error" @click="codeModalhide">Close</v-btn>-->
-                <!--</v-card-actions>-->
-            </v-card>
+            <v-layout justify-space-between>
+                <v-flex>
+                    <v-card-title class="headline">
+                        {{types.toUpperCase()}} Editor
+                    </v-card-title>
+                </v-flex>
+                <v-flex style="text-align: right">
+                    <v-btn fab flat @click="codeModalhide">
+                        <v-icon>
+                            clear
+                        </v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-layout>
+            <EditYaml :status="status" :plainText.sync="plainText" :types="types"></EditYaml>
         </modal>
 
         <!-- Delete Modal -->
@@ -200,6 +191,7 @@
             var me = this
             console.log("closing evtSource beforeDestroy");
             this.evtSource.close();
+            me.$EventBus.$off('deployStart')
 
         },
         computed: {
