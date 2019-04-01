@@ -149,7 +149,9 @@ public class PodKafkaService {
             }
 
             podService.update(pod);
-            messageHandler.publish("pod", message, pod.getNamespace());
+
+            String json = gson.toJson(pod);
+            messageHandler.publish("pod", json, pod.getNamespace());
         }
     }
 

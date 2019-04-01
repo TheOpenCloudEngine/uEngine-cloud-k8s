@@ -141,7 +141,9 @@ public class ServicesKafkaService {
 			}
 
 			servicesService.update(svs);
-			messageHandler.publish("service", message, svs.getNamespace());
+
+			String json = gson.toJson(svs);
+			messageHandler.publish("service", json, svs.getNamespace());
 		}
     }
 }

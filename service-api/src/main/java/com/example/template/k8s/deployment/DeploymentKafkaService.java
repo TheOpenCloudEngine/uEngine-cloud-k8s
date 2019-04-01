@@ -127,7 +127,9 @@ public class DeploymentKafkaService {
             }
 
             deploymentService.update(dpl);
-            messageHandler.publish("deployment", message, dpl.getNamespace());
+
+            String json = gson.toJson(dpl);
+            messageHandler.publish("deployment", json, dpl.getNamespace());
         }
     }
 
