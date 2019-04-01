@@ -37,7 +37,7 @@
                 Login
             </v-btn>
             <v-btn flat color="white" @click="callCurl()">
-                Call
+                Button
             </v-btn>
             <v-btn flat color="white" @click="logout()" v-if="authorized">
                 Logout
@@ -97,6 +97,21 @@
                 </v-list>
             </v-card>
         </v-dialog>
+        <!-- Snackbar insert info -->
+        <v-snackbar
+                v-model="snackbar"
+                color="error"
+                :timeout=10000
+        >
+            Click Setting & Insert Infomation
+            <v-btn
+                    dark
+                    flat
+                    @click="snackbar = false"
+            >
+                Close
+            </v-btn>
+        </v-snackbar>
     </v-app>
 </template>
 
@@ -109,12 +124,13 @@
             dialog: false,
             drawer: null,
             isLogin: false,
-            kubeHost: 'http://localhost:8080',
-            kubeToken: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImNsb3VkdXNlci10b2tlbi16cmtqaiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJjbG91ZHVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI0ZmJmNzk0YS0zNTgwLTExZTktYTU2OC0wMjkxMGMyMWIzOTgiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVmYXVsdDpjbG91ZHVzZXIifQ.APncfC7biCYEre4LZ3S-TVcf641qpQlo7r_BN0khN8ovnT7rR3DWGTaUDLP2eFQBLUvEVSAgTT1g0wF1OFsqEx-Sn3fHByyf1r8t15wvN_XJFM2_V_ZZBosUeZCciklcky0jwF6AWcSpUo9nKa23yBtylJ9d6EPjAq8KtURdX7IVb5i8j0InSExyOQZv5xJ-yv55GB_yRrI9rQ6cwxt_PdFaQiFLjSjnp6SvZj3nPACw_qb98w2I4p_O8DZ5SE-b4OetZj0xmZM7ELXBbceMDepT0UHrU1ZcIc54aWNnhyGFdxspxwrGWSDtNL4T6KKbTqU6HVXkiJTKCw1w9E9hHg',
+            kubeHost: '',
+            kubeToken: '',
             items: [
                 {icon: 'home', text: 'Home', route: '/'},
             ],
-            api: []
+            api: [],
+            snackbar: false
         }),
         props: {
             source: String
@@ -158,31 +174,54 @@
             }
         },
         watch: {},
+        mounted() {
+            var me = this
+            if (me.authorized == true) {
+                console.log(me.userInfo)
+                this.$http.get(`${API_HOST}/kube/user/getUserDetail?username=` + me.userInfo.user_name).then((result) => {
+                    console.log(result)
+                }).catch((e) => {
+                    if (e.toString().includes('500')) {
+                        me.snackbar = true
+                    }
+                })
+            }
+        },
         methods: {
             callCurl() {
-                var me = this
-                var token = localStorage.getItem('accessToken');
-                console.log("Bearer " + token)
-
-                var url = 'http://localhost:8080/kube/v1/pods/namespaces/kafka'
-                $.ajax({
-                    url: url,
-                    type: "get",
-                    headers: {
-                        "Authorization": 'Bearer ' + token
-                    },
-                    success: function (data) {
-                        console.log(data);
-                    },
-                    error: function () {
-                        console.log('Failed to get env');
-                    }
-                });
+                // this.snackbar = true
+                // var me = this
+                // var token = localStorage.getItem('accessToken');
+                // console.log("Bearer " + token)
+                //
+                // var url = 'http://localhost:8080/kube/v1/pods/namespaces/kafka'
+                // $.ajax({
+                //     url: url,
+                //     type: "get",
+                //     headers: {
+                //         "Authorization": 'Bearer ' + token
+                //     },
+                //     success: function (data) {
+                //         console.log(data);
+                //     },
+                //     error: function () {
+                //         console.log('Failed to get env');
+                //     }
+                // });
 
             },
             saveSetting() {
                 var me = this;
                 me.dialog = false;
+
+
+                this.$http.put(`${API_HOST}/kube/user/saveUserDetail`, {
+                    username: me.userInfo.user_name,
+                    host: me.kubeHost,
+                    token: me.kubeToken
+                }).then((result) => {
+                    console.log(result)
+                })
             },
             googleLogin() {
                 var me = this;

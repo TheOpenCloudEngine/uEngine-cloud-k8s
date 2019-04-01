@@ -266,7 +266,7 @@
             },
             plainText: function (newVal) {
                 console.log('newVal!')
-            }
+            },
         },
 
         methods: {
@@ -290,54 +290,61 @@
                 if (me.evtSource != null) {
                     me.evtSource.close()
                 }
-                if (me.namespace != null) {
-                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types + '&namespace=' + me.namespace)
-                } else if (me.namespace == 'All') {
+
+                if (me.namespace == 'All') {
                     me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
+                } else if (me.namespace != null) {
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types + '&namespace=' + me.namespace)
                 }
 
                 /*
                     TODO : 이벤트 수정
                  */
                 me.evtSource.onmessage = function (e) {
-                    // console.log(e.data)
                     var parseMessage = JSON.parse(e.data);
                     var tmpData = JSON.parse(parseMessage.message)
+                    console.log(tmpData)
                     var listIdTmp = [];
 
                     me.list.forEach(function (listData) {
                         listIdTmp.push(listData.id)
                     });
-
-                    me.list.some(function (listTmp, index) {
-                        if (listTmp.id == tmpData.id) {
-                            if (tmpData.type == 'DELETED') {
+                    if(tmpData.apiVersion == 'DELETED') {
+                        me.list.some(function (listTmp, index) {
+                            if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
                                 me.list = [
                                     ...me.list.slice(0, index),
                                     ...me.list.slice(index + 1)
                                 ]
                                 me.tableLoad = false;
                                 return;
-                            } else {
+                            }
+                        })
+                    } else {
+                        me.list.some(function (listTmp, index) {
+                            if (listTmp.id == tmpData.id) {
                                 me.list = [
                                     ...me.list.slice(0, index),
                                     tmpData,
                                     ...me.list.slice(index + 1)
                                 ]
                                 return;
+                            } else if (!listIdTmp.includes(tmpData.id)) {
+                                if (!(tmpData.apiVersion == 'DELETED')) {
+                                    me.list.push(tmpData)
+                                    listIdTmp.push(tmpData.id)
+                                    return;
+                                }
                             }
-                        } else if (!listIdTmp.includes(tmpData.id)) {
-                            if (!(tmpData.type == 'DELETED')) {
-                                me.list.push(tmpData)
-                                listIdTmp.push(tmpData.id)
-                                return;
-                            }
-                        }
-                    })
+                        })
+                    }
                 }
                 me.evtSource.onerror = function (e) {
                     me.evtSource.close();
-                    me.startSSE();
+
+                    setTimeout(function() {
+                        me.startSSE()
+                    }, 2000)
                 }
             },
             getList() {
@@ -370,13 +377,13 @@
                                     } else {
                                         resultMap.forEach(function (resultMapTmp, index) {
                                             if (resultMapTmp.id == sortingData.id) {
-                                                if (resultMapTmp.type == 'DELETED') {
+                                                if (resultMapTmp.apiVersion == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
                                                         resultMapTmp,
                                                         ...resultMap.slice(index + 1)
                                                     ]
-                                                } else if (sortingData.type == 'DELETED') {
+                                                } else if (sortingData.apiVersion == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
                                                         sortingData,
@@ -400,7 +407,7 @@
                                 var deleteItemList = []
                                 // console.log(resolveData)
                                 resolveData.forEach(function (deleteTmp, index) {
-                                    if (deleteTmp.type == 'DELETED') {
+                                    if (deleteTmp.apiVersion == 'DELETED') {
                                         deleteItemList.push(deleteTmp)
                                     }
                                 })
@@ -427,13 +434,13 @@
                                     } else {
                                         resultMap.forEach(function (resultMapTmp, index) {
                                             if (resultMapTmp.id == sortingData.id) {
-                                                if (resultMapTmp.type == 'DELETED') {
+                                                if (resultMapTmp.apiVersion == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
                                                         resultMapTmp,
                                                         ...resultMap.slice(index + 1)
                                                     ]
-                                                } else if (sortingData.type == 'DELETED') {
+                                                } else if (sortingData.apiVersion == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
                                                         sortingData,
@@ -457,7 +464,7 @@
                                 var deleteItemList = []
                                 // console.log(resolveData)
                                 resolveData.forEach(function (deleteTmp, index) {
-                                    if (deleteTmp.type == 'DELETED') {
+                                    if (deleteTmp.apiVersion == 'DELETED') {
                                         deleteItemList.push(deleteTmp)
                                     }
                                 })
