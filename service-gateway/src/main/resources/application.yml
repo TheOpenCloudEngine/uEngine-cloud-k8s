@@ -21,10 +21,6 @@ spring:
           uri: http://localhost:8086
           predicates:
             - Path=/kubesse/**
-        - id: google
-          uri: https://localhost:8082/login/google
-          predicates:
-            - Path=/login/**
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -34,6 +30,8 @@ spring:
               - "*"
             allowedHeaders:
               - "*"
+            allowCredentials: true
+
 
 ---
 spring:
@@ -47,11 +45,19 @@ spring:
     gateway:
       routes:
         - id: serviceapi
-          uri: http://localhost:8086
+          uri: http://serviceapi:8080
           predicates:
             - Path=/kube/**
         - id: servicesse
-          uri: http://localhost:8086
+          uri: http://serviceapi:8080
           predicates:
             - Path=/kubesse/**
-
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
