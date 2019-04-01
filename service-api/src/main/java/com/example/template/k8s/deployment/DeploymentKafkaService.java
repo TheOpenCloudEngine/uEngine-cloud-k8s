@@ -82,12 +82,18 @@ public class DeploymentKafkaService {
         String namespace = item.getMetadata().getNamespace();
         String name = item.getMetadata().getName();
 
+        Deployment dpl = new Deployment();
+
+        dpl.setProvider("K8S");
+        dpl.setName(item.getMetadata().getName());
+        dpl.setNamespace(item.getMetadata().getNamespace());
+
         if("DELETED".equals(status)) {
             deploymentService.delete(host, namespace, name);
-        }else {
-            Deployment dpl = new Deployment();
+            dpl.setApiVersion(status);
 
-            dpl.setProvider("K8S");
+        }else {
+
             dpl.setId(item.getMetadata().getUid());
             dpl.setHost(host);
             dpl.setApiVersion(item.getApiVersion());
@@ -96,8 +102,6 @@ public class DeploymentKafkaService {
             // deployment의 메타데이터 정보
             {
                 dpl.setCreateTimeStamp(createTimeStamp);
-                dpl.setName(item.getMetadata().getName());
-                dpl.setNamespace(item.getMetadata().getNamespace());
             }
 
             // deployment의 spec 정보
@@ -127,10 +131,9 @@ public class DeploymentKafkaService {
             }
 
             deploymentService.update(dpl);
-
-            String json = gson.toJson(dpl);
-            messageHandler.publish("deployment", json, dpl.getNamespace());
         }
+        String json = gson.toJson(dpl);
+        messageHandler.publish("deployment", json, dpl.getNamespace());
     }
 
 }

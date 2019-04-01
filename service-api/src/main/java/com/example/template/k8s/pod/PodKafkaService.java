@@ -99,12 +99,17 @@ public class PodKafkaService {
         String namespace = item.getMetadata().getNamespace();
         String name = item.getMetadata().getName();
 
+
+        Pod pod = new Pod();
+        pod.setProvider("K8S");
+        pod.setName(item.getMetadata().getName());
+        pod.setNamespace(item.getMetadata().getNamespace());
+
         if("DELETED".equals(status)) {
             podService.delete(host, namespace, name);
+            pod.setApiVersion(status);
         }else {
 
-            Pod pod = new Pod();
-            pod.setProvider("K8S");
             pod.setId(item.getMetadata().getUid());
             pod.setHost(host);
 
@@ -113,8 +118,6 @@ public class PodKafkaService {
 
             {
                 pod.setCreateTimeStamp(createTimeStamp);
-                pod.setName(item.getMetadata().getName());
-                pod.setNamespace(item.getMetadata().getNamespace());
             }
 
             {
@@ -150,9 +153,10 @@ public class PodKafkaService {
 
             podService.update(pod);
 
-            String json = gson.toJson(pod);
-            messageHandler.publish("pod", json, pod.getNamespace());
         }
+
+        String json = gson.toJson(pod);
+        messageHandler.publish("pod", json, pod.getNamespace());
     }
 
 }

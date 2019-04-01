@@ -90,13 +90,16 @@ public class ServicesKafkaService {
 		String namespace = item.getMetadata().getNamespace();
 		String name = item.getMetadata().getName();
 
+		Services svs = new Services();
+		svs.setProvider("K8S");
+		svs.setName(item.getMetadata().getName());
+		svs.setNamespace(item.getMetadata().getNamespace());
+
 		if("DELETED".equals(status)) {
 			servicesService.delete(host, namespace, name);
+			svs.setApiVersion(status);
 		}else {
 
-			Services svs = new Services();
-
-			svs.setProvider("K8S");
 			svs.setId(item.getMetadata().getUid());
 			svs.setHost(host);
 			svs.setApiVersion(item.getApiVersion());
@@ -105,8 +108,7 @@ public class ServicesKafkaService {
 			// service의 메타데이터 정보
 			{
 				svs.setCreateTimeStamp(createTimeStamp);
-				svs.setName(item.getMetadata().getName());
-				svs.setNamespace(item.getMetadata().getNamespace());
+
 			}
 
 			// service의 spec 정보
@@ -141,9 +143,8 @@ public class ServicesKafkaService {
 			}
 
 			servicesService.update(svs);
-
-			String json = gson.toJson(svs);
-			messageHandler.publish("service", json, svs.getNamespace());
 		}
+		String json = gson.toJson(svs);
+		messageHandler.publish("service", json, svs.getNamespace());
     }
 }
