@@ -2,6 +2,7 @@ package com.example.template.manager;
 
 import com.squareup.okhttp.Call;
 import io.kubernetes.client.ApiException;
+import io.kubernetes.client.ApiResponse;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.models.V1DeleteOptions;
 import io.kubernetes.client.models.V1Pod;

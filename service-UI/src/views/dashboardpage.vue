@@ -9,7 +9,7 @@
                 ></v-select>
             </v-card-title>
             <v-card-text>
-                <v-btn-toggle v-model="toggle_exclusive" mandatory>
+                <v-btn-toggle v-model="toggle_exclusive" mandatory flat>
                     <v-btn flat color="primary"  @click="types='pod'" style="margin: 2px;">
                         pods
                     </v-btn>
@@ -20,6 +20,9 @@
                         service
                     </v-btn>
                 </v-btn-toggle>
+                <v-btn fab flat color="primary" @click="types='service'" style="margin: 2px; ">
+                    <v-icon>add</v-icon>
+                </v-btn>
                 <!--<v-btn @click="types='pod'">-->
                     <!--Pods-->
                 <!--</v-btn>-->

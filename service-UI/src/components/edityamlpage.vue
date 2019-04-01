@@ -41,7 +41,7 @@
                                 <v-btn color="success" block @click="download">Download</v-btn>
                             </v-flex>
                             <v-flex xs4>
-                                <v-btn color="info" block @click="this.$parent.$options.methods.postYAML()">Deploy
+                                <v-btn color="info" block @click="$EventBus.$emit('deployStart')">Deploy
                                 </v-btn>
                             </v-flex>
                         </v-layout>
@@ -137,6 +137,12 @@
                 }
 
             }
+        },
+        beforeDestroy: function () {
+            var me = this
+            console.log("destory")
+            this.$EventBus.$off('deployStart')
+            this.$EventBus.$off('postYAML')
         },
         computed: {
             codemirror: function () {
@@ -384,7 +390,6 @@
                         ui_type: "number",
                         val: "80",
                     }
-
                 ];
                 me.yaml_text =
                     "apiVersion: apps/v1\n" +

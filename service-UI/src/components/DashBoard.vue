@@ -79,7 +79,7 @@
                         </v-card-title>
                     </v-flex>
                     <v-flex style="text-align: right">
-                        <v-btn fab flat >
+                        <v-btn fab flat @click="codeModalhide">
                             <v-icon>
                                 clear
                             </v-icon>
@@ -158,7 +158,10 @@
             codemirror
         },
         created() {
-
+            var me = this
+            me.$EventBus.$on('deployStart', function () {
+                me.postYAML()
+            });
         },
         data() {
             return {
@@ -197,6 +200,7 @@
             var me = this
             console.log("closing evtSource beforeDestroy");
             this.evtSource.close();
+
         },
         computed: {
             codemirror: function () {
@@ -513,7 +517,7 @@
             postYAML() {
                 var me = this
                 me.$EventBus.$emit('postYAML')
-                console.log(me.plainText)
+                console.log('start PostYAML')
                 var nameSpace = me.namespace;
                 if (nameSpace == 'All') {
                     nameSpace = 'default'

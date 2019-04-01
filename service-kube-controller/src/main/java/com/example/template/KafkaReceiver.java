@@ -53,7 +53,7 @@ public class KafkaReceiver {
     @KafkaListener(topics = "${topic.orderTopic}")
     public void listenByObject(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
 
-//        System.out.println(message);
+        System.out.println(message);
         JSONParser parser = new JSONParser();
         Object obj = null;
         try {
@@ -91,8 +91,9 @@ public class KafkaReceiver {
     }
 
     public void sendMessage(String type, String command){
-        String msg = command + " : " + type;
-        kafkaTemplate.send(stateMsgTopic , msg);
+        // TODO 추후 적용
+//        String msg = command + " : " + type;
+//        kafkaTemplate.send(stateMsgTopic , msg);
     }
 
 }
