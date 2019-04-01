@@ -1,0 +1,39 @@
+
+server:
+  port: 8080
+
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-value: as466gf
+#        key-value: 123
+---
+spring:
+  profiles: default
+
+zuul:
+  routes:
+    serviceapi:
+      path: /kube/**
+      url: http://localhost:8086
+      stripPrefix: false
+    servicesse:
+      path: /kubesse/**
+      url: http://localhost:8086
+      stripPrefix: false
+
+---
+spring:
+  profiles: docker
+
+zuul:
+  routes:
+    serviceapi:
+      path: /kube/**
+      url: http://serviceapi:8080
+      stripPrefix: false
+    servicesse:
+      path: /kubesse/**
+      url: http://serviceapi:8080
+      stripPrefix: false
