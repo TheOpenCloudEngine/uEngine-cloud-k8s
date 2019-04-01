@@ -133,7 +133,7 @@
                 }
             },
             userInfo() {
-                if(this.authorized == true) {
+                if (this.authorized == true) {
                     console.log(this.$jwt.hasToken())
                     return this.$jwt.decode()
                 } else {
@@ -148,27 +148,23 @@
                 if (this.$route.query.access_token) {
                     localStorage.setItem("accessToken", this.$route.query.access_token)
 
-                    var tmpURL = window.location.href;
-                    var deleteURL = window.location.search;
+                    var tmpURL = window.location.protocol + "//" + window.location.host + "/";
 
-                    tmpURL = tmpURL.replace(deleteURL, '')
                     window.location.href = tmpURL;
                 } else {
                 }
             } else {
-                // this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.accessToken}`;
+                this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.accessToken}`;
             }
         },
-        watch: {
-
-        },
+        watch: {},
         methods: {
             callCurl() {
                 var me = this
                 var token = localStorage.getItem('accessToken');
                 console.log("Bearer " + token)
 
-                var url = 'http://localhost:8080/kube/v1/pods/namespaces/default'
+                var url = 'http://localhost:8080/kube/v1/pods/namespaces/kafka'
                 $.ajax({
                     url: url,
                     type: "get",
@@ -193,19 +189,16 @@
                 if (localStorage.accessToken) {
                     localStorage.removeItem('accessToken')
                 }
-                window.location.href = "http://localhost:8082/login/google"
+                window.location.href = "https://localhost:8082/login/google"
             },
             logout() {
+                console.log('logout')
                 window.localStorage.removeItem("accessToken");
 
-                var tmpURL = window.location.href;
-                var deleteURL = window.location.search;
+                var newURL = window.location.protocol + "//" + window.location.host + "/";
 
-                tmpURL = tmpURL.replace(deleteURL, '')
+                window.location.href = newURL;
 
-                window.location.href = tmpURL;
-
-                this.$http.defaults.headers.common['Authorization'] = null;
             }
         }
     }
