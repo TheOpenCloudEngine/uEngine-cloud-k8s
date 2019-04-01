@@ -2,7 +2,7 @@
 server:
   port: 8080
   ssl:
-    key-store: keystore.p12
+    key-store: classpath:keystore.p12
     key-store-password: cheese
     keyStoreType: PKCS12
     keyAlias: tomcat
