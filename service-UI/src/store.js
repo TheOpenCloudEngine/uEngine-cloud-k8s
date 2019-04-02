@@ -34,8 +34,8 @@ export default new Vuex.Store({
     actions: {
         LOGIN ({ commit }, data) {
             // console.log(data)
+            if(data.kubeToken.length < 1 && data.kubeHost.length <1)
                 commit('LOGIN', data)
-
             // commit('LOGIN', {accessToken, host})
             // Vue.prototype.$http.defaults.baseURL = 'http://localhost:8080';
             // Vue.prototype.$http.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
