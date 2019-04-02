@@ -7,6 +7,17 @@
                 app
         >
             <v-list dense>
+                <v-list-tile avatar style="margin-top: 10px;" v-if="userInfo">
+                    <v-list-tile-avatar>
+                        <img :src=userInfo.thumbnail>
+                    </v-list-tile-avatar>
+
+                    <v-list-tile-content>
+                        <v-list-tile-title>{{ userInfo.user_name}}</v-list-tile-title>
+                        <v-list-tile-title>{{ userInfo.nickname}}</v-list-tile-title>
+
+                    </v-list-tile-content>
+                </v-list-tile>
                 <template v-for="item in items">
                     <v-list-tile :key="item.text" ripple :to="item.route">
                         <v-list-tile-action>
@@ -33,15 +44,15 @@
                 <span class="hidden-sm-and-down">uEngine</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn flat color="white" @click="googleLogin()" v-if="!authorized">
-                Login
-            </v-btn>
-            <v-btn flat color="white" @click="callCurl()">
-                Button
-            </v-btn>
             <v-btn flat color="white" @click="logout()" v-if="authorized">
                 Logout
             </v-btn>
+            <v-btn flat color="white" @click="googleLogin()" v-if="!authorized">
+                Login
+            </v-btn>
+            <!--<v-btn flat color="white" @click="callCurl()">-->
+                <!--Button-->
+            <!--</v-btn>-->
             <v-btn icon @click="dialog = true">
                 <v-icon>settings</v-icon>
             </v-btn>
@@ -142,9 +153,11 @@
         computed: {
             authorized() {
                 if (window.localStorage.getItem("accessToken") == null) {
+                    window.authorized = false;
                     return false
                 } else if (window.localStorage.getItem("accessToken")) {
                     this.$http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.accessToken}`;
+                    window.authorized = true;
                     return true
                 }
             },
@@ -179,7 +192,12 @@
             if (me.authorized == true) {
                 console.log(me.userInfo)
                 this.$http.get(`${API_HOST}/kube/user/getUserDetail?username=` + me.userInfo.user_name).then((result) => {
-                    console.log(result)
+                    me.kubeHost = result.data.host
+                    me.kubeToken = result.data.token
+
+                    let tmp = {kubeHost: result.data.host , kubeToken: result.data.token}
+
+                    this.$store.dispatch('LOGIN', tmp)
                 }).catch((e) => {
                     if (e.toString().includes('500')) {
                         me.snackbar = true
@@ -188,33 +206,31 @@
             }
         },
         methods: {
-            callCurl() {
-                // this.snackbar = true
-                // var me = this
-                // var token = localStorage.getItem('accessToken');
-                // console.log("Bearer " + token)
-                //
-                // var url = 'http://localhost:8080/kube/v1/pods/namespaces/kafka'
-                // $.ajax({
-                //     url: url,
-                //     type: "get",
-                //     headers: {
-                //         "Authorization": 'Bearer ' + token
-                //     },
-                //     success: function (data) {
-                //         console.log(data);
-                //     },
-                //     error: function () {
-                //         console.log('Failed to get env');
-                //     }
-                // });
-
-            },
+            // callCurl() {
+            //     // this.snackbar = true
+            //     // var me = this
+            //     // var token = localStorage.getItem('accessToken');
+            //     // console.log("Bearer " + token)
+            //     //
+            //     // var url = 'http://localhost:8080/kube/v1/pods/namespaces/kafka'
+            //     // $.ajax({
+            //     //     url: url,
+            //     //     type: "get",
+            //     //     headers: {
+            //     //         "Authorization": 'Bearer ' + token
+            //     //     },
+            //     //     success: function (data) {
+            //     //         console.log(data);
+            //     //     },
+            //     //     error: function () {
+            //     //         console.log('Failed to get env');
+            //     //     }
+            //     // });
+            //
+            // },
             saveSetting() {
                 var me = this;
                 me.dialog = false;
-
-
                 this.$http.put(`${API_HOST}/kube/user/saveUserDetail`, {
                     username: me.userInfo.user_name,
                     host: me.kubeHost,
@@ -238,6 +254,7 @@
                 var newURL = window.location.protocol + "//" + window.location.host + "/";
 
                 window.location.href = newURL;
+                this.$store.commit('LOGOUT')
 
             }
         }

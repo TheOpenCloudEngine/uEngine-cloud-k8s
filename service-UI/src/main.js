@@ -18,8 +18,6 @@ var options = {'keyName' : 'accessToken'};
 
 Vue.use(VueJWT, options)
 
-
-
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 Vue.prototype.$EventBus = new Vue()

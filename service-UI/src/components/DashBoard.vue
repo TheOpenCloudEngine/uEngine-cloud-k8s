@@ -198,6 +198,9 @@
             codemirror: function () {
                 return this.$refs.myCm.codemirror;
             },
+            getAuth() {
+                return this.$store.state.storeAuthorized
+            },
             deleteName() {
                 return this.selectedRow.name
             },
@@ -258,7 +261,11 @@
             }
         },
         mounted() {
-            this.getList()
+            this.$nextTick(function () {
+                if(this.getAuth == true) {
+                    this.getList()
+                }
+            })
         },
         watch: {
             namespace: function () {
@@ -267,6 +274,9 @@
             plainText: function (newVal) {
                 console.log('newVal!')
             },
+            getAuth: function (newVal) {
+                this.getList()
+            }
         },
 
         methods: {

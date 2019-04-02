@@ -8,27 +8,37 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        accessToken: null
+        accessToken: null,
+        kubeHost: '',
+        kubeToken: '',
+        storeAuthorized: false
     },
     getters: {
-
+        getAuth(state) {
+            return state.storeAuthorized
+        }
     },
     mutations: {
-        LOGIN (state, {accessToken,baseURL}) {
-            // state.accessToken = accessToken
-            // localStorage.accessToken = accessToken
-            // console.log(baseURL)
+        LOGIN (state, data) {
+            console.log(data)
+            state.kubeHost = data.kubeHost
+            state.kubeToken = data.kubeToken
+            state.storeAuthorized = true;
         },
         LOGOUT (state) {
-            state.accessToken = null
+            state.kubeHost = ''
+            state.kubeToken = ''
+            state.storeAuthorized = false;
         }
     },
     actions: {
-        LOGIN ({commit}, accessToken) {
-            console.log(accessToken)
-            // commit('LOGIN', {accessToken,baseURL})
-            Vue.prototype.$http.defaults.baseURL = 'http://localhost:8080';
-            Vue.prototype.$http.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        LOGIN ({ commit }, data) {
+            // console.log(data)
+                commit('LOGIN', data)
+
+            // commit('LOGIN', {accessToken, host})
+            // Vue.prototype.$http.defaults.baseURL = 'http://localhost:8080';
+            // Vue.prototype.$http.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
         },
         LOGOUT ({commit}) {
             commit('LOGOUT')
