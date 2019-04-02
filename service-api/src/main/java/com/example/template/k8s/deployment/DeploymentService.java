@@ -8,10 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 @Service
@@ -90,6 +95,7 @@ public class DeploymentService {
     public void updateDeploy(UserDetail userDetail, String namespace, String name, String yamlString){
 
         Yaml yaml = new Yaml();
+
         Map<String,Object> body = yaml.load(yamlString);
         userDetail = userDetailService.getUserDetail(userDetail.getUsername());
 

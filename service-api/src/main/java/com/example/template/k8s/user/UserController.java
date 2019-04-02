@@ -31,6 +31,16 @@ public class UserController {
         if( username != null) {
 //            System.out.println(username);
             UserDetail userDetail = userDetailService.getUserDetail(username);
+
+            if( userDetail.getHost() != null && userDetail.getToken() != null ) {
+                JSONObject data = new JSONObject();
+                data.put("host", userDetail.getHost());
+                data.put("token", userDetail.getToken());
+                // 모니터링 서비스에게, 해당 host 의 데이터를 수집하라고 명령함.
+                kafkaTemplate.send(new ProducerRecord<String, JSONObject>(stateMsgTopic, userDetail.getHost(), data));
+            }
+
+
             return userDetail;
         }
 

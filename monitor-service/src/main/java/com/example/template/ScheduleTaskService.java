@@ -80,8 +80,6 @@ public class ScheduleTaskService {
 
     }
 
-    static int index = 0;
-
     @KafkaListener(topics = "${topic.stateMsgTopic}")
     public void listen(@Payload String message) throws ParseException {
         System.out.println("topic message = " + message);
