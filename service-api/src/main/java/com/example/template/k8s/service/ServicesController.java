@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.example.template.k8s.user.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +21,12 @@ public class ServicesController {
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Services> getAllServices(HttpServletRequest request,
-                                         HttpServletResponse response
+                                         HttpServletResponse response,
+                                         UserDetail userDetail
     ) throws Exception {
 
         List<Services> list = new ArrayList<Services>();
-        Iterable<Services> it = servicesService.getAllServices();
+        Iterable<Services> it = servicesService.getAllServices(userDetail);
         for (Services item : it) {
             list.add(item);
         }
@@ -35,11 +37,12 @@ public class ServicesController {
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Services> getServicesByNamespace(HttpServletRequest request,
                                          HttpServletResponse response,
-                                         @PathVariable(value = "namespace") String namespace
+                                         @PathVariable(value = "namespace") String namespace,
+                                                 UserDetail userDetail
     ) throws Exception {
 
         List<Services> list = new ArrayList<Services>();
-        Iterable<Services> it = servicesService.getServicesByNamespace(namespace);
+        Iterable<Services> it = servicesService.getServicesByNamespace(userDetail, namespace);
         for (Services item : it) {
             list.add(item);
         }
@@ -51,11 +54,12 @@ public class ServicesController {
     public List<Services> getServicesByNamespaceName(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable(value = "namespace") String namespace,
-                                         @PathVariable(value = "name") String name
+                                         @PathVariable(value = "name") String name,
+                                                     UserDetail userDetail
     ) throws Exception {
 
         List<Services> list = new ArrayList<Services>();
-        Iterable<Services> it = servicesService.getServicesByNamespaceAndName(namespace, name);
+        Iterable<Services> it = servicesService.getServicesByNamespaceAndName(userDetail, namespace, name);
         for (Services item : it) {
             list.add(item);
         }
@@ -69,10 +73,11 @@ public class ServicesController {
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public Map<String,Object> createService(HttpServletRequest request,
                                             @RequestBody String body,
-                                            @PathVariable(value = "namespace") String namespace
+                                            @PathVariable(value = "namespace") String namespace,
+                                            UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
-        servicesService.createService(namespace, body);
+        servicesService.createService(userDetail, namespace, body);
 
         return returnData;
     }
@@ -83,10 +88,11 @@ public class ServicesController {
     public Map<String,Object> updateService(
             @RequestBody String body,
             @PathVariable(value = "name") String name,
-            @PathVariable(value = "namespace") String namespace
+            @PathVariable(value = "namespace") String namespace,
+            UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
-        servicesService.updateService(namespace, name, body);
+        servicesService.updateService(userDetail, namespace, name, body);
 
         return returnData;
     }
@@ -98,11 +104,12 @@ public class ServicesController {
     public Map<String,Object> deleteService(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @PathVariable(value = "namespace") String namespace,
-                                            @PathVariable(value = "name") String name
+                                            @PathVariable(value = "name") String name,
+                                            UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
 
-        servicesService.deleteService(namespace, name);
+        servicesService.deleteService(userDetail, namespace, name);
 
         return returnData;
     }

@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.example.template.k8s.user.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +22,12 @@ public class DeploymentController {
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Deployment> getAllDeployment(HttpServletRequest request,
-                                         HttpServletResponse response
+                                         HttpServletResponse response,
+                                             UserDetail userDetail
     ) throws Exception {
 
         List<Deployment> list = new ArrayList<Deployment>();
-        Iterable<Deployment> it = deploymentService.getAllDeployment();
+        Iterable<Deployment> it = deploymentService.getAllDeployment(userDetail);
         for (Deployment item : it) {
             list.add(item);
         }
@@ -36,11 +38,12 @@ public class DeploymentController {
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Deployment> getDeploymentByNamespace(HttpServletRequest request,
                                          HttpServletResponse response,
-                                         @PathVariable(value = "namespace") String namespace
+                                         @PathVariable(value = "namespace") String namespace,
+                                                     UserDetail userDetail
     ) throws Exception {
 
         List<Deployment> list = new ArrayList<Deployment>();
-        Iterable<Deployment> it = deploymentService.getDeploymentByNamespace(namespace);
+        Iterable<Deployment> it = deploymentService.getDeploymentByNamespace(userDetail, namespace);
         for (Deployment item : it) {
             list.add(item);
         }
@@ -52,11 +55,12 @@ public class DeploymentController {
     public List<Deployment> getDeploymentByNamespaceName(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable(value = "namespace") String namespace,
-                                         @PathVariable(value = "name") String name
+                                         @PathVariable(value = "name") String name,
+                                                         UserDetail userDetail
     ) throws Exception {
 
         List<Deployment> list = new ArrayList<Deployment>();
-        Iterable<Deployment> it = deploymentService.getDeploymentByNamespaceAndName(namespace, name);
+        Iterable<Deployment> it = deploymentService.getDeploymentByNamespaceAndName(userDetail, namespace, name);
         for (Deployment item : it) {
             list.add(item);
         }
@@ -75,10 +79,11 @@ public class DeploymentController {
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public Map<String,Object> createDeployment(
             @RequestBody String body,
-            @PathVariable(value = "namespace") String namespace
+            @PathVariable(value = "namespace") String namespace,
+            UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
-        deploymentService.createDeploy(namespace, body);
+        deploymentService.createDeploy(userDetail, namespace, body);
 
         return returnData;
     }
@@ -95,10 +100,11 @@ public class DeploymentController {
     public Map<String,Object> updateDeployment(
             @RequestBody String body,
             @PathVariable(value = "name") String name,
-            @PathVariable(value = "namespace") String namespace
+            @PathVariable(value = "namespace") String namespace,
+            UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
-        deploymentService.updateDeploy(namespace, name, body);
+        deploymentService.updateDeploy(userDetail, namespace, name, body);
 
         return returnData;
     }
@@ -115,11 +121,12 @@ public class DeploymentController {
     public Map<String,Object> deleteDeployment(HttpServletRequest request,
                                                HttpServletResponse response,
                                                @PathVariable(value = "namespace") String namespace,
-                                               @PathVariable(value = "name") String name
+                                               @PathVariable(value = "name") String name,
+                                               UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
 
-        deploymentService.deleteDeploy(namespace, name);
+        deploymentService.deleteDeploy(userDetail, namespace, name);
 
         return returnData;
     }

@@ -1,20 +1,17 @@
 package com.example.template.k8s.pod;
 
+import com.example.template.k8s.user.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.template.k8s.service.Services;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-//@CrossOrigin("*")
 @RequestMapping("/kube/v1/pods")
 public class PodController {
 
@@ -23,11 +20,12 @@ public class PodController {
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Pod> getAllPods(HttpServletRequest request,
-                                         HttpServletResponse response
+                                HttpServletResponse response,
+                                UserDetail userDetail
     ) throws Exception {
 
         List<Pod> list = new ArrayList<Pod>();
-        Iterable<Pod> it = podService.getAllPods();
+        Iterable<Pod> it = podService.getAllPods(userDetail);
         for (Pod item : it) {
             list.add(item);
         }
@@ -38,11 +36,12 @@ public class PodController {
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Pod> getPodsByNamespace(HttpServletRequest request,
                                          HttpServletResponse response,
-                                         @PathVariable(value = "namespace") String namespace
+                                         @PathVariable(value = "namespace") String namespace,
+                                        UserDetail userDetail
     ) throws Exception {
 
         List<Pod> list = new ArrayList<Pod>();
-        Iterable<Pod> it = podService.getPodsByNamespace(namespace);
+        Iterable<Pod> it = podService.getPodsByNamespace(userDetail, namespace);
         for (Pod item : it) {
             list.add(item);
         }
@@ -54,11 +53,12 @@ public class PodController {
     public List<Pod> getPodsByNamespaceName(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable(value = "namespace") String namespace,
-                                         @PathVariable(value = "name") String name
+                                         @PathVariable(value = "name") String name,
+                                         UserDetail userDetail
     ) throws Exception {
 
         List<Pod> list = new ArrayList<Pod>();
-        Iterable<Pod> it = podService.getPodsByNamespaceAndName(namespace, name);
+        Iterable<Pod> it = podService.getPodsByNamespaceAndName(userDetail, namespace, name);
         for (Pod item : it) {
             list.add(item);
         }
@@ -74,10 +74,11 @@ public class PodController {
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public Map<String,Object> createPod(HttpServletRequest request,
                                         @RequestBody String body,
-                                        @PathVariable(value = "namespace") String namespace
+                                        @PathVariable(value = "namespace") String namespace,
+                                        UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
-        podService.createPod(namespace, body);
+        podService.createPod(userDetail, namespace, body);
 
         return returnData;
     }
@@ -89,10 +90,11 @@ public class PodController {
     public Map<String,Object> updatePod(
             @RequestBody String body,
             @PathVariable(value = "name") String name,
-            @PathVariable(value = "namespace") String namespace
+            @PathVariable(value = "namespace") String namespace,
+            UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
-        podService.updatePod(namespace, name, body);
+        podService.updatePod(userDetail, namespace, name, body);
 
         return returnData;
     }
@@ -110,11 +112,12 @@ public class PodController {
     public Map<String,Object> deletePod(HttpServletRequest request,
                                                HttpServletResponse response,
                                                @PathVariable(value = "namespace") String namespace,
-                                               @PathVariable(value = "name") String name
+                                               @PathVariable(value = "name") String name,
+                                               UserDetail userDetail
     ) throws Exception {
         Map<String,Object> returnData = new HashMap<String,Object>();
 
-        podService.deletePod(namespace, name);
+        podService.deletePod(userDetail, namespace, name);
 
         return returnData;
     }

@@ -14,9 +14,7 @@ import java.io.Serializable;
 public class UserDetail  implements Serializable {
     @Id
     String username;
-
     String host;
-
     @Column(columnDefinition = "TEXT")
     String token;
 

@@ -12,8 +12,9 @@ public interface PodRepository extends CrudRepository<Pod, String> {
 
     Iterable<Pod> findByProvider(@Param("provider") String provider);
     Iterable<Pod> findByProviderAndName(@Param("provider") String provider,@Param("name") String name);
-    Iterable<Pod> findByNamespace(@Param("namespace") String namespace);
-    Iterable<Pod> findByNamespaceAndName(@Param("namespace") String namespace, @Param("name") String name);
+    Iterable<Pod> findByHost(@Param("host") String host);
+    Iterable<Pod> findByHostAndNamespace(@Param("host") String host, @Param("namespace") String namespace);
+    Iterable<Pod> findByHostAndNamespaceAndName(@Param("host") String host, @Param("namespace") String namespace, @Param("name") String name);
 
     @Transactional
     @Modifying

@@ -2,7 +2,8 @@ package com.example.template.k8s.service;
 
 import java.util.Map;
 
-import com.example.template.k8s.user.TempUser;
+import com.example.template.k8s.user.UserDetail;
+import com.example.template.k8s.user.UserDetailService;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -21,6 +22,9 @@ public class ServicesService {
     @Autowired
     ServicesRepository servicesRepository;
 
+    @Autowired
+    UserDetailService userDetailService;
+
     @Value("${topic.orderTopic}")
     private String orderTopic;
 
@@ -28,34 +32,23 @@ public class ServicesService {
     KafkaTemplate kafkaTemplate;
 
 
-//    @Cacheable(value="service" ,key="#deployment.id")
     public Services checkInstance(Services svs){
         return servicesRepository.findById(svs.getId()).orElse(new Services());
     }
 
-//    @Cacheable(value="service")
-    public Iterable<Services> getAllServices(){
-        return servicesRepository.findAll();
+    public Iterable<Services> getAllServices(UserDetail userDetail){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        return servicesRepository.findByHost(userDetail.getHost());
     }
 
-//    @Cacheable(value="service", key="#provider")
-    public Iterable<Services> getServicesByProvider(String provider){
-        return servicesRepository.findByProvider(provider);
+    public Iterable<Services> getServicesByNamespace(UserDetail userDetail, String namespace){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        return servicesRepository.findByHostAndNamespace(userDetail.getHost(), namespace);
     }
 
-//    @Cacheable(value="service", key="#provider+#name")
-    public Iterable<Services> getServicesByProviderAndName(String provider, String name){
-        return servicesRepository.findByProviderAndName(provider,name);
-    }
-
-//    @Cacheable(value="service", key="#namespace")
-    public Iterable<Services> getServicesByNamespace(String namespace){
-        return servicesRepository.findByNamespace(namespace);
-    }
-
-//    @Cacheable(value="service", key="#namespace+#name")
-    public Iterable<Services> getServicesByNamespaceAndName(String namespace, String name){
-        return servicesRepository.findByNamespaceAndName(namespace, name);
+    public Iterable<Services> getServicesByNamespaceAndName(UserDetail userDetail, String namespace, String name){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        return servicesRepository.findByHostAndNamespaceAndName(userDetail.getHost(), namespace, name);
     }
 
     public String delete() {
@@ -78,69 +71,55 @@ public class ServicesService {
         return "";
     }
 
-    /**
-     * 관련된 캐쉬를 지운다,
-     */
-//    @Caching(evict = {
-//            @CacheEvict(value = "instance"),
-//            @CacheEvict(value = "instance", key="#instance.id"),
-//            @CacheEvict(value = "instance", key ="#instance.provider"),
-//            @CacheEvict(value = "instance", key ="#instance.provider+#instance.name")
-//    })
-//    public String deleteCacheList(InstanceModel instance) {
-//        return "";
-//    }
 
-
-
-    public void createService(String namespace, String yamlString){
+    public void createService(UserDetail userDetail, String namespace, String yamlString){
 
         Yaml yaml = new Yaml();
         Map<String,Object> body = yaml.load(yamlString);
 
-        // TODO
-        Map<String,String> userData =  TempUser.getUserDetail(null);
-
-        JSONObject data = new JSONObject();
-        data.put("host", userData.get("host"));
-        data.put("token", userData.get("token"));
-        data.put("namespace", namespace);
-        data.put("type", "SERVICE");
-        data.put("command", "CREATE");
-        data.put("body", body);
-        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        if( userDetail.getHost() != null && userDetail.getToken() != null ) {
+            JSONObject data = new JSONObject();
+            data.put("host", userDetail.getHost());
+            data.put("token", userDetail.getToken());
+            data.put("namespace", namespace);
+            data.put("type", "SERVICE");
+            data.put("command", "CREATE");
+            data.put("body", body);
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+        }
     }
 
-    public void updateService(String namespace, String name, String yamlString){
+    public void updateService(UserDetail userDetail, String namespace, String name, String yamlString){
 
         Yaml yaml = new Yaml();
         Map<String,Object> body = yaml.load(yamlString);
-
-        // TODO
-        Map<String,String> userData =  TempUser.getUserDetail(null);
-
-        JSONObject data = new JSONObject();
-        data.put("host", userData.get("host"));
-        data.put("token", userData.get("token"));
-        data.put("namespace", namespace);
-        data.put("name", name);
-        data.put("type", "SERVICE");
-        data.put("command", "UPDATE");
-        data.put("body", body);
-        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        if( userDetail.getHost() != null && userDetail.getToken() != null ) {
+            JSONObject data = new JSONObject();
+            data.put("host", userDetail.getHost());
+            data.put("token", userDetail.getToken());
+            data.put("namespace", namespace);
+            data.put("name", name);
+            data.put("type", "SERVICE");
+            data.put("command", "UPDATE");
+            data.put("body", body);
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+        }
     }
 
-    public void deleteService(String namespace, String name){
-        Map<String,String> userData =  TempUser.getUserDetail(null);
-
-        JSONObject data = new JSONObject();
-        data.put("host", userData.get("host"));
-        data.put("token", userData.get("token"));
-        data.put("namespace", namespace);
-        data.put("name", name);
-        data.put("type", "POD");
-        data.put("command", "DELETE");
-        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+    public void deleteService(UserDetail userDetail, String namespace, String name){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        if( userDetail.getHost() != null && userDetail.getToken() != null ) {
+            JSONObject data = new JSONObject();
+            data.put("host", userDetail.getHost());
+            data.put("token", userDetail.getToken());
+            data.put("namespace", namespace);
+            data.put("name", name);
+            data.put("type", "POD");
+            data.put("command", "DELETE");
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+        }
     }
 
 }

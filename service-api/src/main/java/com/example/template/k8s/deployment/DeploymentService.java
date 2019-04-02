@@ -1,6 +1,7 @@
 package com.example.template.k8s.deployment;
 
-import com.example.template.k8s.user.TempUser;
+import com.example.template.k8s.user.UserDetail;
+import com.example.template.k8s.user.UserDetailService;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -21,40 +22,32 @@ public class DeploymentService {
     @Autowired
     DeploymentRepository deploymentRepository;
 
+    @Autowired
+    UserDetailService userDetailService;
+
     @Value("${topic.orderTopic}")
     private String orderTopic;
 
     @Autowired
     KafkaTemplate kafkaTemplate;
 
-//    @Cacheable(value="deployment" ,key="#deployment.id")
     public Deployment checkInstance(Deployment deployment){
         return deploymentRepository.findById(deployment.getId()).orElse(new Deployment());
     }
 
-//    @Cacheable(value="deployment")
-    public Iterable<Deployment> getAllDeployment(){
-        return deploymentRepository.findAll();
+    public Iterable<Deployment> getAllDeployment(UserDetail userDetail){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        return deploymentRepository.findByHost(userDetail.getHost());
     }
 
-//    @Cacheable(value="deployment", key="#provider")
-    public Iterable<Deployment> getAllDeploymentByProvider(String provider){
-        return deploymentRepository.findByProvider(provider);
+    public Iterable<Deployment> getDeploymentByNamespace(UserDetail userDetail, String namespace){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        return deploymentRepository.findByHostAndNamespace(userDetail.getHost(), namespace);
     }
 
-//    @Cacheable(value="deployment", key="#provider+#name")
-    public Iterable<Deployment> getDeploymentByProviderAndName(String provider, String name){
-        return deploymentRepository.findByProviderAndName(provider,name);
-    }
-
-//    @Cacheable(value="deployment", key="#namespace")
-    public Iterable<Deployment> getDeploymentByNamespace(String namespace){
-        return deploymentRepository.findByNamespace(namespace);
-    }
-
-//    @Cacheable(value="deployment", key="#namespace+#name")
-    public Iterable<Deployment> getDeploymentByNamespaceAndName(String namespace, String name){
-        return deploymentRepository.findByNamespaceAndName(namespace, name);
+    public Iterable<Deployment> getDeploymentByNamespaceAndName(UserDetail userDetail, String namespace, String name){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        return deploymentRepository.findByHostAndNamespaceAndName(userDetail.getHost(), namespace, name);
     }
 
     public String delete() {
@@ -77,67 +70,54 @@ public class DeploymentService {
         return "";
     }
 
-    /**
-     * 관련된 캐쉬를 지운다,
-     */
-//    @Caching(evict = {
-//            @CacheEvict(value = "instance"),
-//            @CacheEvict(value = "instance", key="#instance.id"),
-//            @CacheEvict(value = "instance", key ="#instance.provider"),
-//            @CacheEvict(value = "instance", key ="#instance.provider+#instance.name")
-//    })
-//    public String deleteCacheList(InstanceModel instance) {
-//        return "";
-//    }
-
-    public void createDeploy(String namespace, String yamlString){
+    public void createDeploy(UserDetail userDetail, String namespace, String yamlString){
 
         Yaml yaml = new Yaml();
         Map<String,Object> body = yaml.load(yamlString);
 
-        // TODO
-        Map<String,String> userData =  TempUser.getUserDetail(null);
-
-        JSONObject data = new JSONObject();
-        data.put("host", userData.get("host"));
-        data.put("token", userData.get("token"));
-        data.put("namespace", namespace);
-//        data.put("name", name);
-        data.put("type", "DEPLOY");
-        data.put("command", "CREATE");
-        data.put("body", body);
-        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        if( userDetail.getHost() != null && userDetail.getToken() != null ) {
+            JSONObject data = new JSONObject();
+            data.put("host", userDetail.getHost());
+            data.put("token", userDetail.getToken());
+            data.put("namespace", namespace);
+            data.put("type", "DEPLOY");
+            data.put("command", "CREATE");
+            data.put("body", body);
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+        }
     }
-    public void updateDeploy(String namespace, String name, String yamlString){
+    public void updateDeploy(UserDetail userDetail, String namespace, String name, String yamlString){
 
         Yaml yaml = new Yaml();
         Map<String,Object> body = yaml.load(yamlString);
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
 
-        // TODO
-        Map<String,String> userData =  TempUser.getUserDetail(null);
-
-        JSONObject data = new JSONObject();
-        data.put("host", userData.get("host"));
-        data.put("token", userData.get("token"));
-        data.put("namespace", namespace);
-        data.put("name", name);
-        data.put("type", "DEPLOY");
-        data.put("command", "UPDATE");
-        data.put("body", body);
-        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+        if( userDetail.getHost() != null && userDetail.getToken() != null ) {
+            JSONObject data = new JSONObject();
+            data.put("host", userDetail.getHost());
+            data.put("token", userDetail.getToken());
+            data.put("namespace", namespace);
+            data.put("name", name);
+            data.put("type", "DEPLOY");
+            data.put("command", "UPDATE");
+            data.put("body", body);
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+        }
     }
 
-    public void deleteDeploy(String namespace, String name){
-        Map<String,String> userData =  TempUser.getUserDetail(null);
-
-        JSONObject data = new JSONObject();
-        data.put("host", userData.get("host"));
-        data.put("token", userData.get("token"));
-        data.put("namespace", namespace);
-        data.put("name", name);
-        data.put("type", "DEPLOY");
-        data.put("command", "DELETE");
-        kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+    public void deleteDeploy(UserDetail userDetail, String namespace, String name){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+        if( userDetail.getHost() != null && userDetail.getToken() != null ) {
+            JSONObject data = new JSONObject();
+            data.put("host", userDetail.getHost());
+            data.put("token", userDetail.getToken());
+            data.put("namespace", namespace);
+            data.put("name", name);
+            data.put("type", "DEPLOY");
+            data.put("command", "DELETE");
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+        }
     }
 
 

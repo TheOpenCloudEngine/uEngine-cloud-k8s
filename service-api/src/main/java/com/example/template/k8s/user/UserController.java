@@ -18,9 +18,9 @@ public class UserController {
 
     @Autowired
     KafkaTemplate kafkaTemplate;
-
     @Autowired
-    UserDetailRepository userDetailRepository;
+    UserDetailService userDetailService;
+
 
     @Value("${topic.stateMsgTopic}")
     private String stateMsgTopic;
@@ -30,8 +30,8 @@ public class UserController {
         //로그인한 사용자 ID 가져오기
         if( username != null) {
 //            System.out.println(username);
-            Optional<UserDetail> userDetail = userDetailRepository.findById(username);
-            return userDetail.orElse(null);
+            UserDetail userDetail = userDetailService.getUserDetail(username);
+            return userDetail;
         }
 
         return null;
@@ -59,7 +59,7 @@ public class UserController {
                 userDetail.setHost(host);
                 userDetail.setToken(token);
 
-                userDetailRepository.save(userDetail);
+                userDetailService.save(userDetail);
 
                 JSONObject data = new JSONObject();
                 data.put("host", userDetail.getHost());

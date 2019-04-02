@@ -8,10 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface DeploymentRepository extends CrudRepository<Deployment, String> {
 
-    Iterable<Deployment> findByProvider(@Param("provider") String provider);
-    Iterable<Deployment> findByProviderAndName(@Param("provider") String provider,@Param("name") String name);
-    Iterable<Deployment> findByNamespace(@Param("namespace") String namespace);
-    Iterable<Deployment> findByNamespaceAndName(@Param("namespace") String namespace, @Param("name") String name);
+    Iterable<Deployment> findByHost(@Param("host") String host);
+    Iterable<Deployment> findByHostAndNamespace(@Param("host") String host, @Param("namespace") String namespace);
+    Iterable<Deployment> findByHostAndNamespaceAndName(@Param("host") String host, @Param("namespace") String namespace, @Param("name") String name);
 
     @Transactional
     @Modifying
