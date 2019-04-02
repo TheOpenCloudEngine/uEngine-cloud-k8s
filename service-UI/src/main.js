@@ -26,8 +26,7 @@ Vue.prototype.$EventBus = new Vue()
 
 if( process.env.NODE_ENV == "development" ){
     window.API_HOST = "http://localhost:8080";
-    // window.API_HOST = "http://localhost:8080";
-    // window.API_HOST = "http://a83d5e3453ee611e9a56802910c21b39-157320908.ap-northeast-2.elb.amazonaws.com";
+    // window.API_HOST = "http://a3957b136544e11e9a56802910c21b39-1662590085.ap-northeast-2.elb.amazonaws.com:8080";
 }else{
     window.API_HOST = process.env.VUE_APP_API_HOST
 }

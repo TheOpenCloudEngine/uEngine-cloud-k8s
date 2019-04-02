@@ -21,33 +21,6 @@ public class PodController {
     @Autowired
     PodService podService;
 
-    /**
-     * pod create 요청
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public Map<String,Object> createPod(HttpServletRequest request,
-                                        @RequestBody String body,
-                                               @PathVariable(value = "namespace") String namespace
-    ) throws Exception {
-        Map<String,Object> returnData = new HashMap<String,Object>();
-        podService.createPod(namespace, body);
-
-        return returnData;
-    }
-    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
-    public Map<String,Object> updatePod(
-            @RequestBody String body,
-            @PathVariable(value = "name") String name,
-            @PathVariable(value = "namespace") String namespace
-    ) throws Exception {
-        Map<String,Object> returnData = new HashMap<String,Object>();
-        podService.updatePod(namespace, name, body);
-
-        return returnData;
-    }
-    
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Pod> getAllPods(HttpServletRequest request,
                                          HttpServletResponse response
@@ -91,6 +64,37 @@ public class PodController {
         }
 
         return list;
+    }
+
+    /**
+     * pod create 요청
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> createPod(HttpServletRequest request,
+                                        @RequestBody String body,
+                                        @PathVariable(value = "namespace") String namespace
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+        podService.createPod(namespace, body);
+
+        return returnData;
+    }
+
+    /**
+     * pod update 요청
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> updatePod(
+            @RequestBody String body,
+            @PathVariable(value = "name") String name,
+            @PathVariable(value = "namespace") String namespace
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+        podService.updatePod(namespace, name, body);
+
+        return returnData;
     }
     
     /**

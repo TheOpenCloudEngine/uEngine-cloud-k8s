@@ -19,35 +19,6 @@ public class DeploymentController {
     @Autowired
     DeploymentService deploymentService;
 
-    /**
-     * deploy create 요청
-     * @param body
-     * @param namespace
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public Map<String,Object> createDeployment(
-                                               @RequestBody String body,
-                                               @PathVariable(value = "namespace") String namespace
-    ) throws Exception {
-        Map<String,Object> returnData = new HashMap<String,Object>();
-        deploymentService.createDeploy(namespace, body);
-
-        return returnData;
-    }
-    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
-    public Map<String,Object> updateDeployment(
-                                               @RequestBody String body,
-                                               @PathVariable(value = "name") String name,
-                                               @PathVariable(value = "namespace") String namespace
-    ) throws Exception {
-        Map<String,Object> returnData = new HashMap<String,Object>();
-        deploymentService.updateDeploy(namespace, name, body);
-
-        return returnData;
-    }
-    
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Deployment> getAllDeployment(HttpServletRequest request,
                                          HttpServletResponse response
@@ -92,8 +63,45 @@ public class DeploymentController {
 
         return list;
     }
-    
 
+
+    /**
+     * deploy create 요청
+     * @param body
+     * @param namespace
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> createDeployment(
+            @RequestBody String body,
+            @PathVariable(value = "namespace") String namespace
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+        deploymentService.createDeploy(namespace, body);
+
+        return returnData;
+    }
+
+    /**
+     * deploy update 요청
+     * @param body
+     * @param name
+     * @param namespace
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
+    public Map<String,Object> updateDeployment(
+            @RequestBody String body,
+            @PathVariable(value = "name") String name,
+            @PathVariable(value = "namespace") String namespace
+    ) throws Exception {
+        Map<String,Object> returnData = new HashMap<String,Object>();
+        deploymentService.updateDeploy(namespace, name, body);
+
+        return returnData;
+    }
     /**
      * deploy delete 요청
      * @param request
