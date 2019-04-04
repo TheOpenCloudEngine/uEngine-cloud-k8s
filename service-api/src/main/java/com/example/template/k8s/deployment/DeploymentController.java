@@ -8,9 +8,17 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.example.template.k8s.user.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.template.k8s.pod.LogMessageFormat;
+import com.example.template.k8s.user.UserDetail;
+import com.example.template.k8s.user.UserService;
 
 @RestController
 //@CrossOrigin("*")
@@ -19,6 +27,9 @@ public class DeploymentController {
 
     @Autowired
     DeploymentService deploymentService;
+    
+    @Autowired
+    UserService userService;
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Deployment> getAllDeployment(HttpServletRequest request,
@@ -129,6 +140,17 @@ public class DeploymentController {
         deploymentService.deleteDeploy(userDetail, namespace, name);
 
         return returnData;
+    }
+    
+    @RequestMapping(value = "/namespaces/{namespace}/deploy/{name}/log", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public HashMap<String, ArrayList<LogMessageFormat>> getPodsByNamespaceAndNameLog(
+    			HttpServletRequest request, 
+    			@RequestParam String username,
+    			@PathVariable(value = "namespace") String namespace,
+    			@PathVariable(value = "name") String name
+    ) throws Exception {
+    	
+        return deploymentService.getLog(userService.getUserInfo(username), namespace, name);
     }
 
 }

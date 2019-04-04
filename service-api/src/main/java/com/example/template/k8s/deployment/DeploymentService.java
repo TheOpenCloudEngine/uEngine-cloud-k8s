@@ -1,23 +1,26 @@
 package com.example.template.k8s.deployment;
 
-import com.example.template.k8s.user.UserDetail;
-import com.example.template.k8s.user.UserDetailService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
+import com.example.template.k8s.pod.LogMessageFormat;
+import com.example.template.k8s.pod.PodService;
+import com.example.template.k8s.user.UserDetail;
+import com.example.template.k8s.user.UserDetailService;
+import java.util.Optional;
+
+import com.example.template.k8s.pod.Pod;
 
 @Service
 public class DeploymentService {
@@ -126,6 +129,19 @@ public class DeploymentService {
         }
     }
 
+    @Autowired
+    PodService podService;
+    
+    public HashMap<String, ArrayList<LogMessageFormat>> getLog(Optional<UserDetail> userDetail, String namespace, String name) {
+    	
+    	HashMap<String, ArrayList<LogMessageFormat>> hm = new HashMap<String, ArrayList<LogMessageFormat>>();
+    	Iterable<Pod> pods = podService.getPodsByNamespaceAndNameLike(namespace, name);
+    	for(Pod pod: pods) {
+    		hm.put(pod.getName(), podService.getLog(userDetail, pod.getNamespace(), pod.getName()));
+    	}
+    	
+    	return hm;
+    }
 
 
 }

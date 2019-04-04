@@ -6,8 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Id;
-
 public interface PodRepository extends CrudRepository<Pod, String> {
 
     Iterable<Pod> findByProvider(@Param("provider") String provider);
@@ -15,6 +13,7 @@ public interface PodRepository extends CrudRepository<Pod, String> {
     Iterable<Pod> findByHost(@Param("host") String host);
     Iterable<Pod> findByHostAndNamespace(@Param("host") String host, @Param("namespace") String namespace);
     Iterable<Pod> findByHostAndNamespaceAndName(@Param("host") String host, @Param("namespace") String namespace, @Param("name") String name);
+    Iterable<Pod> findByNamespaceAndNameLike(@Param("namespace") String namespace, @Param("name") String name);
 
     @Transactional
     @Modifying

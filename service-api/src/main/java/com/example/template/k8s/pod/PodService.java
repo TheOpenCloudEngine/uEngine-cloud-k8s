@@ -1,18 +1,26 @@
 package com.example.template.k8s.pod;
 
+import java.util.ArrayList;
 import java.util.Map;
 
-import com.example.template.k8s.user.UserDetail;
-import com.example.template.k8s.user.UserDetailService;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.Yaml;
+
+import com.example.template.k8s.user.UserDetail;
+import com.example.template.k8s.user.UserDetailService;
+import java.util.Optional;
 
 @Service
 public class PodService {
@@ -50,6 +58,10 @@ public class PodService {
     public Iterable<Pod> getPodsByNamespaceAndName(UserDetail userDetail, String namespace, String name){
         userDetail = userDetailService.getUserDetail(userDetail.getUsername());
         return podRepository.findByHostAndNamespaceAndName(userDetail.getHost(), namespace, name);
+    }
+    
+    public Iterable<Pod> getPodsByNamespaceAndNameLike(String namespace, String name){
+        return podRepository.findByNamespaceAndNameLike(namespace, name + "%");
     }
 
     public String delete() {
@@ -119,6 +131,17 @@ public class PodService {
             data.put("command", "DELETE");
             kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
         }
+    }
+    
+    public ArrayList<LogMessageFormat> getLog(Optional<UserDetail> userDetail,  String namespace, String name) {
+    	HttpHeaders header = new HttpHeaders();
+    	header.add("kubehost", userDetail.get().getHost());
+    	header.add("kubetoken", userDetail.get().getToken());
+
+    	RestTemplate rt = new RestTemplate();
+    	ResponseEntity<ArrayList> response = rt.exchange("http://localhost:8085/api/v1/namespaces/"+namespace+"/pods/"+name+"/log", HttpMethod.GET, new HttpEntity(header), ArrayList.class);
+
+    	return response.getBody();
     }
 
 }
