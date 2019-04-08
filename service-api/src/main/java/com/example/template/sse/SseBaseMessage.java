@@ -8,36 +8,46 @@ import lombok.Data;
 @Data
 public class SseBaseMessage {
 
-	private String instanceType;
-	private String message;
-	private String namespace;
+    private String instanceType;
+    private String message;
+    private String namespace;
+    private String host;
 
+    public String getHost() {
+        return host;
+    }
 
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public String getInstanceType() {
-		return instanceType;
-	}
-	public void setInstanceType(String instanceType) {
-		this.instanceType = instanceType;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public String getNamespace() {
-		return namespace;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public void setNamespace(String namespace) {
-		this.namespace = namespace;
-	}
+    public String getInstanceType() {
+        return instanceType;
+    }
 
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
-	}
+    public void setInstanceType(String instanceType) {
+        this.instanceType = instanceType;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }
 
 }

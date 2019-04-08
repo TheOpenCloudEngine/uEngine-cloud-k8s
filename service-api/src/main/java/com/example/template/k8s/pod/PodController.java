@@ -40,7 +40,7 @@ public class PodController {
 
         return list;
     }
-    
+
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Pod> getPodsByNamespace(HttpServletRequest request,
                                          HttpServletResponse response,
@@ -56,7 +56,7 @@ public class PodController {
 
         return list;
     }
-    
+
     @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Pod> getPodsByNamespaceName(HttpServletRequest request,
                                          HttpServletResponse response,
@@ -106,7 +106,7 @@ public class PodController {
 
         return returnData;
     }
-    
+
     /**
      * pod delete 요청
      * @param request
@@ -129,20 +129,19 @@ public class PodController {
 
         return returnData;
     }
-    
+
     @Autowired
     private UserService userService;
-    
+
     @RequestMapping(value = "/namespaces/{namespace}/pods/{name}/log", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public ArrayList<LogMessageFormat> getPodsByNamespace(
-    			HttpServletRequest request, 
+    			HttpServletRequest request,
     			@RequestParam String username,
     			@PathVariable(value = "namespace") String namespace,
     			@PathVariable(value = "name") String name
     ) throws Exception {
-    	
+
         return podService.getLog(userService.getUserInfo(username), namespace, name);
     }
-
 
 }

@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <div>
         <v-layout row style="margin-bottom: 10px;">
             <v-flex
@@ -29,40 +29,115 @@
                 class="elevation-1"
                 :loading="tableLoad"
                 :search="search"
+                :expand="expand"
         >
             <template slot="items" slot-scope="props">
-                <td>{{ props.item.name }}</td>
-                <td>{{ props.item.namespace }}</td>
-                <!-- pod Column -->
-                <td class="text-xs-left" v-if="types == 'pod'">{{ props.item.status }}</td>
-                <td class="text-xs-center" v-if="types == 'pod'">{{ props.item.createTimeStamp }}</td>
-                <!-- Deployment Column -->
-                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReadyReplicas }}</td>
-                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReplicas }}</td>
-                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusUpdateReplicas }}</td>
-                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusAvailableReplicas }}</td>
-                <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.createTimeStamp }}</td>
-                <!-- Service Column -->
-                <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specType }}</td>
-                <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specClusterIp }}</td>
-                <td class="text-xs-left" v-if="types == 'service'">{{ props.item.ingressIp }}</td>
-                <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specPort }}</td>
-                <td class="text-xs-center" v-if="types == 'service'">{{ props.item.createTimeStamp }}</td>
-                <td class="justify-center layout px-0">
-                    <v-icon
-                            small
-                            class="mr-2"
-                            @click="handleEdit(props.item); status = 'edit'"
+                <tr @click="getLog(props)">
+                    <td>{{ props.item.name }}</td>
+                    <td>{{ props.item.namespace }}</td>
+                    <!-- pod Column -->
+                    <td class="text-xs-left" v-if="types == 'pod'">{{ props.item.status }}</td>
+                    <td class="text-xs-center" v-if="types == 'pod'">{{ props.item.createTimeStamp }}</td>
+                    <!-- Deployment Column -->
+                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReadyReplicas }}</td>
+                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReplicas }}</td>
+                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusUpdateReplicas }}</td>
+                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusAvailableReplicas }}
+                    </td>
+                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.createTimeStamp }}</td>
+                    <!-- Service Column -->
+                    <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specType }}</td>
+                    <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specClusterIp }}</td>
+                    <td class="text-xs-left" v-if="types == 'service'">{{ props.item.ingressIp }}</td>
+                    <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specPort }}</td>
+                    <td class="text-xs-center" v-if="types == 'service'">{{ props.item.createTimeStamp }}</td>
+                    <td class="justify-center layout px-0">
+                        <v-icon
+                                small
+                                class="mr-2"
+                                @click="handleEdit(props.item); status = 'edit'"
+                        >
+                            edit
+                        </v-icon>
+                        <v-icon
+                                small
+                                @click="deleteModalShow(props.item)"
+                        >
+                            delete
+                        </v-icon>
+                    </td>
+                </tr>
+            </template>
+            <!-- pod expand -->
+            <template v-if="types=='pod'" v-slot:expand="props">
+                <v-data-table
+                        :rows-per-page-items="logPageItems"
+                        :items="props.item.log"
+                        class="elevation-1"
+                        hide-headers
+                >
+                    <template v-slot:items="items">
+                        <tr v-if="items.item.status == 'WARN'" style="background-color: #FFC107; color: #000000">
+                            <td class="text-xs-left">{{ items.item.dateTime }}</td>
+                            <td class="text-xs-left">{{ items.item.status }}</td>
+                            <td>{{ items.item.message }}</td>
+                        </tr>
+                        <tr v-else-if="items.item.status == 'ERROR'"
+                            style="background-color: #b71c1c; color: #ffffff">
+                            <td>{{ items.item.dateTime }}</td>
+                            <td class="text-xs-left">{{ items.item.status }}</td>
+                            <td>{{ items.item.message }}</td>
+                        </tr>
+                        <tr v-else>
+                            <td class="text-xs-left">{{ items.item.dateTime }}</td>
+                            <td class="text-xs-left">{{ items.item.status }}</td>
+                            <td>{{ items.item.message }}</td>
+                        </tr>
+                    </template>
+                </v-data-table>
+            </template>
+            <template v-else-if="types=='deployment'" v-slot:expand="props">
+                <v-tabs
+                        v-model="deployTab"
+                >
+                    <v-tab
+                            v-for="(value, key) in props.item.log"
                     >
-                        edit
-                    </v-icon>
-                    <v-icon
-                            small
-                            @click="deleteModalShow(props.item)"
+                        {{ key }}
+                    </v-tab>
+                </v-tabs>
+                <v-tabs-items v-model="deployTab">
+                    <v-tab-item
+                            v-for="(value, key) in props.item.log"
                     >
-                        delete
-                    </v-icon>
-                </td>
+                        <v-data-table
+                                :rows-per-page-items="logPageItems"
+                                :items="value"
+                                class="elevation-1"
+                                hide-headers
+                        >
+                            <template v-slot:items="items">
+                                <tr v-if="items.item.status == 'WARN'" style="background-color: #FFC107; color: #000000">
+                                    <td class="text-xs-left">{{ items.item.dateTime }}</td>
+                                    <td class="text-xs-left">{{ items.item.status }}</td>
+                                    <td>{{ items.item.message }}</td>
+                                </tr>
+                                <tr v-else-if="items.item.status == 'ERROR'"
+                                    style="background-color: #b71c1c; color: #ffffff">
+                                    <td>{{ items.item.dateTime }}</td>
+                                    <td class="text-xs-left">{{ items.item.status }}</td>
+                                    <td>{{ items.item.message }}</td>
+                                </tr>
+                                <tr v-else>
+                                    <td class="text-xs-left">{{ items.item.dateTime }}</td>
+                                    <td class="text-xs-left">{{ items.item.status }}</td>
+                                    <td>{{ items.item.message }}</td>
+                                </tr>
+                            </template>
+                        </v-data-table>
+                    </v-tab-item>
+                </v-tabs-items>
+
             </template>
             <template slot="no-data">
             </template>
@@ -157,6 +232,7 @@
         data() {
             return {
                 pageItems: [10, 25, {"text": "$vuetify.dataIterator.rowsPerPageAll", "value": -1}],
+                logPageItems: [100, 200, {"text": "$vuetify.dataIterator.rowsPerPageAll", "value": -1}],
                 evtSource: null,
                 cmOption: {
                     tabSize: 4,
@@ -167,6 +243,8 @@
                     viewportMargin: 20
 
                 },
+                deployTab: 'tab-1',
+                expand: false,
                 modalStatus: false,
                 tableLoad: false,
                 list: [],
@@ -262,7 +340,7 @@
         },
         mounted() {
             this.$nextTick(function () {
-                if(this.getAuth == true) {
+                if (this.getAuth == true) {
                     this.getList()
                 }
             })
@@ -280,6 +358,44 @@
         },
 
         methods: {
+            getLog(props) {
+                console.log(props)
+                var me = this
+
+                let types = me.types
+                if (types == 'pod') {
+                    types = 'pods'
+                }
+
+                let type = me.types
+                if (type == 'deployment') {
+                    type = 'deploy'
+                }
+
+                this.$http.get(`${API_HOST}/kube/v1/${types}/namespaces/${props.item.namespace}/${types}/${props.item.name}/log?username=${this.$store.state.username}`)
+                    .then(function (result) {
+
+                        if (result.data.length != undefined) {
+                            me.list.some(function (listTmp, index) {
+                                if (listTmp.name == props.item.name) {
+                                    me.list[index]["log"] = result.data;
+                                    return;
+                                }
+                            })
+                        }
+                        // deployment
+                        else {
+                            me.list.some(function (listTmp, index) {
+                                if (listTmp.name == props.item.name) {
+                                    me.list[index]["log"] = result.data;
+                                    return;
+                                }
+                            })
+                        }
+                        props.expanded = !props.expanded
+
+                    })
+            },
             codeModalShow() {
                 this.plainText = '';
                 this.$modal.show('codeModal');
@@ -302,9 +418,9 @@
                 }
 
                 if (me.namespace == 'All') {
-                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?host=${this.$store.state.kubeHost}&instanceType=` + me.types)
                 } else if (me.namespace != null) {
-                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types + '&namespace=' + me.namespace)
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?host=${this.$store.state.kubeHost}&instanceType=` + me.types + '&namespace=' + me.namespace)
                 }
 
                 /*
@@ -319,7 +435,7 @@
                     me.list.forEach(function (listData) {
                         listIdTmp.push(listData.id)
                     });
-                    if(tmpData.apiVersion == 'DELETED') {
+                    if (tmpData.apiVersion == 'DELETED') {
                         me.list.some(function (listTmp, index) {
                             if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
                                 me.list = [
@@ -352,7 +468,7 @@
                 me.evtSource.onerror = function (e) {
                     me.evtSource.close();
 
-                    setTimeout(function() {
+                    setTimeout(function () {
                         me.startSSE()
                     }, 2000)
                 }
@@ -592,7 +708,6 @@
                         me.snackbar.timeout = 6000
                         me.snackbar.status = true
                         me.snackbar.color = 'success'
-
                         me.status = ''
                     })
                 }

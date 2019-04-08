@@ -11,6 +11,7 @@ export default new Vuex.Store({
         accessToken: null,
         kubeHost: '',
         kubeToken: '',
+        username:'',
         storeAuthorized: false
     },
     getters: {
@@ -21,9 +22,13 @@ export default new Vuex.Store({
     mutations: {
         LOGIN (state, data) {
             console.log(data)
-            state.kubeHost = data.kubeHost
-            state.kubeToken = data.kubeToken
+            state.kubeHost = data.kubeHost;
+            state.kubeToken = data.kubeToken;
+            state.username = data.userName;
             state.storeAuthorized = true;
+
+            axios.defaults.headers.common['kubehost'] = state.kubeHost;
+            axios.defaults.headers.common['kubetoken'] = state.kubeToken;
         },
         LOGOUT (state) {
             state.kubeHost = ''
@@ -34,7 +39,8 @@ export default new Vuex.Store({
     actions: {
         LOGIN ({ commit }, data) {
             // console.log(data)
-                commit('LOGIN', data)
+            commit('LOGIN', data)
+
             // commit('LOGIN', {accessToken, host})
             // Vue.prototype.$http.defaults.baseURL = 'http://localhost:8080';
             // Vue.prototype.$http.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;

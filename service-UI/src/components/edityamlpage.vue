@@ -545,11 +545,11 @@
                     })
                     ui.push({
                         key_lists: [
-                            "spec,template,spec,containers,0,port"
+                            "spec,template,spec,containers,0,ports,0,containerPort"
                         ],
                         ui_name: "port",
                         ui_type: "number",
-                        val: me.findJson(json, "spec,template,spec,containers,0,port".split(','))
+                        val: me.findJson(json, "spec,template,spec,containers,0,ports,0,containerPort".split(','))
                     })
                 } else if (type.toLowerCase() == 'pod') {
                     ui.push(

@@ -50,7 +50,7 @@ public class DeploymentKafkaService {
             dpl.setCreateTime(ts);
 
             deploymentService.update(dpl);
-            messageHandler.publish("deployment", message, dpl.getNamespace());
+            messageHandler.publish("deployment", message, dpl.getNamespace(), dpl.getHost());
 
         }
     }
@@ -133,7 +133,7 @@ public class DeploymentKafkaService {
             deploymentService.update(dpl);
         }
         String json = gson.toJson(dpl);
-        messageHandler.publish("deployment", json, dpl.getNamespace());
+        messageHandler.publish("deployment", json, dpl.getNamespace(), dpl.getHost());
     }
 
 }

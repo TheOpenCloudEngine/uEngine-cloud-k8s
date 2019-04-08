@@ -56,7 +56,7 @@ public class ServicesKafkaService {
 
 
 			servicesService.update(svs);
-			messageHandler.publish("service", message, svs.getNamespace());
+			messageHandler.publish("service", message, svs.getNamespace(), svs.getHost());
 			System.out.println(message);
 		}
     }
@@ -115,6 +115,7 @@ public class ServicesKafkaService {
 			{
 				svs.setSpecSessionAffinity(item.getSpec().getSessionAffinity());
 				svs.setSpecPorts(new Gson().toJson(item.getSpec().getPorts()));
+				svs.setSpecPorts(new Gson().toJson(item.getSpec().getPorts()));
 				svs.setSpecType(item.getSpec().getType());
 
 			}
@@ -145,6 +146,6 @@ public class ServicesKafkaService {
 			servicesService.update(svs);
 		}
 		String json = gson.toJson(svs);
-		messageHandler.publish("service", json, svs.getNamespace());
+		messageHandler.publish("service", json, svs.getNamespace(), svs.getHost());
     }
 }

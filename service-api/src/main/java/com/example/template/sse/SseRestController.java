@@ -1,6 +1,8 @@
 package com.example.template.sse;
 
+import com.google.gson.Gson;
 import lombok.Data;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -28,10 +30,11 @@ public class SseRestController {
     public SseEmitter getNewKube(HttpServletRequest request,
                                  HttpServletResponse response,
                                  @RequestParam(value = "instanceType", required = false) String instanceType,
-                                 @RequestParam(value = "namespace", required = false) String namespace
+                                 @RequestParam(value = "namespace", required = false) String namespace,
+                                 @RequestParam(value = "host") String host
 
     ) {
-        SseKubeEmitter emitter = new SseKubeEmitter(instanceType, namespace);
+        SseKubeEmitter emitter = new SseKubeEmitter(instanceType, namespace, host);
         userBaseEmitters.add(emitter);
 
         emitter.onCompletion(() -> this.userBaseEmitters.remove(emitter));
@@ -53,15 +56,16 @@ public class SseRestController {
                     todo : nameSpace 조건 부분
                  */
                 LOGGER.info("appEntityBaseMessage");
-
-                if (appEntityBaseMessage.getInstanceType().equals(emitter.getInstanceType())) {
-                    if (emitter.getNamespace() == null) {
-                        emitter.send(appEntityBaseMessage);
-                    } else if (appEntityBaseMessage.getNamespace().equals(emitter.getNamespace())) {
-                        emitter.send(appEntityBaseMessage);
+                JSONObject json = null;
+                if (appEntityBaseMessage.getHost().equals(emitter.getHost())) {
+                    if (appEntityBaseMessage.getInstanceType().equals(emitter.getInstanceType())) {
+                        if (emitter.getNamespace() == null) {
+                            emitter.send(appEntityBaseMessage);
+                        } else if (appEntityBaseMessage.getNamespace().equals(emitter.getNamespace())) {
+                            emitter.send(appEntityBaseMessage);
+                        }
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
                 LOGGER.info("dead");

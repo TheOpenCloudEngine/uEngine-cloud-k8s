@@ -195,7 +195,7 @@
                     me.kubeHost = result.data.host
                     me.kubeToken = result.data.token
 
-                    let tmp = {kubeHost: result.data.host , kubeToken: result.data.token}
+                    let tmp = {kubeHost: result.data.host , kubeToken: result.data.token, userName: me.userInfo.user_name}
 
                     this.$store.dispatch('LOGIN', tmp)
                 }).catch((e) => {

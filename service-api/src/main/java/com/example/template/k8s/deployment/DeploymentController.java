@@ -27,7 +27,7 @@ public class DeploymentController {
 
     @Autowired
     DeploymentService deploymentService;
-    
+
     @Autowired
     UserService userService;
 
@@ -45,7 +45,7 @@ public class DeploymentController {
 
         return list;
     }
-    
+
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Deployment> getDeploymentByNamespace(HttpServletRequest request,
                                          HttpServletResponse response,
@@ -61,7 +61,7 @@ public class DeploymentController {
 
         return list;
     }
-    
+
     @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Deployment> getDeploymentByNamespaceName(HttpServletRequest request,
                                          HttpServletResponse response,
@@ -141,15 +141,15 @@ public class DeploymentController {
 
         return returnData;
     }
-    
-    @RequestMapping(value = "/namespaces/{namespace}/deploy/{name}/log", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+
+    @RequestMapping(value = "/namespaces/{namespace}/deployment/{name}/log", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public HashMap<String, ArrayList<LogMessageFormat>> getPodsByNamespaceAndNameLog(
-    			HttpServletRequest request, 
+    			HttpServletRequest request,
     			@RequestParam String username,
     			@PathVariable(value = "namespace") String namespace,
     			@PathVariable(value = "name") String name
     ) throws Exception {
-    	
+
         return deploymentService.getLog(userService.getUserInfo(username), namespace, name);
     }
 
