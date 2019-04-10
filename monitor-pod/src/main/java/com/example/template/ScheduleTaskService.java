@@ -89,11 +89,21 @@ public class ScheduleTaskService {
         Object state = json.get("state");
         String host = (String)json.get("host");
         String token = (String)json.get("token");
-        if( state != null && "ONCE".equals(state)){
-            // TODO 한번만 호출하는 로직
-            System.out.println("ONCE = " + "ONCE");
-        }else{
-            this.addTaskToScheduler( host ,  new MessageToKafkaTask(host, token) );
+
+        boolean importScheduler = false;
+        try{
+            MessageToKafkaTask messageToKafkaTask = new MessageToKafkaTask(host, token);
+            messageToKafkaTask.run();
+            if (!(state != null && "ONCE".equals(state) )) {
+                importScheduler = true;
+            }
+
+        }catch (Exception e){
+            System.out.println("error");
+        }
+//        System.out.println("host = " + host + " , importScheduler = " + importScheduler);
+        if( importScheduler ) {
+            this.addTaskToScheduler(host, new MessageToKafkaTask(host, token));
             System.out.println("jobsMap = " + jobsMap.size());
             System.out.println("jobsMap = " + jobsMap.toString());
         }
