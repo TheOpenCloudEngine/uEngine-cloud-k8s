@@ -16,11 +16,11 @@ public class ConfigurationLocal implements WebMvcConfigurer {
      * 아래 부분을 주석 풀고 작업을 하면 됨
      */
 //    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//                .allowedOrigins("*")
-//                .allowedMethods("POST", "GET", "DELETE", "PUT", "HEAD")
-//                .allowCredentials(false);
-//    }
+////    public void addCorsMappings(CorsRegistry registry) {
+////        registry.addMapping("/**")
+////                .allowedOrigins("*")
+////                .allowedMethods("POST", "GET", "DELETE", "PUT", "HEAD")
+////                .allowCredentials(false);
+////    }
 
 }

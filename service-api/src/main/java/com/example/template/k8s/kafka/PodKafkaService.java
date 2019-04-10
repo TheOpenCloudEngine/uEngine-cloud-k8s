@@ -97,7 +97,7 @@ public class PodKafkaService {
         if("DELETED".equals(status)) {
             podService.delete(host, namespace, name);
             pod.setApiVersion(status);
-        }else {
+        } else {
 
             pod.setId(item.getMetadata().getUid());
             pod.setHost(host);
@@ -145,7 +145,7 @@ public class PodKafkaService {
         }
 
         String json = gson.toJson(pod);
-        messageHandler.publish("pod", json, pod.getNamespace(), pod.getHost());
+        messageHandler.publish("pod", json, pod.getNamespace(), host);
     }
 
 }
