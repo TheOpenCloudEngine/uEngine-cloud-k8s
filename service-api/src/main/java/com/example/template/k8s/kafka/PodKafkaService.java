@@ -1,17 +1,14 @@
-package com.example.template.k8s.pod;
+package com.example.template.k8s.kafka;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.UUID;
 
-import io.kubernetes.client.models.V1Container;
+import com.example.template.k8s.pod.Pod;
 import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.models.V1PodCondition;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
-import org.apache.kafka.common.header.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +16,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import com.example.template.k8s.deployment.Deployment;
-import com.example.template.k8s.deployment.DeploymentService;
 import com.example.template.k8s.pod.PodService;
 import com.example.template.sse.SseBaseMessageHandler;
 import com.google.gson.Gson;
@@ -33,7 +28,7 @@ public class PodKafkaService {
     private static final Logger LOG = LoggerFactory.getLogger(PodKafkaService.class);
 
     @Autowired
-    PodService podService;
+    private PodService podService;
 
 
     @Autowired
@@ -87,12 +82,6 @@ public class PodKafkaService {
                 status = new String(header.value(), StandardCharsets.UTF_8);
             }
         }
-
-        if( "DELETE_ALL".equals(message)){
-            podService.deleteByHost(host);
-            return;
-        }
-
 
         Gson gson = new Gson();
         V1Pod item = gson.fromJson(message, V1Pod.class);

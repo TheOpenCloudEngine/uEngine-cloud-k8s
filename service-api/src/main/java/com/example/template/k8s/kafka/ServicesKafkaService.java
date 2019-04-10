@@ -1,19 +1,16 @@
-package com.example.template.k8s.service;
+package com.example.template.k8s.kafka;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.UUID;
 
+import com.example.template.k8s.service.Services;
+import com.example.template.k8s.service.ServicesService;
 import io.kubernetes.client.models.V1LoadBalancerIngress;
-import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1Service;
-import io.kubernetes.client.models.V1ServicePort;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,12 +75,6 @@ public class ServicesKafkaService {
 				status = new String(header.value(), StandardCharsets.UTF_8);
 			}
 		}
-
-		if( "DELETE_ALL".equals(message)){
-			servicesService.deleteByHost(host);
-			return;
-		}
-
 
 		Gson gson = new Gson();
 		V1Service item = gson.fromJson(message, V1Service.class);

@@ -47,7 +47,7 @@ public class Services implements Serializable {
 	@Column(name="specClusterIp")
 	private String specClusterIp;
 	
-	@Column(name="specPorts")
+	@Column(name="specPorts", columnDefinition = "TEXT")
 	private String specPorts;
 
 	@Column(name="specSessionAffinity")

@@ -1,15 +1,8 @@
 package com.example.template;
 
-import com.google.gson.Gson;
 import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.apis.CoreV1Api;
-import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.models.V1PodList;
 import io.kubernetes.client.util.Config;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.header.Headers;
-import org.apache.kafka.common.header.internals.RecordHeader;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -19,7 +12,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -28,11 +20,11 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import sun.reflect.annotation.ExceptionProxy;
 
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -42,8 +34,8 @@ public class ScheduleTaskService {
     @Autowired
     KafkaTemplate kafkaTemplate;
 
-    @Value("${topic.podMsgTopic}")
-    private String instanceTopic;
+    @Value("${topic.statusTopic}")
+    private String statusTopic;
 
     @Value("${apiUrl}")
     private String apiUrl;
@@ -96,10 +88,14 @@ public class ScheduleTaskService {
                 String host = (String) data.get("host");
                 String token = (String) data.get("token");
 
-                System.out.println("host = " + host);
-                System.out.println("token = " + token);
-
                 if( !this.jobsMap.containsKey(host)){
+
+                    JSONObject jSONObject = new JSONObject();
+                    jSONObject.put("code","DELETE_ALL");
+                    jSONObject.put("msg","클러스터 DB 삭제");
+                    kafkaTemplate.send(new ProducerRecord<String, String>(statusTopic, host , jSONObject.toJSONString()));
+                    Thread.sleep(1000); // 충분한 삭제 시간을 준다.
+
                     MessageToKafkaTask messageToKafkaTask = new MessageToKafkaTask(host, token);
                     messageToKafkaTask.scheduleTaskServicePod = scheduleTaskServicePod;
                     messageToKafkaTask.scheduleTaskServiceDeploy = scheduleTaskServiceDeploy;
@@ -110,7 +106,7 @@ public class ScheduleTaskService {
                         messageToKafkaTask.run();
                         this.addTaskToScheduler( host ,  messageToKafkaTask );
                     }catch(Exception ex){
-
+                        ex.printStackTrace();
                     }
 
                 }
@@ -144,12 +140,21 @@ public class ScheduleTaskService {
 
         }catch (Exception e){
             System.out.println("error");
+            JSONObject jSONObject = new JSONObject();
+            jSONObject.put("code","CLUSTER_ADD_ERROR");
+            jSONObject.put("msg","클러스터 등록 실패");
+            kafkaTemplate.send(new ProducerRecord<String, String>(statusTopic, host , jSONObject.toJSONString()));
         }
 //        System.out.println("host = " + host + " , importScheduler = " + importScheduler);
         if( importScheduler ) {
             this.addTaskToScheduler(host, messageToKafkaTask);
-            System.out.println("jobsMap = " + jobsMap.size());
-            System.out.println("jobsMap = " + jobsMap.toString());
+            JSONObject jSONObject = new JSONObject();
+            jSONObject.put("code","CLUSTER_ADD_SUCCESS");
+            jSONObject.put("msg","클러스터 등록 성공");
+            kafkaTemplate.send(new ProducerRecord<String, String>(statusTopic, host , jSONObject.toJSONString()));
+
+//            System.out.println("jobsMap = " + jobsMap.size());
+//            System.out.println("jobsMap = " + jobsMap.toString());
         }
     }
 
