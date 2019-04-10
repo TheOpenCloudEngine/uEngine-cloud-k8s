@@ -28,7 +28,7 @@ public class ScheduleTaskServiceDeploy {
     @Value("${topic.delpoyMsgTopic}")
     private String instanceTopic;
 
-    public Map<String, Object> run(ApiClient client, String host, Map<String, Object> prevData) {
+    public Map<String, Object> run(ApiClient client, String host, Map<String, Object> prevData, boolean sendTopic) {
         if( prevData == null ){
             prevData = new HashMap<>();
         }
@@ -111,7 +111,9 @@ public class ScheduleTaskServiceDeploy {
 
             Gson gson = new Gson();
             String json = gson.toJson(item);
-            kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host , json , headers));
+            if(sendTopic) {
+                kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host, json, headers));
+            }
         }
         for (V1Deployment item : sendData) {
             // CreationTimestamp, Conditions 을 제거해줘야 문제가 발생하지 않는다.
@@ -132,7 +134,9 @@ public class ScheduleTaskServiceDeploy {
 
             Gson gson = new Gson();
             String json = gson.toJson(item);
-            kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host , json , headers));
+            if(sendTopic) {
+                kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host, json, headers));
+            }
         }
         // 이전 상태값에 현재 상태를 저장
         prevData = currentData;

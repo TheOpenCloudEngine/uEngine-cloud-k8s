@@ -103,7 +103,7 @@ public class ScheduleTaskService {
 
                     try{
                         // pre test
-                        messageToKafkaTask.run();
+                        messageToKafkaTask.dryrun();
                         this.addTaskToScheduler( host ,  messageToKafkaTask );
                     }catch(Exception ex){
                         ex.printStackTrace();
@@ -133,13 +133,18 @@ public class ScheduleTaskService {
         messageToKafkaTask.scheduleTaskServiceDeploy = scheduleTaskServiceDeploy;
         messageToKafkaTask.scheduleTaskServiceSvc = scheduleTaskServiceSvc;
         try{
-            messageToKafkaTask.run();
-            if (!(state != null && "ONCE".equals(state) )) {
-                importScheduler = true;
+            messageToKafkaTask.dryrun();
+            if (state != null && "ONCE".equals(state) ) {
+                // 한번 조회성 데이터
+                messageToKafkaTask.run();
+            }else{
+                // 스케쥴러에 등록이 안되어있을경우에만 스케쥴러 등록 작업을 한다.
+                if( !this.jobsMap.containsKey(host)) {
+                    importScheduler = true;
+                }
             }
 
         }catch (Exception e){
-            System.out.println("error");
             JSONObject jSONObject = new JSONObject();
             jSONObject.put("code","CLUSTER_ADD_ERROR");
             jSONObject.put("msg","클러스터 등록 실패");
@@ -186,10 +191,14 @@ public class ScheduleTaskService {
             this.svcPrevData = new HashMap<>();
         }
 
+        public void dryrun() {
+            this.scheduleTaskServicePod.run(this.client, this.host, null, false);
+        }
+
         public void run() {
-            this.podPrevData = this.scheduleTaskServicePod.run(this.client, this.host, this.podPrevData);
-            this.deployPrevData = this.scheduleTaskServiceDeploy.run(this.client, this.host, this.deployPrevData);
-            this.svcPrevData = this.scheduleTaskServiceSvc.run(this.client, this.host, this.svcPrevData);
+            this.podPrevData = this.scheduleTaskServicePod.run(this.client, this.host, this.podPrevData, true);
+            this.deployPrevData = this.scheduleTaskServiceDeploy.run(this.client, this.host, this.deployPrevData, true);
+            this.svcPrevData = this.scheduleTaskServiceSvc.run(this.client, this.host, this.svcPrevData, true);
         }
     }
 }

@@ -27,7 +27,7 @@ public class ScheduleTaskServicePod {
     @Value("${topic.podMsgTopic}")
     private String instanceTopic;
 
-    public Map<String, Object> run(ApiClient client, String host, Map<String, Object> prevData) {
+    public Map<String, Object> run(ApiClient client, String host, Map<String, Object> prevData, boolean sendTopic) {
         if( prevData == null ){
             prevData = new HashMap<>();
         }
@@ -114,7 +114,9 @@ public class ScheduleTaskServicePod {
 
             Gson gson = new Gson();
             String json = gson.toJson(item);
-            kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host , json , headers));
+            if(sendTopic) {
+                kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host, json, headers));
+            }
         }
 
         for (V1Pod item : sendData) {
@@ -138,7 +140,9 @@ public class ScheduleTaskServicePod {
 
             Gson gson = new Gson();
             String json = gson.toJson(item);
-            kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host , json , headers));
+            if(sendTopic) {
+                kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host, json, headers));
+            }
         }
         // 이전 상태값에 현재 상태를 저장
         prevData = currentData;
