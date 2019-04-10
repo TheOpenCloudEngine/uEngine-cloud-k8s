@@ -22,7 +22,6 @@ import com.example.template.sse.SseBaseMessageHandler;
 import com.google.gson.Gson;
 
 
-
 @Service
 public class DeploymentKafkaService {
 
@@ -35,11 +34,11 @@ public class DeploymentKafkaService {
     private SseBaseMessageHandler messageHandler;
 
 
-//    @KafkaListener(topics = "${topic.delpoyMsgTopic}")
+    //    @KafkaListener(topics = "${topic.delpoyMsgTopic}")
     public void listenByDeploymentOld(@Payload String message) throws ParseException {
         Gson gson = new Gson();
         Deployment dpl = gson.fromJson(message, Deployment.class);
-        if("DELETE".equals(dpl.getProvider())) {
+        if ("DELETE".equals(dpl.getProvider())) {
             deploymentService.delete();
         } else {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
@@ -57,7 +56,7 @@ public class DeploymentKafkaService {
 
     @KafkaListener(topics = "${topic.delpoyMsgTopic}")
     public void listenByDeployment(@Payload String message, ConsumerRecord<?, ?> consumerRecord) throws ParseException {
-        String host = (String)consumerRecord.key();
+        String host = (String) consumerRecord.key();
 
         Header[] h = consumerRecord.headers().toArray();
         // 객체의 DataTime 이 정상적으로 변환이 안되서 header 에 담아서 처리함
@@ -72,7 +71,7 @@ public class DeploymentKafkaService {
             }
         }
 
-        if( "DELETE_ALL".equals(message)){
+        if ("DELETE_ALL".equals(message)) {
             deploymentService.deleteByHost(host);
             return;
         }
@@ -88,11 +87,11 @@ public class DeploymentKafkaService {
         dpl.setName(item.getMetadata().getName());
         dpl.setNamespace(item.getMetadata().getNamespace());
 
-        if("DELETED".equals(status)) {
+        if ("DELETED".equals(status)) {
             deploymentService.delete(host, namespace, name);
             dpl.setApiVersion(status);
 
-        }else {
+        } else {
 
             dpl.setId(item.getMetadata().getUid());
             dpl.setHost(host);
@@ -118,8 +117,7 @@ public class DeploymentKafkaService {
                 dpl.setStatusUpdateReplicas(item.getStatus().getUpdatedReplicas());
             }
 
-            {
-                dpl.setSourceData(new Gson().toJson(item));
+            { dpl.setSourceData(new Gson().toJson(item));
             }
             {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
@@ -133,7 +131,7 @@ public class DeploymentKafkaService {
             deploymentService.update(dpl);
         }
         String json = gson.toJson(dpl);
-        messageHandler.publish("deployment", json, dpl.getNamespace(), dpl.getHost());
+        messageHandler.publish("deployment", json, dpl.getNamespace(), host);
     }
 
 }

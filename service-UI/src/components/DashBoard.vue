@@ -32,26 +32,54 @@
                 :expand="expand"
         >
             <template slot="items" slot-scope="props">
-                <tr @click="getLog(props)">
-                    <td>{{ props.item.name }}</td>
-                    <td>{{ props.item.namespace }}</td>
-                    <!-- pod Column -->
-                    <td class="text-xs-left" v-if="types == 'pod'">{{ props.item.status }}</td>
-                    <td class="text-xs-center" v-if="types == 'pod'">{{ props.item.createTimeStamp }}</td>
-                    <!-- Deployment Column -->
-                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReadyReplicas }}</td>
-                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusReplicas }}</td>
-                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusUpdateReplicas }}</td>
-                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.statusAvailableReplicas }}
+                <tr v-bind:class="{ deletedItem: props.item.apiVersion == 'DELETED' }">
+                    <td style="width: 20px">
+                        <v-progress-circular
+                                indeterminate
+                                color="primary"
+                                v-if="props.item.running == true"
+                        ></v-progress-circular>
                     </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'">{{ props.item.createTimeStamp }}</td>
+                    <td @click="getLog(props)">{{ props.item.name }}</td>
+                    <td @click="getLog(props)">{{ props.item.namespace }}</td>
+                    <!-- pod Column -->
+                    <td class="text-xs-left" v-if="types == 'pod'" @click="getLog(props)">{{ props.item.status }}</td>
+                    <td class="text-xs-center" v-if="types == 'pod'" @click="getLog(props)">
+                        {{ props.item.createTimeStamp }}
+                    </td>
+                    <!-- Deployment Column -->
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                        {{ props.item.statusReadyReplicas }}
+                    </td>
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                        {{ props.item.statusReplicas }}
+                    </td>
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                        {{ props.item.statusUpdateReplicas }}
+                    </td>
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                        {{ props.item.statusAvailableReplicas }}
+                    </td>
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                        {{ props.item.createTimeStamp }}
+                    </td>
                     <!-- Service Column -->
-                    <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specType }}</td>
-                    <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specClusterIp }}</td>
-                    <td class="text-xs-left" v-if="types == 'service'">{{ props.item.ingressIp }}</td>
-                    <td class="text-xs-left" v-if="types == 'service'">{{ props.item.specPort }}</td>
-                    <td class="text-xs-center" v-if="types == 'service'">{{ props.item.createTimeStamp }}</td>
-                    <td class="justify-center layout px-0">
+                    <td class="text-xs-left" v-if="types == 'service'" @click="getLog(props)">
+                        {{ props.item.specType }}
+                    </td>
+                    <td class="text-xs-left" v-if="types == 'service'" @click="getLog(props)">
+                        {{ props.item.specClusterIp }}
+                    </td>
+                    <td class="text-xs-left" v-if="types == 'service'" @click="getLog(props)">
+                        {{ props.item.ingressIp }}
+                    </td>
+                    <td class="text-xs-left" v-if="types == 'service'" @click="getLog(props)">
+                        {{ props.item.specPort }}
+                    </td>
+                    <td class="text-xs-center" v-if="types == 'service'" @click="getLog(props)">
+                        {{ props.item.createTimeStamp }}
+                    </td>
+                    <td class="justify-center layout px-0" v-if="props.item.apiVersion != 'DELETED'">
                         <v-icon
                                 small
                                 class="mr-2"
@@ -66,6 +94,7 @@
                             delete
                         </v-icon>
                     </td>
+                    <td v-else></td>
                 </tr>
             </template>
             <!-- pod expand -->
@@ -117,7 +146,8 @@
                                 hide-headers
                         >
                             <template v-slot:items="items">
-                                <tr v-if="items.item.status == 'WARN'" style="background-color: #FFC107; color: #000000">
+                                <tr v-if="items.item.status == 'WARN'"
+                                    style="background-color: #FFC107; color: #000000">
                                     <td class="text-xs-left">{{ items.item.dateTime }}</td>
                                     <td class="text-xs-left">{{ items.item.status }}</td>
                                     <td>{{ items.item.message }}</td>
@@ -137,7 +167,6 @@
                         </v-data-table>
                     </v-tab-item>
                 </v-tabs-items>
-
             </template>
             <template slot="no-data">
             </template>
@@ -288,6 +317,7 @@
             headers() {
                 if (this.types == 'pod') {
                     var result = [
+                        {text: '', value: 'running', align: 'left', sortable: false},
                         {
                             text: 'Name',
                             align: 'left',
@@ -383,7 +413,7 @@
                                 }
                             })
                         }
-                        // deployment
+// deployment
                         else {
                             me.list.some(function (listTmp, index) {
                                 if (listTmp.name == props.item.name) {
@@ -412,7 +442,7 @@
             },
             startSSE: function () {
                 var me = this;
-                // var tmp = [];
+// var tmp = [];
                 if (me.evtSource != null) {
                     me.evtSource.close()
                 }
@@ -424,8 +454,8 @@
                 }
 
                 /*
-                    TODO : 이벤트 수정
-                 */
+                TODO : 이벤트 수정
+                */
                 me.evtSource.onmessage = function (e) {
                     var parseMessage = JSON.parse(e.data);
                     var tmpData = JSON.parse(parseMessage.message)
@@ -435,11 +465,13 @@
                     me.list.forEach(function (listData) {
                         listIdTmp.push(listData.id)
                     });
+
                     if (tmpData.apiVersion == 'DELETED') {
                         me.list.some(function (listTmp, index) {
                             if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
                                 me.list = [
                                     ...me.list.slice(0, index),
+                                    tmpData,
                                     ...me.list.slice(index + 1)
                                 ]
                                 me.tableLoad = false;
@@ -465,6 +497,7 @@
                         })
                     }
                 }
+
                 me.evtSource.onerror = function (e) {
                     me.evtSource.close();
 
@@ -484,7 +517,7 @@
 
 
                 /*
-                        TODO : 현재 Default만 받아오도록 설정되어있음.
+                TODO : 현재 Default만 받아오도록 설정되어있음.
                 */
                 if (me.namespace == 'All') {
                     me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
@@ -539,6 +572,14 @@
                                 })
                                 // me.evtSource.close()
                                 me.startSSE()
+
+                                // let tmpList = _.difference(resolveData, deleteItemList)
+                                // tmpList.forEach(function (item) {
+                                //     console.log(item)
+                                //     item['running'] = false;
+                                // })
+                                // console.log(tmpList)
+                                // me.list = tmpList
                                 me.list = _.difference(resolveData, deleteItemList)
 
                                 // me.searched = me.list
@@ -596,6 +637,10 @@
                                 })
 
                                 me.startSSE()
+                                // let tmpList = _.difference(resolveData, deleteItemList)
+                                // tmpList.forEach(function (item) {
+                                //     item['running'] = false;
+                                // })
                                 me.list = _.difference(resolveData, deleteItemList)
                                 // me.searched = me.list
                             })
@@ -634,10 +679,12 @@
                 var me = this
                 // me.visible = true
                 me.codeModalShow()
+
                 var yamlData = item.sourceData
                 me.selectedRow = item
-                me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g, '- ').replace(/\\"/g, '\'')
-
+                me.plainText = json2yaml.stringify(JSON.parse(yamlData))
+                    .replace(/- \n[ ]+/g, '- ')
+                    .replace(/\\"/g, '\'')
             },
             postYAML() {
                 var me = this
@@ -665,8 +712,15 @@
                 }
 
                 var me = this;
+                var postText
 
-                var jsonYaml = yaml.load(me.plainText)
+                if (me.plainText.includes('}n')) {
+                    postText = me.plainText.replace('}n', '}')
+                } else {
+                    postText = me.plainText
+                }
+
+                var jsonYaml = yaml.load(postText)
 
                 me.codeModalhide()
 
@@ -684,16 +738,13 @@
                             }
                         }
                     ).then(function () {
-
-                        me.snackbar.text = me.types.toUpperCase() + ' 추가되었습니다.'
+                        me.snackbar.text = me.types.toUpperCase() + ' 추가중입니다..'
                         me.snackbar.x = 'right'
                         me.snackbar.y = 'top'
                         me.snackbar.timeout = 6000
                         me.snackbar.status = true
                         me.snackbar.color = 'success'
-
                         me.status = ''
-
                     })
                 } else if (me.status == 'edit') {
                     me.$http.put(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace + '/' + me.selectedRow.name, jsonYaml, {
@@ -702,13 +753,20 @@
                             }
                         }
                     ).then(function () {
-                        me.snackbar.text = me.types.toUpperCase() + '수정 되었습니다.'
+                        me.snackbar.text = me.types.toUpperCase() + '수정중입니다..'
                         me.snackbar.x = 'right'
                         me.snackbar.y = 'top'
                         me.snackbar.timeout = 6000
                         me.snackbar.status = true
                         me.snackbar.color = 'success'
                         me.status = ''
+                        console.log(me.selectedRow)
+
+                        me.list.some(function (item, index) {
+                            if (me.selectedRow.name == item.name && me.selectedRow.namespace == item.namespace) {
+                                me.list[index]['running'] = true;
+                            }
+                        })
                     })
                 }
             }
@@ -728,5 +786,9 @@
 
     .v-card__actions {
         text-align: right !important;
+    }
+
+    .deletedItem {
+        text-decoration: line-through;
     }
 </style>

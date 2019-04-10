@@ -206,28 +206,18 @@
             }
         },
         methods: {
-            // callCurl() {
-            //     // this.snackbar = true
-            //     // var me = this
-            //     // var token = localStorage.getItem('accessToken');
-            //     // console.log("Bearer " + token)
-            //     //
-            //     // var url = 'http://localhost:8080/kube/v1/pods/namespaces/kafka'
-            //     // $.ajax({
-            //     //     url: url,
-            //     //     type: "get",
-            //     //     headers: {
-            //     //         "Authorization": 'Bearer ' + token
-            //     //     },
-            //     //     success: function (data) {
-            //     //         console.log(data);
-            //     //     },
-            //     //     error: function () {
-            //     //         console.log('Failed to get env');
-            //     //     }
-            //     // });
-            //
-            // },
+            callCurl() {
+                this.snackbar = true
+                var me = this
+                var token = localStorage.getItem('accessToken');
+                console.log("Bearer " + token)
+
+                var url = 'https://api.k8s.bzdvops.com/apis/apps/v1/deployments'
+                this.$http.get(url).then(function (result) {
+                    console.log(result)
+                })
+
+            },
             saveSetting() {
                 var me = this;
                 me.dialog = false;
@@ -238,6 +228,9 @@
                 }).then((result) => {
                     console.log(result)
                 })
+            },
+            mini() {
+
             },
             googleLogin() {
                 var me = this;

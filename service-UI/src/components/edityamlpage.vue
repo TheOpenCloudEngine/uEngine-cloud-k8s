@@ -337,8 +337,8 @@
             },
             yamlFilter(yaml_text) {
                 // if(yaml_text.match('---')) {
-                yaml_text = yaml_text.replace(/"/g, '')
-                yaml_text = yaml_text.replace(/- \n[ ]+/g, '- ')
+                // yaml_text = yaml_text.replace(/"/g, '')
+                // yaml_text = yaml_text.replace(/- \n[ ]+/g, '- ')
                 let lines = yaml_text.split('\n')
                 lines.splice(0, 1)
                 for (let i in lines) {
@@ -543,14 +543,14 @@
                         ui_type: "number",
                         val: me.findJson(json, "spec,replicas".split(','))
                     })
-                    ui.push({
-                        key_lists: [
-                            "spec,template,spec,containers,0,ports,0,containerPort"
-                        ],
-                        ui_name: "port",
-                        ui_type: "number",
-                        val: me.findJson(json, "spec,template,spec,containers,0,ports,0,containerPort".split(','))
-                    })
+                    // ui.push({
+                    //     key_lists: [
+                    //         "spec,template,spec,containers,0,ports,0,containerPort"
+                    //     ],
+                    //     ui_name: "port",
+                    //     ui_type: "number",
+                    //     val: me.findJson(json, "spec,template,spec,containers,0,ports,0,containerPort".split(','))
+                    // })
                 } else if (type.toLowerCase() == 'pod') {
                     ui.push(
                         {

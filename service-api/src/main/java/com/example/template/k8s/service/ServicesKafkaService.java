@@ -44,7 +44,7 @@ public class ServicesKafkaService {
     	Gson gson = new Gson();
     	Services svs = gson.fromJson(message, Services.class);
 
-		if("DELETE".equals(svs.getProvider())) {
+		if("DELETED".equals(svs.getProvider())) {
     		servicesService.delete();
 		} else {
 			SimpleDateFormat formatter = new SimpleDateFormat ("yyyy-MM-dd hh:mm:ss.SSS");
@@ -146,6 +146,6 @@ public class ServicesKafkaService {
 			servicesService.update(svs);
 		}
 		String json = gson.toJson(svs);
-		messageHandler.publish("service", json, svs.getNamespace(), svs.getHost());
+		messageHandler.publish("service", json, svs.getNamespace(), host);
     }
 }
