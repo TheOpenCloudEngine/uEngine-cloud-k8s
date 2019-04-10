@@ -3,9 +3,13 @@ server:
 
 
 topic:
-  instanceTopic: instanceTopic
+  # pod,svc 등 등록,수정,삭제 관련 topic
   orderTopic: orderTopic
+  # user 가 등록되었을때, cluster 관련 데이터 topic
   stateMsgTopic: stateMsgTopic
+  # 각종 처리 완료시 보내오는 상태값 관련 topic
+  statusTopic: statusTopic
+
   podMsgTopic: podMsgTopic
   delpoyMsgTopic: delpoyMsgTopic
   serviceMsgTopic: serviceMsgTopic

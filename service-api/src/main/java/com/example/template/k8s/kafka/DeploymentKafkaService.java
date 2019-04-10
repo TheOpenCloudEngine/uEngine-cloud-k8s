@@ -1,13 +1,13 @@
-package com.example.template.k8s.deployment;
+package com.example.template.k8s.kafka;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.UUID;
 
+import com.example.template.k8s.deployment.Deployment;
+import com.example.template.k8s.deployment.DeploymentService;
 import io.kubernetes.client.models.V1Deployment;
-import io.kubernetes.client.models.V1Pod;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.json.simple.parser.ParseException;
@@ -70,11 +70,6 @@ public class DeploymentKafkaService {
             if (header.key().equals("status")) {
                 status = new String(header.value(), StandardCharsets.UTF_8);
             }
-        }
-
-        if( "DELETE_ALL".equals(message)){
-            deploymentService.deleteByHost(host);
-            return;
         }
 
         Gson gson = new Gson();
