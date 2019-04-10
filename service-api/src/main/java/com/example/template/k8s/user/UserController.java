@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -45,6 +46,11 @@ public class UserController {
         }
 
         return null;
+    }
+
+    @RequestMapping(value = "/getUserDetailList", method = RequestMethod.GET)
+    public Iterable<UserDetail> getUserDetailList(HttpServletRequest request) {
+        return userDetailService.getUserDetailList();
     }
 
     @RequestMapping(value = "/saveUserDetail", method = RequestMethod.PUT)
