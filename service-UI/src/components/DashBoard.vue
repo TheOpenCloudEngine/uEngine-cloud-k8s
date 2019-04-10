@@ -332,6 +332,8 @@
                     return result
                 } else if (this.types == 'deployment') {
                     var result = [
+                        {text: '', value: 'running', align: 'left', sortable: false},
+
                         {
                             text: 'Name',
                             align: 'left',
@@ -350,6 +352,8 @@
 
                 } else if (this.types == 'service') {
                     var result = [
+                        {text: '', value: 'running', align: 'left', sortable: false},
+
                         {
                             text: 'Name',
                             align: 'left',
@@ -404,20 +408,39 @@
 
                 this.$http.get(`${API_HOST}/kube/v1/${types}/namespaces/${props.item.namespace}/${types}/${props.item.name}/log?username=${this.$store.state.username}`)
                     .then(function (result) {
-
                         if (result.data.length != undefined) {
                             me.list.some(function (listTmp, index) {
                                 if (listTmp.name == props.item.name) {
-                                    me.list[index]["log"] = result.data;
+                                    me.list[index]["log"] = result.data.reverse();
                                     return;
                                 }
                             })
                         }
-// deployment
+                        // deployment
                         else {
+
                             me.list.some(function (listTmp, index) {
-                                if (listTmp.name == props.item.name) {
-                                    me.list[index]["log"] = result.data;
+                                if (listTmp.name == props.item.name && listTmp.namespace == props.item.namespace) {
+                                    me.list[index]["log"] = {};
+
+                                    let tmpLog = [];
+                                    let tmpKeys = []
+                                    Object.keys(result.data).forEach(function (keys) {
+                                        tmpKeys.push(keys)
+                                    })
+
+                                    Object.values(result.data).forEach(function (resultLog) {
+                                        resultLog.forEach(function (logItem){
+                                            tmpLog.push(logItem)
+                                        })
+                                    })
+
+                                    me.list[index]["log"]["All"] = _.sortBy(tmpLog, 'dateTime').reverse();
+
+                                    tmpKeys.forEach(function (tmpKey) {
+                                        me.list[index]["log"][tmpKey] = result.data[tmpKey].reverse()
+                                    })
+
                                     return;
                                 }
                             })
