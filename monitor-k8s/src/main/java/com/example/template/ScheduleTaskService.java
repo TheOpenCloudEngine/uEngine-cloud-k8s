@@ -126,6 +126,11 @@ public class ScheduleTaskService {
         Object state = json.get("state");
         String host = (String)json.get("host");
         String token = (String)json.get("token");
+        String username = null;
+        if(json.containsKey("username")){
+            username = (String)json.get("username");
+        }
+
 
         boolean importScheduler = false;
         MessageToKafkaTask messageToKafkaTask = new MessageToKafkaTask(host, token);
@@ -148,6 +153,7 @@ public class ScheduleTaskService {
             JSONObject jSONObject = new JSONObject();
             jSONObject.put("code","CLUSTER_ADD_ERROR");
             jSONObject.put("msg","클러스터 등록 실패");
+            jSONObject.put("username", username);
             kafkaTemplate.send(new ProducerRecord<String, String>(statusTopic, host , jSONObject.toJSONString()));
         }
 //        System.out.println("host = " + host + " , importScheduler = " + importScheduler);
@@ -156,6 +162,7 @@ public class ScheduleTaskService {
             JSONObject jSONObject = new JSONObject();
             jSONObject.put("code","CLUSTER_ADD_SUCCESS");
             jSONObject.put("msg","클러스터 등록 성공");
+            jSONObject.put("username", username);
             kafkaTemplate.send(new ProducerRecord<String, String>(statusTopic, host , jSONObject.toJSONString()));
 
 //            System.out.println("jobsMap = " + jobsMap.size());

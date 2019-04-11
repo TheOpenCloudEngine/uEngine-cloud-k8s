@@ -61,15 +61,17 @@ public class KafkaReceiver {
         String host = (String)consumerRecord.key();
         JSONParser parser = new JSONParser();
         Object obj = null;
+        String username = null;
         try {
             obj = parser.parse( message );
             JSONObject jsonObj = (JSONObject) obj;
             host = (String) jsonObj.get("host");
             String token = (String) jsonObj.get("token");
+            username = (String) jsonObj.get("username");
             String type = (String) jsonObj.get("type");
             String command = (String) jsonObj.get("command");
 
-            this.sendMessage(host,"PROGRESS", jsonObj);
+            this.sendMessage(host, username,"PROGRESS", jsonObj);
 
             KubeManager manager = null;
             if( type.equals("SERVICE")){
@@ -88,15 +90,15 @@ public class KafkaReceiver {
             }else if( command.equals("UPDATE")){
                 manager.update(jsonObj);
             }
-            this.sendMessage(host,"SUCCESS", jsonObj);
+            this.sendMessage(host, username,"SUCCESS", jsonObj);
 
         } catch (Exception e) {
-            this.sendMessage(host,"EXCEPTION", e.toString());
+            this.sendMessage(host, username,"EXCEPTION", e.toString());
             e.printStackTrace();
         }
     }
 
-    public void sendMessage(String host, String code, Object msg){
+    public void sendMessage(String host, String username, String code, Object msg){
         if( msg instanceof JSONObject){
             // token 제거
             ((JSONObject) msg).put("token",null);
@@ -105,6 +107,7 @@ public class KafkaReceiver {
         JSONObject jSONObject = new JSONObject();
         jSONObject.put("code",code);
         jSONObject.put("msg",msg);
+        jSONObject.put("username",username);
 
         kafkaTemplate.send(new ProducerRecord<String, String>(statusTopic, host , jSONObject.toJSONString()));
 

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.template.k8s.pod.LogMessageFormat;
 import com.example.template.k8s.user.UserDetail;
-import com.example.template.k8s.user.UserService;
 
 @RestController
 //@CrossOrigin("*")
@@ -27,9 +26,6 @@ public class DeploymentController {
 
     @Autowired
     DeploymentService deploymentService;
-
-    @Autowired
-    UserService userService;
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Deployment> getAllDeployment(HttpServletRequest request,
@@ -150,7 +146,7 @@ public class DeploymentController {
     			@PathVariable(value = "name") String name
     ) throws Exception {
 
-        return deploymentService.getLog(userService.getUserInfo(username), namespace, name);
+        return deploymentService.getLog(username, namespace, name);
     }
 
 }

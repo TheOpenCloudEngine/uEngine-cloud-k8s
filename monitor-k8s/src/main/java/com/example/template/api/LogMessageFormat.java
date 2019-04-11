@@ -1,7 +1,5 @@
 package com.example.template.api;
 
-import org.joda.time.DateTime;
-
 public class LogMessageFormat {
 	
 	private String dateTime;

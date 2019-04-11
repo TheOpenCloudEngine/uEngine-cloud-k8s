@@ -3,8 +3,11 @@ package com.example.template.api;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
+import io.kubernetes.client.models.V1Namespace;
+import io.kubernetes.client.models.V1NamespaceList;
 import org.springframework.stereotype.Service;
 
 import io.kubernetes.client.ApiClient;
@@ -109,5 +112,19 @@ public class PodService  {
         
         return al;
     }
-    
+
+	public List<String> getAllNamespaces(String kubehost, String kubetoken) throws IOException, ApiException{
+		ApiClient client = Config.fromToken(kubehost, kubetoken, false);
+		CoreV1Api api = new CoreV1Api(client);
+
+		V1NamespaceList namespaceList = api.listNamespace(null,null,null,null,null,null,null,null,false);
+
+		List<String> returnList = new ArrayList<String>();
+		List<V1Namespace> list = namespaceList.getItems();
+		for(V1Namespace item : list){
+			returnList.add(item.getMetadata().getName());
+		}
+
+		return returnList;
+	}
 }

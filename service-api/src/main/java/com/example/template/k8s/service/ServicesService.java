@@ -82,6 +82,7 @@ public class ServicesService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("type", "SERVICE");
             data.put("command", "CREATE");
@@ -99,6 +100,7 @@ public class ServicesService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("name", name);
             data.put("type", "SERVICE");
@@ -114,6 +116,7 @@ public class ServicesService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("name", name);
             data.put("type", "SERVICE");

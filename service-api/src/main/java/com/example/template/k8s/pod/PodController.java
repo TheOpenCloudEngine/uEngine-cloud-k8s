@@ -1,9 +1,6 @@
 package com.example.template.k8s.pod;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.template.k8s.user.UserDetail;
-import com.example.template.k8s.user.UserService;
 
 @RestController
 @RequestMapping("/kube/v1/pods")
@@ -39,6 +35,15 @@ public class PodController {
         }
 
         return list;
+    }
+
+    @RequestMapping(value = "/namespaces", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<String> getAllNamespaces(HttpServletRequest request,
+                                         HttpServletResponse response,
+                                        UserDetail userDetail
+    ) throws Exception {
+
+        return podService.getAllNamespaces(userDetail);
     }
 
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
@@ -130,8 +135,6 @@ public class PodController {
         return returnData;
     }
 
-    @Autowired
-    private UserService userService;
 
     @RequestMapping(value = "/namespaces/{namespace}/pods/{name}/log", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public ArrayList<LogMessageFormat> getPodsByNamespace(
@@ -141,7 +144,7 @@ public class PodController {
     			@PathVariable(value = "name") String name
     ) throws Exception {
 
-        return podService.getLog(userService.getUserInfo(username), namespace, name);
+        return podService.getLog(username, namespace, name);
     }
 
 }

@@ -91,6 +91,7 @@ public class DeploymentService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("type", "DEPLOY");
             data.put("command", "CREATE");
@@ -109,6 +110,7 @@ public class DeploymentService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("name", name);
             data.put("type", "DEPLOY");
@@ -124,6 +126,7 @@ public class DeploymentService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("name", name);
             data.put("type", "DEPLOY");
@@ -132,12 +135,11 @@ public class DeploymentService {
         }
     }
 
-    public HashMap<String, ArrayList<LogMessageFormat>> getLog(Optional<UserDetail> userDetail, String namespace, String name) {
-    	
+    public HashMap<String, ArrayList<LogMessageFormat>> getLog(String username, String namespace, String name) {
     	HashMap<String, ArrayList<LogMessageFormat>> hm = new HashMap<String, ArrayList<LogMessageFormat>>();
     	Iterable<Pod> pods = podService.getPodsByNamespaceAndNameLike(namespace, name);
     	for(Pod pod: pods) {
-    		hm.put(pod.getName(), podService.getLog(userDetail, pod.getNamespace(), pod.getName()));
+    		hm.put(pod.getName(), podService.getLog(username, pod.getNamespace(), pod.getName()));
     	}
     	
     	return hm;

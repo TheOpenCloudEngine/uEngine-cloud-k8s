@@ -3,6 +3,7 @@ package com.example.template.k8s.pod;
 import java.util.ArrayList;
 import java.util.Map;
 
+import io.kubernetes.client.models.V1Namespace;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -54,6 +55,20 @@ public class PodService {
         return podRepository.findByHost(userDetail.getHost());
     }
 
+
+    public ArrayList<String> getAllNamespaces(UserDetail userDetail){
+        userDetail = userDetailService.getUserDetail(userDetail.getUsername());
+
+        HttpHeaders header = new HttpHeaders();
+        header.add("kubehost", userDetail.getHost());
+        header.add("kubetoken", userDetail.getToken());
+
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<ArrayList> response = rt.exchange(this.monitorServiceUrl + "/api/v1/namespaces", HttpMethod.GET, new HttpEntity(header), ArrayList.class);
+
+        return response.getBody();
+    }
+
     public Iterable<Pod> getPodsByNamespace(UserDetail userDetail, String namespace){
         userDetail = userDetailService.getUserDetail(userDetail.getUsername());
         return podRepository.findByHostAndNamespace(userDetail.getHost(), namespace);
@@ -96,6 +111,7 @@ public class PodService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("type", "POD");
             data.put("command", "CREATE");
@@ -113,6 +129,7 @@ public class PodService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("name", name);
             data.put("type", "POD");
@@ -129,6 +146,7 @@ public class PodService {
             JSONObject data = new JSONObject();
             data.put("host", userDetail.getHost());
             data.put("token", userDetail.getToken());
+            data.put("username", userDetail.getUsername());
             data.put("namespace", namespace);
             data.put("name", name);
             data.put("type", "POD");
@@ -138,10 +156,12 @@ public class PodService {
     }
 
 
-    public ArrayList<LogMessageFormat> getLog(Optional<UserDetail> userDetail,  String namespace, String name) {
+    public ArrayList<LogMessageFormat> getLog(String username,  String namespace, String name) {
+        UserDetail userDetail = userDetailService.getUserDetail(username);
+
     	HttpHeaders header = new HttpHeaders();
-    	header.add("kubehost", userDetail.get().getHost());
-    	header.add("kubetoken", userDetail.get().getToken());
+    	header.add("kubehost", userDetail.getHost());
+    	header.add("kubetoken", userDetail.getToken());
 
     	RestTemplate rt = new RestTemplate();
     	ResponseEntity<ArrayList> response = rt.exchange(this.monitorServiceUrl + "/api/v1/namespaces/"+namespace+"/pods/"+name+"/log", HttpMethod.GET, new HttpEntity(header), ArrayList.class);
