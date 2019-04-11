@@ -28,7 +28,6 @@ public class ServiceManager extends KubeManager{
         CoreV1Api apiInstance = new CoreV1Api(client);
 
         V1Service result = apiInstance.createNamespacedService((String)data.get("namespace"), body, null, null, null);
-        System.out.println(result);
     }
 
     @Override
@@ -40,8 +39,6 @@ public class ServiceManager extends KubeManager{
         CoreV1Api apiInstance = new CoreV1Api(client);
 
         V1Service result = apiInstance.replaceNamespacedService(name, (String)data.get("namespace"), body, null, null);
-        System.out.println(result);
-
     }
 
     @Override

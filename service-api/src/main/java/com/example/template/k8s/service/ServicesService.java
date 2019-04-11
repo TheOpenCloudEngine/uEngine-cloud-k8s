@@ -116,7 +116,7 @@ public class ServicesService {
             data.put("token", userDetail.getToken());
             data.put("namespace", namespace);
             data.put("name", name);
-            data.put("type", "POD");
+            data.put("type", "SERVICE");
             data.put("command", "DELETE");
             kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
