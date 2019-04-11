@@ -33,6 +33,9 @@ public class DeploymentService {
     @Autowired
     UserDetailService userDetailService;
 
+    @Autowired
+    PodService podService;
+
     @Value("${topic.orderTopic}")
     private String orderTopic;
 
@@ -92,7 +95,7 @@ public class DeploymentService {
             data.put("type", "DEPLOY");
             data.put("command", "CREATE");
             data.put("body", body);
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
     }
     public void updateDeploy(UserDetail userDetail, String namespace, String name, String yamlString){
@@ -111,7 +114,7 @@ public class DeploymentService {
             data.put("type", "DEPLOY");
             data.put("command", "UPDATE");
             data.put("body", body);
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
     }
 
@@ -125,13 +128,10 @@ public class DeploymentService {
             data.put("name", name);
             data.put("type", "DEPLOY");
             data.put("command", "DELETE");
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
     }
 
-    @Autowired
-    PodService podService;
-    
     public HashMap<String, ArrayList<LogMessageFormat>> getLog(Optional<UserDetail> userDetail, String namespace, String name) {
     	
     	HashMap<String, ArrayList<LogMessageFormat>> hm = new HashMap<String, ArrayList<LogMessageFormat>>();

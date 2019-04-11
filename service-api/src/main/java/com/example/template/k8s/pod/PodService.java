@@ -30,6 +30,10 @@ public class PodService {
     @Value("${topic.orderTopic}")
     private String orderTopic;
 
+    @Value("${monitor-service-url}")
+    private String monitorServiceUrl;
+
+
     @Autowired
     KafkaTemplate kafkaTemplate;
 
@@ -96,7 +100,7 @@ public class PodService {
             data.put("type", "POD");
             data.put("command", "CREATE");
             data.put("body", body);
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace , data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost() , data));
         }
     }
     public void updatePod(UserDetail userDetail, String namespace, String name, String yamlString){
@@ -114,7 +118,7 @@ public class PodService {
             data.put("type", "POD");
             data.put("command", "UPDATE");
             data.put("body", body);
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
     }
 
@@ -129,7 +133,7 @@ public class PodService {
             data.put("name", name);
             data.put("type", "POD");
             data.put("command", "DELETE");
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
     }
 
@@ -140,7 +144,7 @@ public class PodService {
     	header.add("kubetoken", userDetail.get().getToken());
 
     	RestTemplate rt = new RestTemplate();
-    	ResponseEntity<ArrayList> response = rt.exchange("http://localhost:8085/api/v1/namespaces/"+namespace+"/pods/"+name+"/log", HttpMethod.GET, new HttpEntity(header), ArrayList.class);
+    	ResponseEntity<ArrayList> response = rt.exchange(this.monitorServiceUrl + "/api/v1/namespaces/"+namespace+"/pods/"+name+"/log", HttpMethod.GET, new HttpEntity(header), ArrayList.class);
 
     	return response.getBody();
     }

@@ -61,6 +61,8 @@ spring:
       map-underscore-to-camel-case: true
 server:
   port: 8086
+
+monitor-service-url: http://localhost:8085
 ---
 spring:
   profiles: docker
@@ -111,3 +113,5 @@ spring:
     configuration:
       # user_name 을 userName 으로 조회하기 위해서는 camel-case 옵션을 줘야함
       map-underscore-to-camel-case: true
+
+monitor-service-url: http://monitor-k8s:8080

@@ -21,36 +21,27 @@ public class ServiceManager extends KubeManager{
     }
 
     @Override
-    public void create(JSONObject jsonObj){
+    public void create(JSONObject jsonObj) throws ApiException{
         Map<String,Object> data = this.settingInitValue(jsonObj);
-        try {
-            Yaml yaml = new Yaml();
-            V1Service body = yaml.loadAs((String)data.get("body"), V1Service.class);
-            CoreV1Api apiInstance = new CoreV1Api(client);
+        Yaml yaml = new Yaml();
+        V1Service body = yaml.loadAs((String)data.get("body"), V1Service.class);
+        CoreV1Api apiInstance = new CoreV1Api(client);
 
-            V1Service result = apiInstance.createNamespacedService((String)data.get("namespace"), body, null, null, null);
-            System.out.println(result);
-
-        }catch (ApiException e){
-            e.printStackTrace();
-        }
+        V1Service result = apiInstance.createNamespacedService((String)data.get("namespace"), body, null, null, null);
+        System.out.println(result);
     }
 
     @Override
-    public void update(JSONObject jsonObj){
+    public void update(JSONObject jsonObj) throws ApiException {
         Map<String,Object> data = this.settingInitValue(jsonObj);
         String name = (String) jsonObj.get("name");
-        try {
-            Yaml yaml = new Yaml();
-            V1Service body = yaml.loadAs((String)data.get("body"), V1Service.class);
-            CoreV1Api apiInstance = new CoreV1Api(client);
+        Yaml yaml = new Yaml();
+        V1Service body = yaml.loadAs((String)data.get("body"), V1Service.class);
+        CoreV1Api apiInstance = new CoreV1Api(client);
 
-            V1Service result = apiInstance.replaceNamespacedService(name, (String)data.get("namespace"), body, null, null);
-            System.out.println(result);
+        V1Service result = apiInstance.replaceNamespacedService(name, (String)data.get("namespace"), body, null, null);
+        System.out.println(result);
 
-        }catch (ApiException e){
-            e.printStackTrace();
-        }
     }
 
     @Override

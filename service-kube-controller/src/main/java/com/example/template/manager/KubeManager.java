@@ -1,6 +1,7 @@
 package com.example.template.manager;
 
 import io.kubernetes.client.ApiClient;
+import io.kubernetes.client.ApiException;
 import io.kubernetes.client.util.Config;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -38,10 +39,10 @@ public class KubeManager {
         return data;
     }
 
-    public void create(JSONObject jsonObj){
+    public void create(JSONObject jsonObj) throws ApiException{
 
     }
-    public void update(JSONObject jsonObj){
+    public void update(JSONObject jsonObj) throws ApiException {
 
     }
     public void delete(JSONObject jsonObj){

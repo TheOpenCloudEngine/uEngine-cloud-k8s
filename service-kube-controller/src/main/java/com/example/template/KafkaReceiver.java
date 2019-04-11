@@ -14,6 +14,7 @@ import io.kubernetes.client.models.V1Service;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.Yaml;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -37,6 +38,9 @@ public class KafkaReceiver {
     @Value("${topic.stateMsgTopic}")
     private String stateMsgTopic;
 
+    @Value("${topic.statusTopic}")
+    private String statusTopic;
+
     @Autowired
     KafkaTemplate kafkaTemplate;
 
@@ -54,17 +58,18 @@ public class KafkaReceiver {
     public void listenByObject(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {
 
         System.out.println(message);
+        String host = (String)consumerRecord.key();
         JSONParser parser = new JSONParser();
         Object obj = null;
         try {
             obj = parser.parse( message );
             JSONObject jsonObj = (JSONObject) obj;
-            String host = (String) jsonObj.get("host");
+            host = (String) jsonObj.get("host");
             String token = (String) jsonObj.get("token");
             String type = (String) jsonObj.get("type");
             String command = (String) jsonObj.get("command");
 
-            this.sendMessage(type, "처리중");
+            this.sendMessage(host,"PROGRESS", jsonObj);
 
             KubeManager manager = null;
             if( type.equals("SERVICE")){
@@ -83,17 +88,26 @@ public class KafkaReceiver {
             }else if( command.equals("UPDATE")){
                 manager.update(jsonObj);
             }
+            this.sendMessage(host,"SUCCESS", jsonObj);
 
-        } catch (ParseException e) {
-            this.sendMessage(e.toString(), "처리실패");
+        } catch (Exception e) {
+            this.sendMessage(host,"EXCEPTION", e.toString());
             e.printStackTrace();
         }
     }
 
-    public void sendMessage(String type, String command){
-        // TODO 추후 적용
-//        String msg = command + " : " + type;
-//        kafkaTemplate.send(stateMsgTopic , msg);
+    public void sendMessage(String host, String code, Object msg){
+        if( msg instanceof JSONObject){
+            // token 제거
+            ((JSONObject) msg).put("token",null);
+        }
+
+        JSONObject jSONObject = new JSONObject();
+        jSONObject.put("code",code);
+        jSONObject.put("msg",msg);
+
+        kafkaTemplate.send(new ProducerRecord<String, String>(statusTopic, host , jSONObject.toJSONString()));
+
     }
 
 }

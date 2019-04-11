@@ -21,7 +21,7 @@ spring:
 server:
   port: 8085
 
-apiUrl: http://localhost:8086
+api-service-url: http://localhost:8086
 ---
 spring:
   profiles: docker
@@ -30,4 +30,4 @@ spring:
 #    bootstrap-servers: uengine-kube-kafka:9092
 #    bootstrap-servers: my-kafka:9092
 
-apiUrl: http://serviceapi:8080
+api-service-url: http://serviceapi:8080

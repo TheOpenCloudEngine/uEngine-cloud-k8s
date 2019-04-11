@@ -14,17 +14,5 @@ public class Application {
     public static void main(String[] args) {
         applicationContext = SpringApplication.run(Application.class, args);
     }
-
-//    public static void restart() {
-//        ApplicationArguments args = context.getBean(ApplicationArguments.class);
-// 
-//        Thread thread = new Thread(() -> {
-//            context.close();
-//            context = SpringApplication.run(Application.class, args.getSourceArgs());
-//        });
-// 
-//        thread.setDaemon(false);
-//        thread.start();
-//    }
 }
 

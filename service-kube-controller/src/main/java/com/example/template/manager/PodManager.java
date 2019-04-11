@@ -19,34 +19,25 @@ public class PodManager  extends KubeManager {
     }
 
     @Override
-    public void create(JSONObject jsonObj){
+    public void create(JSONObject jsonObj) throws ApiException{
         Map<String,Object> data = this.settingInitValue(jsonObj);
-        try {
-            Yaml yaml = new Yaml();
-            V1Pod body = yaml.loadAs((String)data.get("body"), V1Pod.class);
-            CoreV1Api apiInstance = new CoreV1Api(client);
+        Yaml yaml = new Yaml();
+        V1Pod body = yaml.loadAs((String)data.get("body"), V1Pod.class);
+        CoreV1Api apiInstance = new CoreV1Api(client);
 
-            V1Pod result = apiInstance.createNamespacedPod((String)data.get("namespace"), body, null, null, null);
+        V1Pod result = apiInstance.createNamespacedPod((String)data.get("namespace"), body, null, null, null);
 
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     @Override
-    public void update(JSONObject jsonObj){
+    public void update(JSONObject jsonObj) throws ApiException{
         Map<String,Object> data = this.settingInitValue(jsonObj);
         String name = (String) jsonObj.get("name");
-        try {
-            Yaml yaml = new Yaml();
-            V1Pod body = yaml.loadAs((String)data.get("body"), V1Pod.class);
-            CoreV1Api apiInstance = new CoreV1Api(client);
+        Yaml yaml = new Yaml();
+        V1Pod body = yaml.loadAs((String)data.get("body"), V1Pod.class);
+        CoreV1Api apiInstance = new CoreV1Api(client);
 
-            V1Pod result = apiInstance.replaceNamespacedPod(name, (String)data.get("namespace"), body, null, null);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        V1Pod result = apiInstance.replaceNamespacedPod(name, (String)data.get("namespace"), body, null, null);
     }
 
     @Override

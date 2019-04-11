@@ -37,7 +37,7 @@ public class ScheduleTaskService {
     @Value("${topic.statusTopic}")
     private String statusTopic;
 
-    @Value("${apiUrl}")
+    @Value("${api-service-url}")
     private String apiUrl;
 
     @Autowired

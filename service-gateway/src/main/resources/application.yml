@@ -65,3 +65,4 @@ spring:
               - "*"
             allowedHeaders:
               - "*"
+            allowCredentials: true

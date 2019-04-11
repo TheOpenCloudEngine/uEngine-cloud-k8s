@@ -86,7 +86,7 @@ public class ServicesService {
             data.put("type", "SERVICE");
             data.put("command", "CREATE");
             data.put("body", body);
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
     }
 
@@ -104,7 +104,7 @@ public class ServicesService {
             data.put("type", "SERVICE");
             data.put("command", "UPDATE");
             data.put("body", body);
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
     }
 
@@ -118,7 +118,7 @@ public class ServicesService {
             data.put("name", name);
             data.put("type", "POD");
             data.put("command", "DELETE");
-            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, namespace, data));
+            kafkaTemplate.send(new ProducerRecord<String, JSONObject>(orderTopic, userDetail.getHost(), data));
         }
     }
 

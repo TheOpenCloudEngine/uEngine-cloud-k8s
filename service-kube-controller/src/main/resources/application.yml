@@ -5,6 +5,8 @@ server:
 topic:
   orderTopic: orderTopic
   stateMsgTopic: stateMsgTopic
+  # 각종 처리 완료시 보내오는 상태값 관련 topic
+  statusTopic: statusTopic
 
 ---
 spring:

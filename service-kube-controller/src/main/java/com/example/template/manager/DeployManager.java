@@ -18,34 +18,26 @@ public class DeployManager extends KubeManager {
     }
 
     @Override
-    public void create(JSONObject jsonObj){
+    public void create(JSONObject jsonObj) throws ApiException{
         Map<String,Object> data = this.settingInitValue(jsonObj);
-        try {
-            Yaml yaml = new Yaml();
-            V1Deployment body = yaml.loadAs((String)data.get("body"), V1Deployment.class);
-            AppsV1Api apiInstance = new AppsV1Api(client);
+        Yaml yaml = new Yaml();
+        V1Deployment body = yaml.loadAs((String)data.get("body"), V1Deployment.class);
+        AppsV1Api apiInstance = new AppsV1Api(client);
 
-            V1Deployment result = apiInstance.createNamespacedDeployment((String)data.get("namespace"), body, null, null, null);
+        V1Deployment result = apiInstance.createNamespacedDeployment((String)data.get("namespace"), body, null, null, null);
 
-        }catch (ApiException e){
-            e.printStackTrace();
-        }
     }
 
     @Override
-    public void update(JSONObject jsonObj){
+    public void update(JSONObject jsonObj) throws ApiException{
         Map<String,Object> data = this.settingInitValue(jsonObj);
         String name = (String) jsonObj.get("name");
-        try {
-            Yaml yaml = new Yaml();
-            V1Deployment body = yaml.loadAs((String)data.get("body"), V1Deployment.class);
-            AppsV1Api apiInstance = new AppsV1Api(client);
+        Yaml yaml = new Yaml();
+        V1Deployment body = yaml.loadAs((String)data.get("body"), V1Deployment.class);
+        AppsV1Api apiInstance = new AppsV1Api(client);
 
-            V1Deployment result = apiInstance.replaceNamespacedDeployment(name , (String)data.get("namespace"), body, null, null);
+        V1Deployment result = apiInstance.replaceNamespacedDeployment(name , (String)data.get("namespace"), body, null, null);
 
-        }catch (ApiException e){
-            e.printStackTrace();
-        }
     }
 
     @Override
