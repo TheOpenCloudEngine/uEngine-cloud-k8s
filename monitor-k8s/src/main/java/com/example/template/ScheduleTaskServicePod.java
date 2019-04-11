@@ -103,7 +103,6 @@ public class ScheduleTaskServicePod {
                 headers.add(new RecordHeader("CreateTimeStamp", transFormat.format(item.getMetadata().getCreationTimestamp().getMillis()).getBytes(StandardCharsets.UTF_8)));
             }
             headers.add(new RecordHeader("status", "DELETED".getBytes(StandardCharsets.UTF_8)));
-            System.out.printf("%s -> %s : %s %n", item.getKind(), item.getMetadata().getName(), "DELETED");
             // CreationTimestamp, Conditions 을 제거해줘야 문제가 발생하지 않는다.
             item.getMetadata().setCreationTimestamp(null);
             item.getMetadata().deletionTimestamp(null);
@@ -115,6 +114,7 @@ public class ScheduleTaskServicePod {
             Gson gson = new Gson();
             String json = gson.toJson(item);
             if(sendTopic) {
+                System.out.printf("%s -> %s : %s %n", item.getKind(), item.getMetadata().getName(), "DELETED");
                 kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host, json, headers));
             }
         }
@@ -129,7 +129,6 @@ public class ScheduleTaskServicePod {
             }
             headers.add(new RecordHeader("status", item.getStatus().getPhase().getBytes(StandardCharsets.UTF_8)));
 
-            System.out.printf("%s -> %s : %s %n", item.getKind(), item.getMetadata().getName(), "UPDATED");
             // CreationTimestamp, Conditions 을 제거해줘야 문제가 발생하지 않는다.
             item.getMetadata().setCreationTimestamp(null);
             item.getMetadata().deletionTimestamp(null);
@@ -141,6 +140,7 @@ public class ScheduleTaskServicePod {
             Gson gson = new Gson();
             String json = gson.toJson(item);
             if(sendTopic) {
+                System.out.printf("%s -> %s : %s %n", item.getKind(), item.getMetadata().getName(), "UPDATED");
                 kafkaTemplate.send(new ProducerRecord<String, String>(instanceTopic, null, host, json, headers));
             }
         }
