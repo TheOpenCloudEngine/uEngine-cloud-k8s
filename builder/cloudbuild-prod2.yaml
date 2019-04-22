@@ -1,0 +1,34 @@
+steps:
+  ### Build
+  - id: 'build'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd service-api
+        cp DockerfileAutoBuild Dockerfile
+        mvn clean package -B
+        docker build -t gcr.io/$PROJECT_ID/serviceapi .
+        cd ..
+  - id: 'build2'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd monitor-k8s
+        cp DockerfileAutoBuild Dockerfile
+        mvn clean package -B
+        docker build -t gcr.io/$PROJECT_ID/monitor-k8s .
+        cd ..
+  ### Test
+  ### Publish
+  - id: 'publish'
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker push gcr.io/$PROJECT_ID/serviceapi
+        docker push gcr.io/$PROJECT_ID/monitor-k8s

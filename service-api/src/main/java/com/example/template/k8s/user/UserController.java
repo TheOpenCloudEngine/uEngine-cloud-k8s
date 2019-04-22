@@ -71,6 +71,10 @@ public class UserController {
 
             // user 가 있으면 큐에 등록하여 정기적으로 메세지를 받는다.
             if (username != null) {
+
+                if(host.lastIndexOf("/") == host.length() -1 ){
+                    host = host.substring(0, host.lastIndexOf("/"));
+                }
                 UserDetail userDetail = new UserDetail();
                 userDetail.setUsername(username);
                 userDetail.setHost(host);
