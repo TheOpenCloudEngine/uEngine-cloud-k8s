@@ -42,27 +42,28 @@
                                 v-if="props.item.running == true"
                         ></v-progress-circular>
                     </td>
-                    <td @click="getLog(props)">{{ props.item.name }}</td>
-                    <td @click="getLog(props)">{{ props.item.namespace }}</td>
+                    <td @click="getLog(props);">{{ props.item.name }}
+                    </td>
+                    <td @click="getLog(props); props.expanded = !props.expanded">{{ props.item.namespace }}</td>
                     <!-- pod Column -->
-                    <td class="text-xs-left" v-if="types == 'pod'" @click="getLog(props)">{{ props.item.status }}</td>
-                    <td class="text-xs-center" v-if="types == 'pod'" @click="getLog(props)">
+                    <td class="text-xs-left" v-if="types == 'pod'" @click="getLog(props); props.expanded = !props.expanded">{{ props.item.status }}</td>
+                    <td class="text-xs-center" v-if="types == 'pod'" @click="getLog(props); props.expanded = !props.expanded">
                         {{ props.item.createTimeStamp }}
                     </td>
                     <!-- Deployment Column -->
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
                         {{ props.item.statusReadyReplicas }}
                     </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
                         {{ props.item.statusReplicas }}
                     </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
                         {{ props.item.statusUpdateReplicas }}
                     </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
                         {{ props.item.statusAvailableReplicas }}
                     </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props)">
+                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
                         {{ props.item.createTimeStamp }}
                     </td>
                     <!-- Service Column -->
@@ -421,6 +422,17 @@
             },
             kubeHost: function (newVal) {
                 this.getList()
+            },
+            tmpLog: function (newVal, oldVal) {
+                var me = this
+                clearTimeout(function () {
+                    me.getLog(me.selectedRow)
+                })
+                // clearInterval(me.getLog(me.selectedRow))
+                // setInterval(me.getLog(me.selectedRow), 10000)
+                setTimeout(function () {
+                    me.getLog(me.selectedRow)
+                }, 5000)
             }
         },
 
@@ -428,7 +440,9 @@
             getLog(props) {
                 var me = this
                 me.selectedRow = props;
-                me.tmpLog = {};
+
+                clearTimeout()
+
                 let types = me.types
                 if (types == 'pod') {
                     types = 'pods'
@@ -442,43 +456,37 @@
                 this.$http.get(`${API_HOST}/kube/v1/${types}/namespaces/${props.item.namespace}/${types}/${props.item.name}/log?username=${this.$store.state.username}`)
                     .then(function (result) {
                         if (result.data.length != undefined) {
-                            me.list.some(function (listTmp, index) {
-                                if (listTmp.name == props.item.name) {
-                                    me.tmpLog = result.data.reverse();
-                                    return;
-                                }
-                            })
+                            me.tmpLog = [];
+                            me.tmpLog = result.data.reverse();
+
                         }
                         // deployment
                         else {
-                            me.list.some(function (listTmp, index) {
+                            me.tmpLog = {};
+                            me.tmpLog["All"] = {};
+                            let tmpLog = [];
+                            let tmpKeys = []
+                            Object.keys(result.data).forEach(function (keys) {
+                                tmpKeys.push(keys)
+                            })
 
-                                me.tmpLog["All"] = {};
-
-                                let tmpLog = [];
-                                let tmpKeys = []
-                                Object.keys(result.data).forEach(function (keys) {
-                                    tmpKeys.push(keys)
+                            Object.values(result.data).forEach(function (resultLog) {
+                                resultLog.forEach(function (logItem) {
+                                    tmpLog.push(logItem)
                                 })
+                            })
 
-                                Object.values(result.data).forEach(function (resultLog) {
-                                    resultLog.forEach(function (logItem) {
-                                        tmpLog.push(logItem)
-                                    })
-                                })
+                            me.tmpLog["All"] = _.sortBy(tmpLog, 'dateTime').reverse();
 
-                                me.tmpLog["All"] = _.sortBy(tmpLog, 'dateTime').reverse();
-
-                                tmpKeys.forEach(function (tmpKey) {
-                                    me.tmpLog[tmpKey] = _.sortBy(result.data[tmpKey], 'dateTime').reverse();
-                                })
-
-                                return;
-
+                            tmpKeys.forEach(function (tmpKey) {
+                                me.tmpLog[tmpKey] = _.sortBy(result.data[tmpKey], 'dateTime').reverse();
                             })
                         }
-                        props.expanded = !props.expanded
+                        // console.log(props)
 
+                        if(props.expanded == false || props.expanded == undefined) {
+                            props.expanded = true
+                        }
                     })
             },
             codeModalShow() {
@@ -590,9 +598,9 @@
                                     }
                                 }
                             } else if (!listIdTmp.includes(tmpData.id)) {
-                                if(tmpData.apiVersion == 'DELETED') {
+                                if (tmpData.apiVersion == 'DELETED') {
                                     me.list.some(function (listTmp, index) {
-                                        if(listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
+                                        if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
                                             me.list = [
                                                 ...me.list.slice(0, index),
                                                 tmpData,
