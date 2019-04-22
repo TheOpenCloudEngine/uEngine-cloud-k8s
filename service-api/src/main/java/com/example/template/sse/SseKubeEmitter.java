@@ -8,6 +8,7 @@ public class SseKubeEmitter extends SseEmitter {
     //    private String provider;
     private String instanceType;
     private String host;
+    private String username;
 
 //    public SseKubeEmitter(String name, String provider) {
 //        super();
@@ -15,7 +16,7 @@ public class SseKubeEmitter extends SseEmitter {
 //        this.provider = provider;
 //    }
 
-    public SseKubeEmitter(String instanceType, String namespace, String host) {
+    public SseKubeEmitter(String instanceType, String namespace, String host, String username) {
         super();
         this.instanceType = instanceType;
         this.namespace = namespace;
@@ -44,5 +45,13 @@ public class SseKubeEmitter extends SseEmitter {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

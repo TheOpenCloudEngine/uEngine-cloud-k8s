@@ -105,8 +105,8 @@ public class ServicesKafkaService {
 			// service의 spec 정보
 			{
 				svs.setSpecSessionAffinity(item.getSpec().getSessionAffinity());
-				svs.setSpecPorts(new Gson().toJson(item.getSpec().getPorts()));
 				svs.setSpecClusterIp(item.getSpec().getClusterIP());
+				svs.setSpecPorts(new Gson().toJson(item.getSpec().getPorts()));
 				svs.setSpecType(item.getSpec().getType());
 
 			}

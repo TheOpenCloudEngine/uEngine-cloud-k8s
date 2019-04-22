@@ -5,6 +5,8 @@ import lombok.Data;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.json.GsonJsonParser;
+import org.json.simple.parser.JSONParser;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -31,10 +33,11 @@ public class SseRestController {
                                  HttpServletResponse response,
                                  @RequestParam(value = "instanceType", required = false) String instanceType,
                                  @RequestParam(value = "namespace", required = false) String namespace,
-                                 @RequestParam(value = "host") String host
+                                 @RequestParam(value = "host") String host,
+                                 @RequestParam(value = "username") String username
 
     ) {
-        SseKubeEmitter emitter = new SseKubeEmitter(instanceType, namespace, host);
+        SseKubeEmitter emitter = new SseKubeEmitter(instanceType, namespace, host, username);
         userBaseEmitters.add(emitter);
 
         emitter.onCompletion(() -> this.userBaseEmitters.remove(emitter));
@@ -56,13 +59,21 @@ public class SseRestController {
                     todo : nameSpace 조건 부분
                  */
                 LOGGER.info("appEntityBaseMessage");
-                JSONObject json = null;
-                if (appEntityBaseMessage.getHost().equals(emitter.getHost())) {
-                    if (appEntityBaseMessage.getInstanceType().equals(emitter.getInstanceType())) {
-                        if (emitter.getNamespace() == null) {
-                            emitter.send(appEntityBaseMessage);
-                        } else if (appEntityBaseMessage.getNamespace().equals(emitter.getNamespace())) {
-                            emitter.send(appEntityBaseMessage);
+                Gson gson = new Gson();
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(appEntityBaseMessage.getMessage());
+                if (json.get("username") != null) {
+                    if (appEntityBaseMessage.getInstanceType().equals("status") && json.get("username").equals(emitter.getUsername())) {
+                        emitter.send(appEntityBaseMessage);
+                    }
+                } else {
+                    if (appEntityBaseMessage.getHost().equals(emitter.getHost())) {
+                        if (appEntityBaseMessage.getInstanceType().equals(emitter.getInstanceType())) {
+                            if (emitter.getNamespace() == null) {
+                                emitter.send(appEntityBaseMessage);
+                            } else if (appEntityBaseMessage.getNamespace().equals(emitter.getNamespace())) {
+                                emitter.send(appEntityBaseMessage);
+                            }
                         }
                     }
                 }

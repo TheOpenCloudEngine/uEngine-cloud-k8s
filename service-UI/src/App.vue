@@ -133,7 +133,7 @@
     export default {
         data: () => ({
             dialog: false,
-            drawer: null,
+            drawer: false,
             isLogin: false,
             kubeHost: '',
             kubeToken: '',
@@ -150,6 +150,9 @@
             axios,
             https
         },
+        beforeDestroy() {
+
+        },
         computed: {
             authorized() {
                 if (window.localStorage.getItem("accessToken") == null) {
@@ -163,7 +166,7 @@
             },
             userInfo() {
                 if (this.authorized == true) {
-                    console.log(this.$jwt.hasToken())
+                    // console.log(this.$jwt.hasToken())
                     return this.$jwt.decode()
                 } else {
                     return null
@@ -190,7 +193,7 @@
         mounted() {
             var me = this
             if (me.authorized == true) {
-                console.log(me.userInfo)
+                // console.log(me.userInfo)
                 this.$http.get(`${API_HOST}/kube/user/getUserDetail?username=` + me.userInfo.user_name).then((result) => {
                     me.kubeHost = result.data.host
                     me.kubeToken = result.data.token
@@ -206,18 +209,6 @@
             }
         },
         methods: {
-            callCurl() {
-                this.snackbar = true
-                var me = this
-                var token = localStorage.getItem('accessToken');
-                console.log("Bearer " + token)
-
-                var url = 'https://api.k8s.bzdvops.com/apis/apps/v1/deployments'
-                this.$http.get(url).then(function (result) {
-                    console.log(result)
-                })
-
-            },
             saveSetting() {
                 var me = this;
                 me.dialog = false;
@@ -226,10 +217,10 @@
                     host: me.kubeHost,
                     token: me.kubeToken
                 }).then((result) => {
-                    console.log(result)
+                    let tmp = {kubeHost: me.kubeHost , kubeToken: me.kubeHost, userName: me.userInfo.user_name}
+                    me.$store.dispatch('LOGIN', tmp)
                 })
-            },
-            mini() {
+
 
             },
             googleLogin() {

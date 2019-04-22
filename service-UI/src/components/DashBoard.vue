@@ -30,12 +30,14 @@
                 :loading="tableLoad"
                 :search="search"
                 :expand="expand"
+                :pagination.sync="pagination"
         >
             <template slot="items" slot-scope="props">
                 <tr v-bind:class="{ deletedItem: props.item.apiVersion == 'DELETED' }">
                     <td style="width: 20px">
                         <v-progress-circular
                                 indeterminate
+                                :size="20"
                                 color="primary"
                                 v-if="props.item.running == true"
                         ></v-progress-circular>
@@ -64,19 +66,41 @@
                         {{ props.item.createTimeStamp }}
                     </td>
                     <!-- Service Column -->
-                    <td class="text-xs-left" v-if="types == 'service'" @click="getLog(props)">
+                    <td class="text-xs-left" v-if="types == 'service'">
                         {{ props.item.specType }}
                     </td>
-                    <td class="text-xs-left" v-if="types == 'service'" @click="getLog(props)">
+                    <td class="text-xs-left" v-if="types == 'service'">
                         {{ props.item.specClusterIp }}
                     </td>
-                    <td class="text-xs-left" v-if="types == 'service'" @click="getLog(props)">
+                    <td class="text-xs-left"
+                        v-if="types == 'service' && props.item.ingressIp != null && props.item.hostname == null"
+                    >
                         {{ props.item.ingressIp }}
                     </td>
-                    <td class="text-xs-left" v-if="types == 'service'" @click="getLog(props)">
-                        {{ props.item.specPort }}
+                    <td class="text-xs-left"
+                        v-if="types == 'service' && props.item.hostname != null && props.item.ingressIp == null"
+                    >
+                        {{ props.item.hostname }}
                     </td>
-                    <td class="text-xs-center" v-if="types == 'service'" @click="getLog(props)">
+                    <td class="text-xs-left"
+                        v-if="types == 'service' && props.item.ingressIp == null && props.item.hostname == null"
+                    >
+
+                    </td>
+                    <td class="text-xs-left" v-if="types == 'service' && props.item.specPorts != null">
+                        <a class="caption" style="color: #000000; margin-right: 4px;"
+
+                           v-for="portData in JSON.parse(props.item.specPorts)"
+                        >
+                            {{ portData.port }}:{{ portData.nodePort }}/{{ portData.protocol }}
+                        </a>
+                    </td>
+                    <td class="text-xs-left" v-if="types == 'service' && props.item.specPorts == null">
+                        <a class="caption" style="color: #000000; margin-right: 4px;">
+
+                        </a>
+                    </td>
+                    <td class="text-xs-center" v-if="types == 'service'">
                         {{ props.item.createTimeStamp }}
                     </td>
                     <td class="justify-center layout px-0" v-if="props.item.apiVersion != 'DELETED'">
@@ -101,7 +125,7 @@
             <template v-if="types=='pod'" v-slot:expand="props">
                 <v-data-table
                         :rows-per-page-items="logPageItems"
-                        :items="props.item.log"
+                        :items="tmpLog"
                         class="elevation-1"
                         hide-headers
                 >
@@ -130,14 +154,16 @@
                         v-model="deployTab"
                 >
                     <v-tab
-                            v-for="(value, key) in props.item.log"
+                            v-for="(value, key) in tmpLog"
+                            :key="key"
                     >
                         {{ key }}
                     </v-tab>
                 </v-tabs>
                 <v-tabs-items v-model="deployTab">
                     <v-tab-item
-                            v-for="(value, key) in props.item.log"
+                            v-for="(value, key) in tmpLog"
+                            :key="key"
                     >
                         <v-data-table
                                 :rows-per-page-items="logPageItems"
@@ -244,7 +270,6 @@
         name: 'DashBoard',
         props: {
             namespace: String,
-            namespaceList: Array,
             types: String
         },
         components: {
@@ -260,6 +285,7 @@
         },
         data() {
             return {
+                pagination: {},
                 pageItems: [10, 25, {"text": "$vuetify.dataIterator.rowsPerPageAll", "value": -1}],
                 logPageItems: [100, 200, {"text": "$vuetify.dataIterator.rowsPerPageAll", "value": -1}],
                 evtSource: null,
@@ -292,6 +318,7 @@
                     timeout: 6000,
                     text: ''
                 },
+                tmpLog: ''
             }
         },
         beforeDestroy: function () {
@@ -304,6 +331,9 @@
         computed: {
             codemirror: function () {
                 return this.$refs.myCm.codemirror;
+            },
+            kubeHost: function () {
+                return this.$store.state.kubeHost
             },
             getAuth() {
                 return this.$store.state.storeAuthorized
@@ -382,20 +412,23 @@
         watch: {
             namespace: function () {
                 this.getList()
+                this.pagination.page = 1;
             },
             plainText: function (newVal) {
-                console.log('newVal!')
             },
             getAuth: function (newVal) {
+                this.getList()
+            },
+            kubeHost: function (newVal) {
                 this.getList()
             }
         },
 
         methods: {
             getLog(props) {
-                console.log(props)
                 var me = this
-
+                me.selectedRow = props;
+                me.tmpLog = {};
                 let types = me.types
                 if (types == 'pod') {
                     types = 'pods'
@@ -411,38 +444,37 @@
                         if (result.data.length != undefined) {
                             me.list.some(function (listTmp, index) {
                                 if (listTmp.name == props.item.name) {
-                                    me.list[index]["log"] = result.data.reverse();
+                                    me.tmpLog = result.data.reverse();
                                     return;
                                 }
                             })
                         }
                         // deployment
                         else {
-
                             me.list.some(function (listTmp, index) {
-                                if (listTmp.name == props.item.name && listTmp.namespace == props.item.namespace) {
-                                    me.list[index]["log"] = {};
 
-                                    let tmpLog = [];
-                                    let tmpKeys = []
-                                    Object.keys(result.data).forEach(function (keys) {
-                                        tmpKeys.push(keys)
+                                me.tmpLog["All"] = {};
+
+                                let tmpLog = [];
+                                let tmpKeys = []
+                                Object.keys(result.data).forEach(function (keys) {
+                                    tmpKeys.push(keys)
+                                })
+
+                                Object.values(result.data).forEach(function (resultLog) {
+                                    resultLog.forEach(function (logItem) {
+                                        tmpLog.push(logItem)
                                     })
+                                })
 
-                                    Object.values(result.data).forEach(function (resultLog) {
-                                        resultLog.forEach(function (logItem){
-                                            tmpLog.push(logItem)
-                                        })
-                                    })
+                                me.tmpLog["All"] = _.sortBy(tmpLog, 'dateTime').reverse();
 
-                                    me.list[index]["log"]["All"] = _.sortBy(tmpLog, 'dateTime').reverse();
+                                tmpKeys.forEach(function (tmpKey) {
+                                    me.tmpLog[tmpKey] = _.sortBy(result.data[tmpKey], 'dateTime').reverse();
+                                })
 
-                                    tmpKeys.forEach(function (tmpKey) {
-                                        me.list[index]["log"][tmpKey] = result.data[tmpKey].reverse()
-                                    })
+                                return;
 
-                                    return;
-                                }
                             })
                         }
                         props.expanded = !props.expanded
@@ -471,47 +503,105 @@
                 }
 
                 if (me.namespace == 'All') {
-                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?host=${this.$store.state.kubeHost}&instanceType=` + me.types)
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?host=${this.$store.state.kubeHost}&username=${this.$store.state.username}&instanceType=` + me.types)
                 } else if (me.namespace != null) {
-                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?host=${this.$store.state.kubeHost}&instanceType=` + me.types + '&namespace=' + me.namespace)
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?host=${this.$store.state.kubeHost}&username=${this.$store.state.username}&instanceType=` + me.types + '&namespace=' + me.namespace)
                 }
 
                 /*
                 TODO : 이벤트 수정
                 */
                 me.evtSource.onmessage = function (e) {
+
                     var parseMessage = JSON.parse(e.data);
+
                     var tmpData = JSON.parse(parseMessage.message)
                     console.log(tmpData)
                     var listIdTmp = [];
-
                     me.list.forEach(function (listData) {
                         listIdTmp.push(listData.id)
                     });
 
-                    if (tmpData.apiVersion == 'DELETED') {
-                        me.list.some(function (listTmp, index) {
-                            if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
-                                me.list = [
-                                    ...me.list.slice(0, index),
-                                    tmpData,
-                                    ...me.list.slice(index + 1)
-                                ]
-                                me.tableLoad = false;
-                                return;
-                            }
-                        })
+                    if (parseMessage.instanceType == 'status') {
+                        if (parseMessage.host == 'Cluster') {
+                            me.snackbar.text = `${tmpData.msg}`
+                            me.snackbar.y = 'bottom'
+                            me.snackbar.timeout = 6000
+                            me.snackbar.status = true
+                            me.snackbar.color = 'error'
+                        }
                     } else {
                         me.list.some(function (listTmp, index) {
-                            if (listTmp.id == tmpData.id) {
-                                me.list = [
-                                    ...me.list.slice(0, index),
-                                    tmpData,
-                                    ...me.list.slice(index + 1)
-                                ]
-                                return;
+                            if (listIdTmp.includes(tmpData.id)) {
+                                if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
+                                    if (listTmp.kind == 'Pod') {
+                                        if (tmpData.apiVersion == 'DELETED') {
+                                            tmpData["running"] = false;
+                                            me.list = [
+                                                ...me.list.slice(0, index),
+                                                tmpData,
+                                                ...me.list.slice(index + 1)
+                                            ]
+                                        } else {
+                                            me.list = [
+                                                ...me.list.slice(0, index),
+                                                tmpData,
+                                                ...me.list.slice(index + 1)
+                                            ]
+                                        }
+                                    } else if (listTmp.kind == 'Deployment') {
+                                        if (tmpData.apiVersion == 'DELETED') {
+                                            me.list = [
+                                                ...me.list.slice(0, index),
+                                                tmpData,
+                                                ...me.list.slice(index + 1)
+                                            ]
+                                        } else {
+                                            if (tmpData.statusAvailableReplicas == tmpData.statusReadyReplicas && tmpData.statusReplicas == tmpData.statusUpdateReplicas && tmpData.statusReplicas == tmpData.statusReadyReplicas) {
+                                                tmpData["running"] = false;
+                                                me.list = [
+                                                    ...me.list.slice(0, index),
+                                                    tmpData,
+                                                    ...me.list.slice(index + 1)
+                                                ]
+                                            } else {
+                                                tmpData["running"] = true
+                                                me.list = [
+                                                    ...me.list.slice(0, index),
+                                                    tmpData,
+                                                    ...me.list.slice(index + 1)
+                                                ]
+                                            }
+                                        }
+                                    } else if (listTmp.kind == 'Service') {
+                                        if (tmpData.apiVersion == 'DELETED') {
+                                            me.list = [
+                                                ...me.list.slice(0, index),
+                                                tmpData,
+                                                ...me.list.slice(index + 1)
+                                            ]
+                                        } else {
+                                            me.list = [
+                                                ...me.list.slice(0, index),
+                                                tmpData,
+                                                ...me.list.slice(index + 1)
+                                            ]
+                                        }
+                                    }
+                                }
                             } else if (!listIdTmp.includes(tmpData.id)) {
-                                if (!(tmpData.apiVersion == 'DELETED')) {
+                                if(tmpData.apiVersion == 'DELETED') {
+                                    me.list.some(function (listTmp, index) {
+                                        if(listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
+                                            me.list = [
+                                                ...me.list.slice(0, index),
+                                                tmpData,
+                                                ...me.list.slice(index + 1)
+                                            ]
+                                        }
+                                    })
+                                } else {
+                                    tmpData["running"] = true;
                                     me.list.push(tmpData)
                                     listIdTmp.push(tmpData.id)
                                     return;
@@ -520,6 +610,23 @@
                         })
                     }
                 }
+
+                //     if (tmpData.instanceType == 'status') {
+                //         me.list.some(function (listTmp, index) {
+                //             if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
+                //                 me.list = [
+                //                     ...me.list.slice(0, index),
+                //                     tmpData,
+                //                     ...me.list.slice(index + 1)
+                //                 ]
+                //                 me.tableLoad = false;
+                //                 return;
+                //             }
+                //         })
+                //     } else {
+
+                // }
+                // }
 
                 me.evtSource.onerror = function (e) {
                     me.evtSource.close();
@@ -532,6 +639,7 @@
             getList() {
                 var me = this
                 var getURLType
+                this.list = [];
                 if (me.types == 'pod') {
                     getURLType = me.types + 's'
                 } else {
@@ -550,9 +658,6 @@
                             var usedId = []
                             return new Promise((resolve, reject) => {
                                 tmpData.forEach(function (sortingData) {
-                                    if (!me.namespaceList.includes(sortingData.namespace)) {
-                                        me.namespaceList.push(sortingData.namespace)
-                                    }
                                     if (!(usedId.includes(sortingData.id))) {
                                         resultMap.push(sortingData)
                                         usedId.push(sortingData.id)
@@ -595,18 +700,8 @@
                                 })
                                 // me.evtSource.close()
                                 me.startSSE()
-
-                                // let tmpList = _.difference(resolveData, deleteItemList)
-                                // tmpList.forEach(function (item) {
-                                //     console.log(item)
-                                //     item['running'] = false;
-                                // })
-                                // console.log(tmpList)
-                                // me.list = tmpList
                                 me.list = _.difference(resolveData, deleteItemList)
 
-                                // me.searched = me.list
-                                me.$emit('update:namespaceList', me.namespaceList)
 
                             })
                         })
@@ -673,7 +768,13 @@
             handleDelete(item) {
                 var me = this
                 var getURLType
-                console.log(item)
+
+                me.list.some(function (items, index) {
+                    if (me.selectedRow.name == items.name && me.selectedRow.namespace == items.namespace) {
+                        me.list[index]['running'] = true;
+                    }
+                })
+
                 if (me.types == 'pod') {
                     getURLType = me.types + 's'
                 } else {
@@ -691,12 +792,10 @@
                     me.snackbar.timeout = 6000
                     me.snackbar.status = true
                     me.snackbar.color = 'cyan darken-2'
-                    me.tableLoad = true;
 
                     me.status = ''
                     me.deleteModalhide()
                 })
-
             },
             handleEdit(item) {
                 var me = this
@@ -712,7 +811,6 @@
             postYAML() {
                 var me = this
                 me.$EventBus.$emit('postYAML')
-                console.log('start PostYAML')
                 var nameSpace = me.namespace;
                 if (nameSpace == 'All') {
                     nameSpace = 'default'
@@ -783,7 +881,6 @@
                         me.snackbar.status = true
                         me.snackbar.color = 'success'
                         me.status = ''
-                        console.log(me.selectedRow)
 
                         me.list.some(function (item, index) {
                             if (me.selectedRow.name == item.name && me.selectedRow.namespace == item.namespace) {

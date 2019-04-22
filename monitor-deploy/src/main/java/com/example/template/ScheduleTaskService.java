@@ -132,7 +132,7 @@ public class ScheduleTaskService {
             Map<String, Object> currentData = new HashMap<>();
 
             for (V1Deployment item : list.getItems()) {
-                String apiVersion = "v1";
+                String apiVersion = list.getApiVersion();
                 String kind = "Deployment";
                 if( item.getApiVersion() == null ){
                     item.setApiVersion(apiVersion);

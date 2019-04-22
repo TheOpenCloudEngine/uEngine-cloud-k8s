@@ -15,6 +15,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class StatusKafkaService {
 
@@ -39,14 +41,20 @@ public class StatusKafkaService {
 
         LOG.info(json.toString());
 
-        if( "DELETE_ALL".equals(json.get("code"))){
+        if("DELETE_ALL".equals(json.get("code"))){
             podService.deleteByHost(host);
             deploymentService.deleteByHost(host);
             servicesService.deleteByHost(host);
             return;
         }
+        Object obj = json.get("msg");
 
-//        messageHandler.publish("service", json, svs.getNamespace(), svs.getHost());
+        if(obj instanceof String) {
+            messageHandler.publish("status", message, "Cluster", "Cluster");
+        } else if (obj instanceof Map) {
+            JSONObject jsonMsg = (JSONObject) parser.parse(json.get("msg").toString());
+            messageHandler.publish("status", message, jsonMsg.get("namespace").toString(), jsonMsg.get("host").toString());
+        }
 
     }
 }

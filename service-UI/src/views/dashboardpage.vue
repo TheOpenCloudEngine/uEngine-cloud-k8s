@@ -36,7 +36,7 @@
                 <!--</v-btn>-->
 
                 <DashBoard v-if="show"
-                           :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="types"
+                           :namespace.sync="namespace" :types="types"
                            style="margin-top: 20px;"/>
             </v-card-text>
         </v-card>
@@ -51,8 +51,8 @@
         name: 'home',
         data() {
             return {
-                namespace: 'All',
-                namespaceList: ['All'],
+                namespace: 'default',
+                namespaceList: ['All', 'default'],
                 types: 'pod',
                 show: true,
                 toggle_exclusive: 0
@@ -70,11 +70,15 @@
                 me.$nextTick(function () {
                     console.log("re-render");
                     me.show = true;
+
                 })
             }
         },
-        created() {
-            // this.types = 'pod'
+        mounted() {
+            var me = this
+            me.$http.get(`${API_HOST}/kube/v1/pods/namespaces`).then(function (result) {
+                me.namespaceList = result.data
+            })
         }
     }
 </script>

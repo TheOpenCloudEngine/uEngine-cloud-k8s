@@ -17,7 +17,6 @@ public class PodController {
     @Autowired
     PodService podService;
 
-    
     @RequestMapping(value = "/namespaces/{namespace}/pods/{name}/log", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public ArrayList<LogMessageFormat> getPodsByNamespace(
     			@RequestHeader(value="kubehost") String kubehost,
@@ -25,10 +24,9 @@ public class PodController {
     			@PathVariable(value = "namespace") String namespace,
     			@PathVariable(value = "name") String name
     ) throws Exception {
-
         return podService.getLog(kubehost, kubetoken, namespace, name);
     }
-    
+
 
 
 }
