@@ -26,90 +26,99 @@ public class PodService  {
         CoreV1Api api = new CoreV1Api(client);
         
         String containerName = "";
-        V1Pod v1pod = api.readNamespacedPod(name, namespace, null, null, null);
-        for(V1Container v1container : v1pod.getSpec().getContainers()) {
-        	if(!"istio-proxy".contentEquals(v1container.getName())){
-        		containerName = v1container.getName();
-        	}
-        }
-        
-        String log = api.readNamespacedPodLog(name, namespace, containerName, false, null, "true", false, null, null, false);
-
-        ArrayList<SimpleDateFormat> formatterList = new ArrayList<SimpleDateFormat>();
-        formatterList.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("es", "ES")));
-        formatterList.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", new Locale("es", "ES")));
-        formatterList.add(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", new Locale("es", "ES")));
-        formatterList.add(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", new Locale("es", "ES")));
-        formatterList.add(new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", new Locale("es", "ES")));
-        formatterList.add(new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss.SSS", Locale.ENGLISH));
-        
-        SimpleDateFormat defaultSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", new Locale("es", "ES"));
-        SimpleDateFormat selectSimpleDateFormat = null;
-        
-        ArrayList<LogMessageFormat> al = new ArrayList<LogMessageFormat>(); 
-        LogMessageFormat lmf = null;
-        
-        long times = 0;
-        String[] loglines = log.split("\n");
-        for(String lo : loglines) {
-
-        	String[] lineLogs = lo.split(" ");
-        	try {
-        		
-        		String dt = lineLogs[0] + " " + lineLogs[1];
-        		
-        		if(selectSimpleDateFormat == null) {
-        			
-        			for (SimpleDateFormat formatter : formatterList) {
-        				try {
-							times = formatter.parse(dt).getTime();
-						} catch (Exception e) {
-							continue;
-						}
-						selectSimpleDateFormat = formatter; 
-        				
-        				lmf = new LogMessageFormat();
-    					lmf.setDateTime(defaultSimpleDateFormat.format(times));
-    					lmf.setStatus(((lineLogs[2].equals(""))?lineLogs[3]: lineLogs[2]));
-    					lmf.setMessage(lo.replace(dt, "").replace(lmf.getStatus(), ""));
-    					times = 0;
-    				}
-        			
-        		} else {
-        			try {
-						times = selectSimpleDateFormat.parse(dt).getTime();
-						if(lmf != null) {
-							al.add(lmf);
-						}
-						
-						lmf = new LogMessageFormat();
-						lmf.setDateTime(defaultSimpleDateFormat.format(times));
-						lmf.setStatus(((lineLogs[2].equals(""))?lineLogs[3]: lineLogs[2]));
-						lmf.setMessage(lo.replace(dt, "").replace(lmf.getStatus(), ""));
-						times = 0;
-					} catch (Exception e) {
-						lmf.setMessage(( (lmf.getMessage() == null)? "": lmf.getMessage()) + "\n " + lo);
-					}
-					
-        		}
-        		
-        		
-        		if(selectSimpleDateFormat == null) {
-        			if(lmf == null ) {
-        				lmf = new LogMessageFormat();
-        			}
-        			
-        			lmf.setMessage(( (lmf.getMessage() == null)? "": lmf.getMessage()) + lo + "\n ");
-        		}
-				
-			} catch (Exception e) {
+		V1Pod v1pod = null;
+		ArrayList<LogMessageFormat> al = new ArrayList<LogMessageFormat>();
+        try {
+        	v1pod = api.readNamespacedPod(name, namespace, null, null, null);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		if( v1pod != null ) {
+			for (V1Container v1container : v1pod.getSpec().getContainers()) {
+				if (!"istio-proxy".contentEquals(v1container.getName())) {
+					containerName = v1container.getName();
+				}
 			}
-        }
-        
-        if(lmf != null) {
-        	al.add(lmf);
-        }
-        
+
+			String log = api.readNamespacedPodLog(name, namespace, containerName, false, null, "true", false, null, null, false);
+
+			ArrayList<SimpleDateFormat> formatterList = new ArrayList<SimpleDateFormat>();
+			formatterList.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("es", "ES")));
+			formatterList.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", new Locale("es", "ES")));
+			formatterList.add(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", new Locale("es", "ES")));
+			formatterList.add(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", new Locale("es", "ES")));
+			formatterList.add(new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", new Locale("es", "ES")));
+			formatterList.add(new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss.SSS", Locale.ENGLISH));
+
+			SimpleDateFormat defaultSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", new Locale("es", "ES"));
+			SimpleDateFormat selectSimpleDateFormat = null;
+
+
+			LogMessageFormat lmf = null;
+			if( log != null ) {
+				long times = 0;
+				String[] loglines = log.split("\n");
+				for (String lo : loglines) {
+
+					String[] lineLogs = lo.split(" ");
+					try {
+
+						String dt = lineLogs[0] + " " + lineLogs[1];
+
+						if (selectSimpleDateFormat == null) {
+
+							for (SimpleDateFormat formatter : formatterList) {
+								try {
+									times = formatter.parse(dt).getTime();
+								} catch (Exception e) {
+									continue;
+								}
+								selectSimpleDateFormat = formatter;
+
+								lmf = new LogMessageFormat();
+								lmf.setDateTime(defaultSimpleDateFormat.format(times));
+								lmf.setStatus(((lineLogs[2].equals("")) ? lineLogs[3] : lineLogs[2]));
+								lmf.setMessage(lo.replace(dt, "").replace(lmf.getStatus(), ""));
+								times = 0;
+							}
+
+						} else {
+							try {
+								times = selectSimpleDateFormat.parse(dt).getTime();
+								if (lmf != null) {
+									al.add(lmf);
+								}
+
+								lmf = new LogMessageFormat();
+								lmf.setDateTime(defaultSimpleDateFormat.format(times));
+								lmf.setStatus(((lineLogs[2].equals("")) ? lineLogs[3] : lineLogs[2]));
+								lmf.setMessage(lo.replace(dt, "").replace(lmf.getStatus(), ""));
+								times = 0;
+							} catch (Exception e) {
+								lmf.setMessage(((lmf.getMessage() == null) ? "" : lmf.getMessage()) + "\n " + lo);
+							}
+
+						}
+
+
+						if (selectSimpleDateFormat == null) {
+							if (lmf == null) {
+								lmf = new LogMessageFormat();
+							}
+
+							lmf.setMessage(((lmf.getMessage() == null) ? "" : lmf.getMessage()) + lo + "\n ");
+						}
+
+					} catch (Exception e) {
+					}
+				}
+
+				if (lmf != null) {
+					al.add(lmf);
+				}
+			}
+
+		}
         return al;
     }
 
