@@ -1,9 +1,18 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Dashboard from './views/dashboardpage.vue'
-import Home from './components/HelloWorld'
 
 Vue.use(Router)
+
+import ModelerRouter from './components/designer/ModelerRouter'
+import ProcessDesigner from './components/designer/process/ProcessDesigner'
+import ClassModeler from './components/designer/class-modeling/ClassModeler'
+import ModelerImageGenerator from './components/designer/ModelerImageGenerator'
+
+Vue.component('modeler-router', ModelerRouter);
+Vue.component('modeler-image-generator', ModelerImageGenerator);
+Vue.component('process-designer', ProcessDesigner);
+Vue.component('class-modeler', ClassModeler)
 
 export default new Router({
     mode: 'history',
@@ -14,11 +23,11 @@ export default new Router({
             name: 'Dashboard',
             component: Dashboard
         },
-        // {
-        //     path: '/yaml',
-        //     name: 'EditYaml',
-        //     component: EditYaml
-        // },
+        {
+            path: '/home',
+            name: 'Home',
+            component: ClassModeler
+        },
         // {
         //   path: '/about',
         //   name: 'about',

@@ -29,7 +29,9 @@
                         </codemirror>
                         <v-layout row wrap>
                             <v-flex xs4>
-                                <v-btn v-if="importFile == false" color="success" block @click="importFile = true">LocalFile</v-btn>
+                                <v-btn v-if="importFile == false" color="success" block @click="importFile = true">
+                                    LocalFile
+                                </v-btn>
                                 <text-reader
                                         v-if="importFile == true"
                                         :fileName.sync="fileName"
@@ -58,6 +60,9 @@
                                     v-model="item.val"
                                     @focus="onUiFocus()"
                             ></v-text-field>
+                            <v-autocomplete v-if="item.ui_type == 'list'&& status =='add'" :items="depList"
+                                            :label="item.ui_name" v-model="item.val"
+                                            @focus="onUiFocus()"></v-autocomplete>
                             <v-text-field
                                     v-if="item.ui_type=='string' && status =='edit' && item.ui_name.includes('name')"
                                     :label="item.ui_name"
@@ -76,6 +81,14 @@
                                           type="number"
                                           :label='item.ui_name'
                             ></v-text-field>
+                            <v-select
+                                    v-if="item.ui_type=='select' && status !='edit' && !item.ui_name.includes('name')"
+                                    :items="items"
+                                    :label="item.ui_name"
+                                    v-model="item.val"
+                                    @focus="onUiFocus()"
+                                    label="Service Type"
+                            ></v-select>
                         </template>
                     </v-card-text>
                 </v-card>
@@ -107,7 +120,7 @@
     export default {
         name: 'EditYaml',
         props:
-            ['plainText', 'types', 'status'],
+            ['plainText', 'types', 'status','namespace'],
         data() {
             return {
                 fab: false,
@@ -118,20 +131,31 @@
                 cursor_pos: "",
                 channel: "yaml",
                 auto_edit: true,
-                importFile: false
+                importFile: false,
+                items: ['ClusterIP', 'NodePort', 'LoadBalancer', 'ExternalName'],
+                depList: []
             }
         },
         created: function () {
             var me = this
             me.$EventBus.$on('postYAML', function () {
                 me.$emit('update:plainText', me.yaml_text)
-                console.log(me.yaml_text)
             });
             if (me.status == 'add') {
                 if (me.types == 'pod') {
                     me.createPod()
                 } else if (me.types == 'service') {
                     me.createService()
+                    var namespace = me.namespace
+                    if (namespace == 'All') {
+                        namespace = 'default'
+                    }
+                    me.$http.get(`${API_HOST}/kube/v1/` + me.types + '/namespaces/' + namespace)
+                        .then((result) => {
+                            result.data.forEach(function (dep) {
+                                me.depList.push(dep.name)
+                            })
+                        })
                 } else if (me.types == 'deployment') {
                     me.createDeployment()
                 }
@@ -428,10 +452,18 @@
                     },
                     {
                         key_lists: [
+                            "spec,type"
+                        ],
+                        ui_name: "service type",
+                        ui_type: "select",
+                        val: "",
+                    },
+                    {
+                        key_lists: [
                             "spec,selector,app"
                         ],
                         ui_name: "deployment name",
-                        ui_type: "string",
+                        ui_type: "list",
                         val: "dep",
                     },
                     {
@@ -449,7 +481,7 @@
                         ui_name: "target port",
                         ui_type: "number",
                         val: "80",
-                    }
+                    },
                 ];
                 me.yaml_text =
                     "apiVersion: v1\n" +
@@ -459,6 +491,7 @@
                     "  labels:\n" +
                     "    app: \n" +
                     "spec:\n" +
+                    "  type:\n" +
                     "  ports:\n" +
                     "    - port: 80\n" +
                     "      targetPort: 80\n" +

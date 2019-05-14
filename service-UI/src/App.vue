@@ -139,6 +139,7 @@
             kubeToken: '',
             items: [
                 {icon: 'home', text: 'Home', route: '/'},
+                {icon: 'home', text: 'Home2', route: '/home'},
             ],
             api: [],
             snackbar: false
@@ -151,7 +152,7 @@
             https
         },
         beforeDestroy() {
-
+            window.localStorage.removeItem("accessToken");
         },
         computed: {
             authorized() {

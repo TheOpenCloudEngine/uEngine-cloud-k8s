@@ -21,7 +21,6 @@ export default new Vuex.Store({
     },
     mutations: {
         LOGIN (state, data) {
-            console.log(data)
             state.kubeHost = data.kubeHost;
             state.kubeToken = data.kubeToken;
             state.username = data.userName;

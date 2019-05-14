@@ -8,21 +8,21 @@
                         label="Namespace"
                 ></v-select>
             </v-card-title>
-            <v-card-text>
-                <v-btn-toggle v-model="toggle_exclusive" mandatory flat>
-                    <v-btn flat color="primary"  @click="types='pod'" style="margin: 2px;">
-                        pods
-                    </v-btn>
-                    <v-btn flat color="primary" @click="types='deployment'" style="margin: 2px;">
-                        deployment
-                    </v-btn>
-                    <v-btn flat color="primary" @click="types='service'" style="margin: 2px; ">
-                        service
-                    </v-btn>
-                </v-btn-toggle>
-                <v-btn fab flat color="primary" @click="types='service'" style="margin: 2px; ">
-                    <v-icon>add</v-icon>
-                </v-btn>
+            <v-card-text style="padding-top: 0px !important;">
+                <!--<v-btn-toggle v-model="toggle_exclusive" mandatory flat>-->
+                    <!--<v-btn flat color="primary"  @click="types='pod'" style="margin: 2px;">-->
+                        <!--pods-->
+                    <!--</v-btn>-->
+                    <!--<v-btn flat color="primary" @click="types='deployment'" style="margin: 2px;">-->
+                        <!--deployment-->
+                    <!--</v-btn>-->
+                    <!--<v-btn flat color="primary" @click="types='service'" style="margin: 2px; ">-->
+                        <!--service-->
+                    <!--</v-btn>-->
+                <!--</v-btn-toggle>-->
+                <!--<v-btn fab flat color="primary" @click="types='service'" style="margin: 2px; ">-->
+                    <!--<v-icon>add</v-icon>-->
+                <!--</v-btn>-->
                 <!--<v-btn @click="types='pod'">-->
                     <!--Pods-->
                 <!--</v-btn>-->

@@ -138,7 +138,20 @@
         }
 
       ]
-    })
+    }),
+      created() {
+        var me = this
+        me.callProduct()
+      },
+      methods: {
+        callProduct() {
+            var me = this;
+
+            me.$http.get('http://localhost:8080/products').then(function(result){
+                console.log(result)
+            })
+        }
+      }
   }
 </script>
 
