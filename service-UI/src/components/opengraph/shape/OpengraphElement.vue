@@ -532,6 +532,8 @@
           me.$emit('update:height', boundary.getHeight());
           me.$emit('update:x', boundary.getCentroid().x);
           me.$emit('update:y', boundary.getCentroid().y);
+        // me.$emit('update:y', boundary.getCentroid().y);
+
         }
 
         var style = JSON.parse(JSON.stringify(me.element.shape.geom.style.map));
@@ -646,7 +648,7 @@
           switch (shape.TYPE) {
             case OG.Constants.SHAPE_TYPE.GEOM:
             case OG.Constants.SHAPE_TYPE.GROUP:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], style, me._id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, me._id, me.parentId);
               if (shape instanceof OG.HorizontalLaneShape) {
                 var parent = me.canvasComponent.canvas.getRenderer().getParent(me.element);
                 if (parent && parent.shape instanceof OG.HorizontalLaneShape) {
@@ -685,6 +687,7 @@
 
               var fromElement, toElement, fromTerminal, toTerminal, fromP, toP;
 
+
               if (me.from) {
                 fromElement = me.canvasComponent.canvas.getElementById(me.from);
                 fromTerminal = me.from + '_TERMINAL_' + me.fromPosition[0] + '_' + me.fromPosition[1];
@@ -698,17 +701,18 @@
 
               //vertices 가 없고, 연결할 대상이 있다면 connect 로 연결한다. 이때 연결 노드 정보는 자동으로 생성됨.
               if ((!me.vertices || me.vertices.length < 2) && fromElement && toElement) {
-                me.element = me.canvasComponent.canvas.connect(
+
+                  me.element = me.canvasComponent.canvas.connect(
                   fromElement, toElement, style, me.label, fromP, toP, true, me._id);
               }
               //vertices 가 있고 연결할 대상이 있는 경우
               else if (fromElement && toElement) {
-                me.element = me.canvasComponent.canvas.connect(
+                  me.element = me.canvasComponent.canvas.connect(
                   fromElement, toElement, style, me.label, fromP, toP, true, me._id, shape);
               }
               //그 외 연결할 대상이 없는 경우
               else {
-                me.element = me.canvasComponent.canvas.drawShape(null, shape, null, style, me._id, null, true);
+                  me.element = me.canvasComponent.canvas.drawShape(null, shape, null, style, me._id, null, true);
               }
               //스타일은 복사하여 pops 에 영향을 주지 않도록 한다.
 
@@ -867,8 +871,9 @@
         shape.onMoveShape = function (offset) {
           me.$emit('moveShape', me, offset);
         };
+
         shape.onRotateShape = function (angle) {
-          me.$emit('rotateShape', me, angle);
+          me.$emit('rotateShape',me,angle);
         };
         shape.onPasteShape = function (copied, pasted) {
           me.$emit('pasteShape',
@@ -1042,4 +1047,3 @@
 <style scoped lang="scss" rel="stylesheet/scss">
 
 </style>
-

@@ -15,7 +15,15 @@
     data: function () {
       return {}
     },
-    watch: {},
+    watch: {
+        text: function (newVal) {
+            var me = this;
+            console.log('newVal: ', newVal)
+            this.props.text = newVal
+            console.log(this.props.text)
+
+        }
+    },
     mounted: function () {
 
     },

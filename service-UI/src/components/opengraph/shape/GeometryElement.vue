@@ -54,6 +54,7 @@
               this.geom = new OG.geometry.GeometryCollection(geomCollection);
               return this.geom;
             }
+
           }
         }
         return shape;
@@ -66,4 +67,3 @@
 <style scoped lang="scss" rel="stylesheet/scss">
 
 </style>
-

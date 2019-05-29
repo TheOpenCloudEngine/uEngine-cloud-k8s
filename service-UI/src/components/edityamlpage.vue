@@ -4,17 +4,6 @@
             <v-flex grow style="max-width: 65%">
                 <v-card flat>
                     <v-card-text>
-                        <!--<v-text-field-->
-                        <!--v-if="status == 'edit'"-->
-                        <!--v-model="fileName"-->
-                        <!--label="File Name"-->
-                        <!--readonly-->
-                        <!--&gt;</v-text-field>-->
-                        <!--<v-text-field-->
-                        <!--v-if="status == 'add'"-->
-                        <!--v-model="fileName"-->
-                        <!--label="File Name"-->
-                        <!--&gt;</v-text-field>-->
                         <codemirror
                                 ref="myCm"
                                 :options="{
@@ -36,6 +25,7 @@
                                         v-if="importFile == true"
                                         :fileName.sync="fileName"
                                         :plainText.sync="yaml_text"
+                                        :importType="'yaml'"
                                         @load="yaml_text = $event">
                                 </text-reader>
                             </v-flex>

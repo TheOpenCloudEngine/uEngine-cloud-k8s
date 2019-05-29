@@ -1,6 +1,6 @@
 <template>
     <div>
-        <image-element
+        <geometry-element
                 selectable
                 movable
                 resizable
@@ -11,15 +11,31 @@
                 :y.sync="value.elementView.y"
                 :width.sync="value.elementView.width"
                 :height.sync="value.elementView.height"
+                :angle.sync="value.elementView.angle"
                 v-on:selectShape="selectedActivity"
                 v-on:deSelectShape="deSelectedActivity"
                 v-on:dblclick="showProperty"
-                v-on:addedToGroup="onAddedToGroup"
-                :label="value.inputText"
-                :image="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'"
+                v-on:rotateShape="onRotateShape"
+                :label.syhc="value.inputText + value.aggregateText"
+                :_style="{
+                'label-angle':value.elementView.angle,
+                'font-weight': 'bold','font-size': '16'
+                }"
         >
             <!--v-on:dblclick="$refs['dialog'].open()"-->
-
+            <geometry-rect
+                    :_style="{
+          'fill-r': 1,
+          'fill-cx': .1,
+          'fill-cy': .1,
+          'stroke-width': 1.4,
+          'stroke': '#F1A746',
+          fill: '#F1A746',
+          'fill-opacity': 1,
+          r: '1'
+        }"
+            >
+            </geometry-rect>
             <sub-elements>
                 <!--title-->
                 <text-element
@@ -27,18 +43,21 @@
                         :sub-height="titleH"
                         :sub-top="0"
                         :sub-left="0"
-                        :sub-style="{'font-weight': 'bold'}"
-                        :text="value.classReference ? value.classReference : value.name">
+                        :text="value.classReference ? value.classReference : '<< ' + value.name + ' >>'">
                 </text-element>
 
             </sub-elements>
-        </image-element>
+        </geometry-element>
 
 
         <modeling-property-panel
                 :drawer.sync="value.drawer"
-                :titleName="value.name"
+                :titleName.sync="value.name"
                 :inputText.sync="value.inputText"
+                :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'"
+                :aggregate.sync="value.aggregate"
+                :aggregateList.sync="aggregateList"
+                :aggregateText.sync="value.aggregateText"
                 v-model="value"
         >
         </modeling-property-panel>
@@ -48,10 +67,8 @@
 
 <script>
     import Element from '../../modeling/Element'
-    import ImageElement from "../../../opengraph/shape/ImageElement";
 
     export default {
-        components: {ImageElement},
         mixins: [Element],
         name: 'domain-event-definition',
         props: {},
@@ -65,11 +82,10 @@
             className() {
                 return 'org.uengine.uml.model.Domain'
             },
-            createNew(elementId, x, y, width, height) {
+            createNew(elementId, x, y, width, height, angle) {
                 return {
                     _type: this.className(),
                     name: 'Domain',
-                    fieldDescriptors: [],
                     elementView: {
                         '_type': 'org.uengine.modeling.Domain',
                         'id': elementId,
@@ -77,11 +93,15 @@
                         'y': y,
                         'width': 100,
                         'height': 100,
-                        'style': JSON.stringify({})
+                        'style': JSON.stringify({}),
+                        'angle': 0,
                     },
                     drawer: false,
                     selected: false,
-                    inputText: ''
+                    inputText: '',
+                    aggregate: '',
+                    aggregateText: '',
+                    closedAggreate: [],
                 }
             }
         },
@@ -90,96 +110,20 @@
                 itemH: 20,
                 titleH: (this.value.classReference ? 60 : 30),
                 reference: this.value.classReference != null,
-                referenceClassName: this.value.classReference
+                referenceClassName: this.value.classReference,
+                aggregateList: []
             };
         },
         created: function () {
-            if (this.value.fieldDescriptors) {
-                this.value.fieldDescriptors.forEach(function (attribute) {
-                    if (!attribute.attributes)
-                        attribute.attributes = {};
-                });
-            }
 
         },
-        watch: {
-            referenceClassName: function () {
-                this.updateClassInfo();
-            },
-        },
+        watch: {},
         mounted: function () {
-
         },
-        methods: {
-
-            addAttribute: function () {
-                this.value.fieldDescriptors.push({
-                    name: 'attribute',
-                    className: 'java.lang.String',
-                    attributes: {},
-                    _type: 'org.uengine.uml.model.Attribute'
-
-                });
-            },
-            removeAttribute: function (attribute) {
-                this.value.fieldDescriptors.splice(this.value.fieldDescriptors.indexOf(attribute), 1);
-            },
-            // className() {
-            //     return this.className()
-            // },
-            updateClassInfo: function () {
-                if (this.reference) {
-                    var definitionAndClassName = this.referenceClassName.split("#");
-                    var definitionName = definitionAndClassName[0];
-                    var classNameOnly = definitionAndClassName[1];
-
-                    var me = this;
-
-                    var result;
-                    var uri = (encodeURI(window.backend.$bind.ref + "/definition/raw/" + definitionName + ".ClassDiagram.json"))
-
-                    console.log("try to get class diagram: " + uri);
-
-                    var xhr = new XMLHttpRequest();
-                    var me = this;
-
-                    xhr.open('GET', uri, false);
-                    xhr.setRequestHeader("access_token", localStorage['access_token']);
-                    xhr.onload = function () {
-                        result = JSON.parse(xhr.responseText)
-
-                        var classDiagram = result.definition;
-
-                        for (var i in classDiagram.classDefinitions[1]) {
-
-                            var classDefinition = classDiagram.classDefinitions[1][i];
-                            if (classDefinition.name == classNameOnly) {
-
-
-                                classDefinition.elementView.x = me.value.elementView.x;
-                                classDefinition.elementView.y = me.value.elementView.y;
-
-                                classDefinition.classReference = me.referenceClassName;
-
-                                me.value = classDefinition;
-                                //me.$emit("input", me.value);
-
-                                break;
-                            }
-
-                        }
-                    };
-                    xhr.send();
-
-
-                }
-            }
-        }
+        methods: {}
     }
 </script>
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
-
 </style>
-

@@ -15,6 +15,9 @@
         data: function () {
             return {
                 _id: null,
+                rotateMove: false,
+                tmpWidth: 0,
+                tmpHeight: 0
             }
         },
         computed: {
@@ -45,38 +48,135 @@
                 },
                 set: function (val) {
                     if (this.value) {
-
                         if (this.value.elementView)
                             this.value.elementView.style = JSON.stringify(val);
                         else
                             this.value.relationView.style = JSON.stringify(val);
                     }
                 }
+            },
+            closedAggregate() {
+                console.log("a")
+                if (this._type == 'org.uengine.uml.model.Command' && this._type == 'org.uengine.uml.model.View' && this._type == 'org.uengine.uml.model.Domain') {
+                    console.log("b")
+                    var dis = this.value.elementView.x + this.value.elementView.y
+
+                    var designer = this.getComponent('modeling-designer')
+                    let aggregateTmpList = []
+                    var minDis = 4000;
+                    var aggregate;
+                    designer.value.definition.forEach(function (tmp) {
+                        if (tmp._type == 'org.uengine.uml.model.Aggregate') {
+                            aggregateTmpList.push(tmp)
+                        }
+                    })
+                    aggregateTmpList.forEach(function (agTmp) {
+                        if (Math.abs(dis - (agTmp.elementView.x + agTmp.elementView.y)) < minDis) {
+                            minDis = Math.abs(dis - (agTmp.elementView.x + agTmp.elementView.y))
+                            aggregate = agTmp
+                        }
+                    })
+                    return aggregate
+
+                } else {
+                    return null
+                }
+
+            },
+        },
+        watch: {
+            "value.aggregate": {
+                handler: function (newVal) {
+                    var me = this
+                    var designer = this.getComponent('modeling-designer')
+                    if (me.type == 'Domain' || me.type == 'Command' || me.type == 'View') {
+                        designer.value.definition.forEach(function (tmp) {
+                            if (tmp.name == 'Aggregate' && tmp.inputText == newVal) {
+                                tmp.innerAggregate[me.type.toLowerCase()].push(me.value)
+                            }
+                        })
+                    }
+                }
+            },
+            'value.drawer': function (newValue, oldValue) {
+                var designer = this.getComponent('modeling-designer')
+
+                var me = this
+                this.aggregateList = []
+                if (newValue == true) {
+                    designer.value.definition.forEach(function (temp) {
+                        if (temp._type == "org.uengine.uml.model.Aggregate")
+                            me.aggregateList.push(temp.inputText);
+                    })
+                }
+            },
+            "value.inputText": {
+                handler: function (newVal, oldVal) {
+                    var me = this
+                    var designer = this.getComponent('modeling-designer')
+
+                    me.rotateMove = true
+                    me.value.elementView.x = me.value.elementView.x + 1
+                    me.$nextTick(function () {
+                        me.value.elementView.width = me.tmpWidth
+                        me.value.elementView.height = me.tmpHeight
+                        me.rotateMove = true
+                        me.value.elementView.x = me.value.elementView.x - 1
+                        me.$nextTick(function () {
+                            me.value.elementView.width = me.tmpWidth
+                            me.value.elementView.height = me.tmpHeight
+                        })
+                    })
+
+                }
+            },
+            "value.elementView.width": {
+                handler: function (newVal, oldVal) {
+                    var me = this
+                    if (me.rotateMove == true) {
+                        me.tmpWidth = oldVal
+                        // console.log(newVal, oldVal)
+
+                    }
+                }
+
+            },
+            "value.elementView.height": {
+                handler: function (newVal, oldVal) {
+                    var me = this
+                    if (me.rotateMove == true) {
+                        me.tmpHeight = oldVal
+                        // console.log(newVal, oldVal)
+                    }
+                }
             }
         },
-        watch: {},
         mounted: function () {
         },
         methods: {
+            onRotateShape: function (me, angle) {
+                this.value.elementView.angle = angle
+            },
             selectedActivity: function () {
-                if(this.value) {
+                if (this.value) {
                     this.value.selected = true
                 }
                 // this._selected = true;
             },
             deSelectedActivity: function () {
-                console.log('UnSelected')
-                if(this.value) {
+                // console.log('UnSelected')
+                if (this.value) {
                     this.value.selected = false
-                    if(this.value.drawer) {
+                    if (this.value.drawer) {
                         this.value.drawer = false
                     }
                 }
             },
             showProperty: function () {
-                console.log('Property' + this.value.drawer)
+                // console.log('Property' + this.value.drawer)
                 this.value.drawer = true;
             },
+
             uuid: function () {
                 function s4() {
                     return Math.floor((1 + Math.random()) * 0x10000)
@@ -88,27 +188,40 @@
                     s4() + '-' + s4() + s4() + s4();
             },
             onAddedToGroup: function (groupOpengraphComponent, opengraphComponent, eventOffset) {
-                console.log('onAddedToGroup!!');
+                // console.log('onAddedToGroup!!');
                 var me = this;
+                var designer = this.getComponent('modeling-designer')
 
-                console.log("groupOpengraphComponent: " , groupOpengraphComponent)
+                // console.log("groupOpengraphComponent: " , groupOpengraphComponent)
 
-
-                if(groupOpengraphComponent.tagName) {
-                    console.log('ROOT')
-                } else {
-                    var designer = this.getComponent('modeling-designer')
-                    designer.value.some(function (definitionTmp, definitionIndex) {
-                        var copyTmp = JSON.parse(JSON.stringify(definitionTmp))
-                        if(definitionTmp.elementView.id == opengraphComponent.element.id) {
-                            designer.value.some(function (boundedTmp, boundedIndex) {
-                                if(boundedTmp.elementView.id == groupOpengraphComponent.element.id) {
-                                    designer.value[boundedIndex].dataList.push(copyTmp.elementView.id)
-
-                                    designer.value = designer.value.filter(n => n)
+                if (groupOpengraphComponent.tagName) {
+                    designer.value.definition.some(function (definitionTmp, definitionIndex) {
+                        if (definitionTmp.name == 'Bounded Context') {
+                            // console.log('ROOT')
+                            definitionTmp.dataList.some(function (deleteTmp, index) {
+                                if (deleteTmp == opengraphComponent.element.id) {
+                                    definitionTmp.dataList[index] = null
+                                    definitionTmp.dataList = definitionTmp.dataList.filter(n => n)
                                     return;
                                 }
                             })
+                        }
+                    })
+                } else {
+                    designer.value.definition.some(function (definitionTmp, definitionIndex) {
+                        var copyTmp = JSON.parse(JSON.stringify(definitionTmp))
+                        if (definitionTmp.elementView) {
+                            if (definitionTmp.elementView.id == opengraphComponent.element.id) {
+                                designer.value.definition.some(function (boundedTmp, boundedIndex) {
+                                    if (boundedTmp.elementView) {
+                                        if (boundedTmp.elementView.id == groupOpengraphComponent.element.id) {
+                                            designer.value.definition[boundedIndex].dataList.push(copyTmp.elementView.id)
+                                            designer.value.definition = designer.value.definition.filter(n => n)
+                                            return;
+                                        }
+                                    }
+                                })
+                            }
                         }
                     })
                 }
@@ -126,35 +239,8 @@
                 return component
             },
             onRemoveShape: function () {
-                console.log('remove')
-                var parent = this.$parent;
+            },
 
-                while (parent.$options._componentTag != "modeling-designer") {
-
-                    parent = parent.$parent;
-                }
-
-                var elementIndex = -1;
-                try {
-                    elementIndex = parent.value[parent.relationListBeanPath][1].indexOf(this.value);
-                } catch (e) {
-                }
-
-                if (elementIndex > -1) {
-                    parent.value[parent.relationListBeanPath][1].splice(elementIndex, 1);
-                } else {
-                    try {
-                        elementIndex = parent.value[parent.elementListBeanPath][1].indexOf(this.value);
-                    } catch (e) {
-                    }
-
-                    if (elementIndex > -1) {
-                        parent.value[parent.elementListBeanPath][1].splice(elementIndex, 1);
-                    }
-
-                }
-
-            }
         }
     }
 </script>

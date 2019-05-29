@@ -1,11 +1,12 @@
 <template>
     <div>
-        <image-element
+        <geometry-element
                 selectable
                 movable
                 resizable
                 connectable
                 deletable
+                :angle.sync="value.elementView.angle"
                 :id.sync="value.elementView.id"
                 :x.sync="value.elementView.x"
                 :y.sync="value.elementView.y"
@@ -14,10 +15,26 @@
                 v-on:dblclick="showProperty"
                 v-on:selectShape="selectedActivity"
                 v-on:deSelectShape="deSelectedActivity"
-                :label="value.inputText"
-                :image="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/command.png'"
+                :label="value.inputText + value.aggregateText"
+                :_style="{
+                'label-angle':value.elementView.angle,
+                'font-weight': 'bold','font-size': '16'
+                }"
         >
             <!--v-on:dblclick="$refs['dialog'].open()"-->
+            <geometry-rect
+                    :_style="{
+          'fill-r': 1,
+          'fill-cx': .1,
+          'fill-cy': .1,
+          'stroke-width': 1.4,
+          'stroke': '#5099F7',
+          fill: '#5099F7',
+          'fill-opacity': 1,
+          r: '1'
+        }"
+            >
+            </geometry-rect>
 
             <sub-elements>
                 <!--title-->
@@ -26,17 +43,19 @@
                         :sub-height="titleH"
                         :sub-top="0"
                         :sub-left="0"
-                        :sub-style="{'font-weight': 'bold'}"
-                        :text="value.classReference ? value.classReference : value.name">
+                        :text="value.classReference ? value.classReference : '<< ' + value.name + ' >>'">
                 </text-element>
             </sub-elements>
-        </image-element>
-
+        </geometry-element>
 
         <modeling-property-panel
                 :drawer.sync="value.drawer"
-                :titleName="value.name"
+                :titleName.sync="value.name"
                 :inputText.sync="value.inputText"
+                :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'"
+                :aggregate.sync="value.aggregate"
+                :aggregateList.sync="aggregateList"
+                :aggregateText.sync="value.aggregateText"
                 v-model="value"
         >
         </modeling-property-panel>
@@ -65,6 +84,7 @@
                 return {
                     _type: this.className(),
                     name: 'Command',
+                    fieldDescriptors: [],
                     elementView: {
                         '_type': 'org.uengine.modeling.Command',
                         'id': elementId,
@@ -76,7 +96,9 @@
                     },
                     drawer: false,
                     selected: false,
-                    inputText: ''
+                    inputText: '',
+                    aggregateText: '',
+                    closedAggreate: [],
                 }
             }
         },
@@ -85,20 +107,32 @@
                 itemH: 20,
                 titleH: (this.value.classReference ? 60 : 30),
                 reference: this.value.classReference != null,
-                referenceClassName: this.value.classReference
+                referenceClassName: this.value.classReference,
+                aggregateList: []
             };
         },
         created: function () {
 
         },
         watch: {
+          'value.drawer': function (newValue, oldValue) {
+              var designer = this.getComponent('modeling-designer')
 
+              var me = this
+
+              if (newValue == true) {
+                  designer.value.definition.forEach(function(temp) {
+                    if(temp._type == "org.uengine.uml.model.Aggregate" )
+                    me.aggregateList.push(temp.inputText);
+                  })
+              }
+
+            }
         },
         mounted: function () {
 
         },
         methods: {
-
         }
     }
 </script>
@@ -107,4 +141,3 @@
 <style scoped lang="scss" rel="stylesheet/scss">
 
 </style>
-

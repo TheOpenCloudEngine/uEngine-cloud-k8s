@@ -24,8 +24,8 @@ export default new Router({
             component: Dashboard
         },
         {
-            path: '/home',
-            name: 'Home',
+            path: '/event',
+            name: 'Event',
             component: ClassModeler
         },
         // {
