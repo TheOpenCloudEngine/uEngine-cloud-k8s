@@ -39,15 +39,15 @@ public class PodController {
         return podService.getAllNamespaces(kubehost, kubetoken);
     }
 
-    @RequestMapping(value = "/namespaces/{namespace}/pods/{name}/desc", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public ArrayList<LogMessageFormat> getDescPodsByNamespace(
-            @RequestHeader(value="kubehost") String kubehost,
-            @RequestHeader(value="kubetoken") String kubetoken,
-            @PathVariable(value = "namespace") String namespace,
-            @PathVariable(value = "name") String name
-    ) throws Exception {
-
-        return podService.getDesc(kubehost, kubetoken, namespace, name);
-    }
+//    @RequestMapping(value = "/namespaces/{namespace}/pods/{name}/desc", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+//    public ArrayList<LogMessageFormat> getDescPodsByNamespace(
+//            @RequestHeader(value="kubehost") String kubehost,
+//            @RequestHeader(value="kubetoken") String kubetoken,
+//            @PathVariable(value = "namespace") String namespace,
+//            @PathVariable(value = "name") String name
+//    ) throws Exception {
+//
+//        return podService.getDesc(kubehost, kubetoken, namespace, name);
+//    }
 
 }

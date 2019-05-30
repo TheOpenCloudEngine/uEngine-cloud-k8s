@@ -179,7 +179,7 @@ public class PodService {
         RestTemplate rt = new RestTemplate();
         ResponseEntity<ArrayList> response = rt.exchange(this.monitorServiceUrl + "/api/v1/namespaces/"+namespace+"/pods/"+name+"/desc", HttpMethod.GET, new HttpEntity(header), ArrayList.class);
 
-        return response.getBody();
+//        return response.getBody();
 
     }
 
