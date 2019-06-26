@@ -1,95 +1,110 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
     <div class="canvas-panel">
         <v-layout right>
-            <opengraph
-                    ref="opengraph"
-                    focus-canvas-on-select
-                    wheelScalable
-                    :labelEditable="true"
-                    :dragPageMovable="dragPageMovable"
-                    :enableContextmenu="false"
-                    :enableRootContextmenu="false"
-                    :enableHotkeyCtrlC="false"
-                    :enableHotkeyCtrlV="false"
-                    :enableHotkeyDelete="false"
-                    :enableHotkeyCtrlZ="false"
-                    :enableHotkeyCtrlD="false"
-                    :enableHotkeyCtrlG="false"
-                    :slider="false"
-                    :movable="true"
-                    :resizable="true"
-                    :selectable="true"
-                    :connectable="true"
-                    v-if="value"
-                    v-on:canvasReady="bindEvents"
-                    v-on:connectShape="onConnectShape"
-                    :imageBase="imageBase"
-            >
+            <opengraph ref="opengraph" focus-canvas-on-select wheelScalable :labelEditable="true"
+                       :dragPageMovable="dragPageMovable" :enableContextmenu="false" :enableRootContextmenu="false"
+                       :enableHotkeyCtrlC="false" :enableHotkeyCtrlV="false"
+                       :enableHotkeyDelete="false" :enableHotkeyCtrlZ="false" :enableHotkeyCtrlD="false"
+                       :enableHotkeyCtrlG="false" :slider="false" :movable="true" :resizable="true" :selectable="true"
+                       :connectable="true" v-if="value" v-on:canvasReady="bindEvents"
+                       v-on:connectShape="onConnectShape" :imageBase="imageBase">
                 <!--엘리먼트-->
                 <div v-for="(element, index) in value.definition">
-                    <component
-                            :is="getComponentByClassName(element._type)"
-                            v-model="value.definition[index]"
-                    ></component>
+                    <component :is="getComponentByClassName(element._type)"
+                               v-model="value.definition[index]"></component>
                 </div>
                 <div v-for="(element, index) in value.relation">
-                    <component
-                            :is="getComponentByClassName(element._type)"
-                            v-model="value.relation[index]"
-                    ></component>
+                    <component :is="getComponentByClassName(element._type)" v-model="value.relation[index]"></component>
                 </div>
             </opengraph>
 
-            <v-flex xs12 sm6 style="display: inline-block">
-                <v-text-field
-                        label="Project Name"
-                        v-model="projectName"
-                        single-line
-                ></v-text-field>
-            </v-flex>
-            <text-reader
-                    :importType="'json'"
-                    @load="value = $event"
-                    style="display: inline-block"
-                    :fileName.sync="projectName"
-            ></text-reader>
-            <v-btn color="info" v-on:click.native="download"
-                   style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">save
-            </v-btn>
+
+            <v-layout style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">
+                <v-badge overlap>
+                    <template v-slot:badge>
+                        <span>{{ connectCount }}</span>
+                    </template>
+
+                    <v-avatar>
+                        <v-layout justify-end row v-if="show">
+                            <v-tooltip v-for="item in connectInfo" bottom>
+                                <template v-slot:activator="{ on }">
+                                    <v-avatar v-on="on">
+                                        <img :src='item.img'>
+                                    </v-avatar>
+                                </template>
+                                <span>{{ item.name }}</span>
+                            </v-tooltip>
+                        </v-layout>
+                        <v-btn
+                                fab
+                                small
+                                @click="connectshow()">
+                        </v-btn>
+                    </v-avatar>
+                </v-badge>
+
+                <v-btn color="info" v-on:click.native="addNewMember">addNewMember
+                </v-btn>
+                <v-btn color="info" v-on:click.native="restApiPush">BUILD
+                </v-btn>
+            </v-layout>
+
+            <v-layout right>
+                <v-flex xs12 sm6 style="display: inline-block">
+                    <v-text-field label="Project Name" v-model="projectName" single-line @click="unselectedAll"></v-text-field>
+                </v-flex>
+                <text-reader :importType="'json'" @load="value = $event" style="display: inline-block"
+                             :fileName.sync="projectName"></text-reader>
+                <v-btn color="info" v-on:click.native="download"
+                       style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">save
+                </v-btn>
+            </v-layout>
+
 
             <v-card class="tools" style="top:100px; text-align: center;">
-                <span class="bpmn-icon-hand-tool" v-bind:class="{ icons : !dragPageMovable, hands : dragPageMovable }"
-                      _width="30" _height="30" v-on:click="toggleGrip">
-                <v-tooltip md-direction="right">Hands</v-tooltip>
-                </span>
-                <v-tooltip right
-                           v-for="(item, key) in elementTypes"
-                           :key="key"
-                >
+      <span class="bpmn-icon-hand-tool" v-bind:class="{ icons : !dragPageMovable, hands : dragPageMovable }" _width="30"
+            _height="30" v-on:click="toggleGrip">
+        <v-tooltip md-direction="right">Hands</v-tooltip>
+      </span>
+                <v-tooltip right v-for="(item, key) in elementTypes" :key="key">
                     <template v-slot:activator="{ on }">
-                        <span class="icons draggable"
-                              align="center"
-                              :_component="item.component"
-                              :_width="item.width"
-                              :_height="item.height">
-                        <img height="30px" width="30px" :src="item.src" v-on="on">
-                            </span>
+          <span
+                  class="icons draggable"
+                  align="center"
+                  :_component="item.component"
+                  :_width="item.width"
+                  :_height="item.height">
+          <img height="30px" width="30px" :src="item.src" v-on="on">
+          </span>
                     </template>
                     <span>{{item.label}}</span>
                 </v-tooltip>
             </v-card>
         </v-layout>
+
+        <v-snackbar v-model="snackbar" :color="color" :multi-line="mode === 'multi-line'" :timeout="timeout"
+                    :vertical="mode === 'vertical'">
+            {{ text }}
+            <v-btn dark flat @click="snackbar = false">
+                Close
+            </v-btn>
+        </v-snackbar>
         <modeler-image-generator ref="modeler-image-generator"></modeler-image-generator>
     </div>
 </template>
 
 <script>
     import TextReader from "@/components/yaml.vue";
-    import { v4 } from 'uuid';
+    import {
+        v4
+    } from 'uuid';
     import Pusher from 'pusher-js';
 
     var FileSaver = require('file-saver');
-    import {saveAs} from 'file-saver';
+    import {
+        saveAs
+    } from 'file-saver';
 
     export default {
         name: 'modeling-designer',
@@ -106,7 +121,10 @@
                 canvas: null,
                 dragPageMovable: false,
                 relationVueComponentName: 'modeling-relation',
-                value: {'definition': [], 'relation': []},
+                value: {
+                    'definition': [],
+                    'relation': []
+                },
                 enableHistoryAdd: false,
                 undoing: false,
                 undoed: false,
@@ -117,8 +135,23 @@
                 redoArray: [],
                 undoArray: [],
                 imageBase: 'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/symbol/',
-                userId: ''
+                userId: '',
+                snackbar: false,
+                color: 'error',
+                mode: 'multi-line',
+                timeout: 6000,
+                text: '수정중입니다.',
+                pusher: {},
+                connectCount: 0,
+                connectInfo: [],
+                show: false,
+                channel: {},
+                members:[],
+                valueTmp: {}
             }
+        },
+        beforeDestroy: function () {
+            this.channel.pusher.unsubscribe('presence-event');
         },
         computed: {
             drawer: {
@@ -141,42 +174,42 @@
                 get: function () {
                     return this.projectName
                 }
-            }
+            },
         },
         created: function () {
+
         },
         mounted() {
             var me = this
+            this.userId = v4();
+
             me.$ModelingBus.$on('MoveEvent', function () {
                 me.$nextTick(function () {
+                    // me.connectInfoR("add", 'https://stickershop.line-scdn.net/stickershop/v1/product/718/LINEStorePC/main.png;compress=true', 'Zang')
                     me.undoArray.push(JSON.parse(JSON.stringify(me.value)));
                     me.redoArray = [];
-                    this.syncOthers();
-
-                    me.value.definition.forEach(function(element){
-                      console.log(element.selected);
-                      if(element.selected){
-                          // me.searchAggregate(element);
-                      }
+                    me.value.definition.forEach(function (tmp) {
+                        if (tmp.selected == true) {
+                            me.syncOthers(tmp);
+                        }
                     })
                 })
             })
 
-            const pusher = new Pusher('33169ca8c59c1f7f97cd', {
+            me.pusher = new Pusher('33169ca8c59c1f7f97cd', {
                 cluster: 'ap3',
+                authEndpoint: 'http://localhost:4000/usersystem/auth',
+                encrypted: true
             });
-            const channel = pusher.subscribe('painting');
-            this.userId = v4();
-
-            channel.bind('draw', (data) => {
-                const { userId: id, newVal } = data;
-                if (me.userId !== id) {
-                    me.value = newVal
-                }
-            });
-
+            // var serverUrl = "/", members = [],
+            //     pusher = new Pusher('73xxxxxxxxxxxxxxxdb',
+            //         {authEndpoint: '/usersystem/auth', encrypted: true}),
+            //     channel
             this.$nextTick(function () {
                 let startTime = new Date().getTime()
+
+                // var count = me.channel.members;
+
                 //$nextTick delays the callback function until Vue has updated the DOM
                 // (which usually happens as a result of us changing the data
                 //  so make any DOM changes here
@@ -184,7 +217,10 @@
                 this.canvas._CONFIG.FAST_LOADING = false;
                 this.canvas.updateSlider();
                 //timer end
-                me.undoArray.push({'definition': [], 'relation': []})
+                me.undoArray.push({
+                    'definition': [],
+                    'relation': []
+                })
                 this.$refs.opengraph.printTimer(startTime, new Date().getTime());
 
                 $(document).keydown((evt) => {
@@ -205,49 +241,94 @@
             });
         },
         watch: {
-            // value: {
-            //     handler: function (newVal) {
-            //
-            //     },
-            //     deep: true
+            // valueTmp: function (newVal) {
+            //     console.log(newVal.definition)
+            //     if(newVal.definition && newVal.relation) {
+            //         newVal.definition
+            //         this.valueTmp = {}
+            //     }
             // }
         },
 
         methods: {
-          //근접 어글리게이트 찾기
-          //   searchAggregate: function(selectDefinition){
-          //     var shortdistance=4000;
-          //     var selectAggregate=[];
-          //     console.log(selectDefinition)
-          //     this.value.definition.forEach(function(tmp){
-          //       if(tmp._type== "org.uengine.uml.model.Aggregate")
-          //       {
-          //           var distance = Math.sqrt( (Math.pow(tmp.elementView.x-selectDefinition.elementView.x,2)+Math.pow(tmp.elementView.y-selectDefinition.elementView.y,2)) );
-          //           if(distance<shortdistance){
-          //             shortdistance=distance
-          //             selectDefinition.closedAggreate=JSON.parse(JSON.stringify(tmp));
-          //             tmp.innerAggregate[selectDefinition.name.toLowerCase()].push({'id':selectDefinition.elementView.id, 'inputText':selectDefinition.inputText})
-          //           }
-          //       }
-          //     })
-          //   },
-            //복사
-            syncOthers() {
+            unselectedAll: function () {
+                this.value.definition.forEach(function (definition) {
+                    console.log(definition)
+                    definition.selected = false
+                })
+                this.value.relation.forEach(function (relation) {
+                    relation.selected = false
+                })
+            },
+            ajax: function (url, method, payload, successCallback) {
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, url, true);
+                // xhr.withCredentials = true;
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState != 4 || xhr.status != 200) return;
+                    successCallback(xhr.responseText);
+                };
+                xhr.send(JSON.stringify(payload));
+            },
+            addNewMember: function (event) {
+                var me = this
+                event.preventDefault();
+                var newMember = {'userId': me.userId, 'userName': 'sanghoon'}
+                me.ajax("http://localhost:4000/register", "POST", newMember, me.onMemberAddSuccess);
+            },
+            onMemberAddSuccess: function (response) {
+                var me = this
+                // On Success of registering a new member
+                console.log("Success: " + response);
+                // Subscribing to the 'presence-members' Channel
+                me.channel = me.pusher.subscribe('presence-event');
+            },
+            connectshow: function () {
+                var me = this
+                if (me.show == true) {
+                    me.show = false
+                } else {
+                    me.show = true
+                }
+            },
+            restApiPush: function () {
+                var me = this;
+                me.$http.post(`https://event-storming-lhgws4pe7a-uc.a.run.app/event/${me.projectName}`, me.value, {
+                        responseType: "arraybuffer",
+                        headers: {
+                            'Content-Type': 'application/zip;'
+                        }
+                    }
+                ).then(function (response) {
+                    console.log("Trying saving zip ...");
+                    console.log(response.data.length);
+                    var blob = new Blob([response.data], {type: 'application/zip'});
+                    console.log(blob.size);
+                    var fileName = me.projectName + ".zip";
+                    saveAs(blob, fileName);
+                    console.log("saveBlob succeeded");
+                })
+            },
+            //멀티
+            syncOthers(elements) {
                 var me = this
                 let userId = this.userId
-                let newVal = me.value
+                let newVal = elements
+
                 const body = {
                     newVal,
                     userId,
                 };
-                fetch('http://10.0.2.198:4000/paint', {
+                fetch('http://localhost:4000/paint', {
                     method: 'post',
                     body: JSON.stringify(body),
                     headers: {
                         'content-type': 'application/json',
                     },
-                }).then(() => console.log());
+                }).then(() => console.log("throw"));
             },
+            //복사
             copy: function () {
                 var me = this
                 if (!me.drawer) {
@@ -262,9 +343,31 @@
                             me.tempValue.push(tmp)
                         }
                     })
-                    this.syncOthers();
+                    this.syncOthers(tmp);
+                }
+            },
+            b64toBlob: function (b64Data, contentType, sliceSize) {
+                contentType = contentType || '';
+                sliceSize = sliceSize || 512;
+
+                var byteCharacters = atob(b64Data);
+                var byteArrays = [];
+
+                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+                    var byteNumbers = new Array(slice.length);
+                    for (var i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+
+                    var byteArray = new Uint8Array(byteNumbers);
+
+                    byteArrays.push(byteArray);
                 }
 
+                var blob = new Blob(byteArrays, {type: contentType});
+                return blob;
             },
             //붙여넣기
             paste: function () {
@@ -277,11 +380,10 @@
                             tmp.elementView.id = me.uuid();
                             tmp.elementView.x = tmp.elementView.x + 10
                             tmp.elementView.y = tmp.elementView.y + 10
-
                             me.value.definition.push(tmp);
                             me.redoArray.push(tmp);
                         })
-                        this.syncOthers();
+                        this.syncOthers(tmp);
                         //초기화
                     } else {
                     }
@@ -293,7 +395,9 @@
 
                 var filename = this.projectName + '.json';
 
-                var file = new File([text], filename, {type: "text/json;charset=utf-8"});
+                var file = new File([text], filename, {
+                    type: "text/json;charset=utf-8"
+                });
                 FileSaver.saveAs(file);
             },
             deleteActivity: function () {
@@ -365,7 +469,8 @@
 
                 canvasEl.droppable({
                     drop: function (event, ui) {
-                        var componentInfo = canvasEl.data('DRAG_SHAPE'), shape, element;
+                        var componentInfo = canvasEl.data('DRAG_SHAPE'),
+                            shape, element;
                         if (componentInfo) {
                             var dropX = event.pageX - canvasEl.offset().left + canvasEl[0].scrollLeft;
                             var dropY = event.pageY - canvasEl.offset().top + canvasEl[0].scrollTop;
@@ -434,8 +539,7 @@
                         //this.removeComponentByOpenGraphComponentId(edgeElement.id);
                         //기존 컴포넌트가 있는 경우 originalData 와 함께 생성
                         this.addElement(componentInfo, null, JSON.parse(JSON.stringify(originalData)));
-                    }
-                    else {
+                    } else {
                         me.canvas.removeShape(edgeElement, true);
                         //기존 컴포넌트가 없는 경우 신규 생성
                         this.addElement(componentInfo);
@@ -450,10 +554,13 @@
                         var tmpData = me.redoArray.pop();
                         me.value = JSON.parse(JSON.stringify(tmpData));
                         if (me.undoArray.length == 0 && me.value.length == 0) {
-                            me.undoArray.push({'definition': [], 'relation': []})
+                            me.undoArray.push({
+                                'definition': [],
+                                'relation': []
+                            })
                         }
                         me.undoArray.push(JSON.parse(JSON.stringify(tmpData)));
-                        this.syncOthers();
+                        this.syncOthers(JSON.parse(JSON.stringify(tmpData)));
                     } else {
                     }
                 }
@@ -469,7 +576,7 @@
                         me.undoArray.pop();
                         // console.log("undo length 0")
                         me.undoArray.push(JSON.parse(JSON.stringify(me.value)))
-                        this.syncOthers();
+                        // this.syncOthers(JSON.parse(JSON.stringify(me.value)));
                     } else {
                     }
                 }
@@ -501,16 +608,36 @@
                 }
                 // console.log(this.value, element.elementView.id)
                 if (me.value == null) {
-                    me.value = {'definition': [], 'relation': []}
+                    me.value = {
+                        'definition': [],
+                        'relation': []
+                    }
                 }
                 if (element._type == 'org.uengine.uml.model.relation') {
                     me.value['relation'].push(element);
                 } else {
-                    me.value['definition'].push(element);
+                    if(element._type == 'org.uengine.uml.model.bounded' && me.value['definition'].length != 0) {
+                        me.value['definition'].some(function (tmp, index) {
+                            console.log(tmp, index)
+                            if(tmp._type != 'org.uengine.uml.model.bounded') {
+                                me.value['definition'] = [
+                                    ...me.value['definition'].slice(0, index),
+                                    element,
+                                    ...me.value['definition'].slice(index)
+                                ]
+                                return;
+                            }
+                            if(me.value['definition'].length - 1 == index) {
+                                me.value['definition'].push(element);
+                            }
+                        })
+                    } else {
+                        me.value['definition'].push(element);
+                    }
                 }
                 me.undoArray.push(JSON.parse(JSON.stringify(me.value)));
                 me.redoArray = [];
-                this.syncOthers();
+                this.syncOthers(element);
             },
 
             getComponentByName: function (name) {
@@ -539,10 +666,10 @@
 
 <style scoped lang="scss" rel="stylesheet/scss">
     .canvas-panel {
-        top: 0px;
-        bottom: 0px;
-        left: 0px;
-        right: 0px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
         position: absolute;
         overflow: hidden;
 
@@ -551,7 +678,7 @@
             width: 100%;
             height: 100%;
             top: 10%;
-            left: 0px;
+            left: 0;
             overflow: hidden;
         }
 
@@ -560,7 +687,7 @@
             width: 100%;
             height: 100%;
             top: 10%;
-            left: 0px;
+            left: 0;
             overflow: hidden;
             cursor: url('../../../../public/static/image/symbol/hands.png'), auto;
         }
@@ -612,7 +739,10 @@
             font-size: 30px;
             color: #ffc124;
         }
-        .import, .export, .save, .history {
+        .export,
+        .history,
+        .import,
+        .save {
             position: absolute;
             padding: 8px;
             .icons {
@@ -654,7 +784,7 @@
         padding: 8px 12px;
         cursor: pointer;
         list-style-type: none;
-        transition: all .3s ease;
+        transition: all 0.3s ease;
         user-select: none;
     }
 

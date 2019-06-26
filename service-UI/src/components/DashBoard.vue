@@ -765,10 +765,6 @@
                     getURLType = me.types
                 }
 
-
-                /*
-                TODO : 현재 Default만 받아오도록 설정되어있음.
-                */
                 if (me.namespace == 'All') {
                     me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
                         .then((result) => {

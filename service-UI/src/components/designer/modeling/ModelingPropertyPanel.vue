@@ -1,7 +1,6 @@
 <!--
        * Todo: Property 작성 하는 부분 *
 -->
-
 <template>
     <v-layout wrap>
         <v-navigation-drawer v-model="navigationDrawer" absolute right temporary width="390">
@@ -29,10 +28,13 @@
                     </v-card-title>
 
                     <v-card-text>
-                        <v-autocomplete v-model="input" :items="aggregateList" label="Aggregate" persistent-hint
-                                        prepend-icon="mdi-city">
-                        </v-autocomplete>
+                        <v-textarea name="input-7-1" outline :label="titleName" auto-grow v-model="input"></v-textarea>
                     </v-card-text>
+
+                    <!-- <v-card-text>
+                      <v-autocomplete v-model="restApiType" :items="restApiList" label="REST API TYPE" persistent-hint prepend-icon="mdi-city">
+                      </v-autocomplete>
+                    </v-card-text> -->
                 </v-card>
 
                 <v-card v-else-if="value.name == 'Aggregate'">
@@ -40,10 +42,41 @@
                         <v-textarea name="input-7-1" outline :label="titleName" auto-grow v-model="input"></v-textarea>
                     </v-card-text>
 
+                    <v-data-table :items="aggregateEntity" class="elevation-1" hide-actions hide-headers>
+                        <template v-slot:items="props">
+                            <td>{{ props.item.type }}</td>
+                            <td class="text-xs-right">{{ props.item.name }}</td>
+                            <v-icon
+                                    small
+                                    @click="entitySub(props.index)"
+                            >
+                                delete
+                            </v-icon>
+                        </template>
+                    </v-data-table>
+
+
+                    <v-layout justify-center row style="align: center;">
+                        <v-flex xs4>
+                            <v-select v-model="entityType" :items="entityTypeList" label="Standard"
+                                      style="margin-left: 10px; margin-right: 15px;"></v-select>
+                        </v-flex>
+                        <v-flex xs6>
+                            <v-text-field v-model="entityName" :counter="10" label="Name" required></v-text-field>
+                        </v-flex>
+                    </v-layout>
+
+                    <v-layout justify-end row wrap>
+                        <v-btn round color="primary" @click="entityADD(entityType,entityName);" dark>Entity ADD</v-btn>
+                    </v-layout>
+
+                    <!-- <v-autocomplete v-model="restApiType" :items="restApiList" label="REST API TYPE" persistent-hint
+                                                prepend-icon="mdi-city">
+                                </v-autocomplete> -->
+
                     <v-card-title>
                         <span class="headline" v-if="titleName">연결 리스트 </span>
                     </v-card-title>
-
                     <!--expand 표시 부분  -->
                     <template>
                         <div>
@@ -65,7 +98,7 @@
                                                            :src="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/right-arrow.png'"></v-img>
                                                 </v-flex>
                                                 <v-flex xs3>
-                                                    <v-card-text class="px-0" align="   center">From</v-card-text>
+                                                    <v-card-text class="px-0" align="center">From</v-card-text>
                                                 </v-flex>
                                             </v-layout>
                                             <v-layout v-for="(item, index) in connectedList" row wrap>
@@ -113,8 +146,8 @@
                                             </v-flex>
                                             <v-flex xs1>
                                                 <v-btn style="margin-top: 17px" small
-                                                       @click="addRelation(selectCommand,selectEvent)"
-                                                       color="success">추가
+                                                       @click="addRelation(selectCommand,selectEvent)" color="success">
+                                                    추가
                                                 </v-btn>
                                             </v-flex>
                                         </v-layout>
@@ -132,13 +165,16 @@
                         <v-textarea name="input-7-1" outline :label="titleName" auto-grow v-model="input"></v-textarea>
                     </v-card-text>
 
+                    <v-autocomplete v-model="restApiType" :items="restApiList" label="REST API TYPE" persistent-hint
+                                    prepend-icon="mdi-city">
+                    </v-autocomplete>
+
                     <v-card-title>
-                        <span class="headline" v-if="titleName">Aggregate 선택</span>
+                        <span class="headline" v-if="titleName">연결된 Aggregate</span>
                     </v-card-title>
-                    <v-card-text>
-                        <v-autocomplete v-model="selectAggregate" :items="aggregateList" label="Aggregate"
-                                        persistent-hint prepend-icon="mdi-city">
-                        </v-autocomplete>
+
+                    <v-card-text style="margin-top: 17px font-size: 100px">
+                        {{ connectAggregateName }}
                     </v-card-text>
                 </v-card>
 
@@ -155,14 +191,18 @@
             value: Object,
             titleName: String,
             inputText: String,
-            aggregateList: Array,
+            // aggregateList: Array,
+            connectAggregateName: String,
             otherList: Array,
             img: String,
-            innerAggregate: Object
+            restApi: String,
+            innerAggregate: Object,
+            aggregateEntity: Array,
         },
         computed: {
             commandNameList: function () {
                 var designer = this.$parent.getComponent('modeling-designer')
+
                 var tmp = []
                 var inner = false
                 this.innerAggregate.command.forEach(function (command) {
@@ -184,19 +224,22 @@
             },
             domainNameList: function () {
                 var designer = this.$parent.getComponent('modeling-designer')
+
                 var tmp = []
                 var inner = false
+                // console.log(designer.value.relation);
                 this.innerAggregate.domain.forEach(function (domain) {
                     if (designer.value.relation.length == 0) {
+                        //연결
                         tmp.push(domain.inputText)
                     } else {
                         designer.value.relation.forEach(function (relation, index) {
-                            console.log(relation.to)
-                            console.log(domain.elementView.id)
+                            // console.log(relation.to)
+                            // console.log(domain.elementView.id)
                             if (relation.to == domain.elementView.id) {
                                 inner = true
                             }
-                            if (designer.value.relation.length - 1 == index && inner == false) {
+                            if ((designer.value.relation.length - 1) == index && inner == false) {
                                 tmp.push(domain.inputText)
                             }
                         })
@@ -224,15 +267,28 @@
                 selectEvent: '',
                 selectCommand: '',
                 connectedList: [],
-                componentKey: 0
+                componentKey: 0,
+                restApiList: ['GET', 'POST', 'PUT', 'DELETE'],
+                restApiType: '',
+                entityTypeList: ['int', 'String', 'float', 'double', 'long'],
+                entityType: '',
+                entityName: '',
+
             }
         },
         created: function () {
 
         },
         mounted: function () {
+
         },
         watch: {
+            inputText: function (newVal) {
+                console.log(newVal)
+                if(this.input != newVal) {
+                    this.input = newVal
+                }
+            },
             input: function (newVal) {
                 if (this.titleName == "Aggregate") {
                     this.$emit('update:inputText', newVal)
@@ -247,6 +303,15 @@
                     }
                 }
             },
+            restApiType: function (newVal) {
+                // console.log(newVal);
+                this.$emit('update:restApi', newVal)
+            },
+            restApi: function (newVal) {
+                if (newVal != this.restApiType) {
+                    this.restApiType = newVal
+                }
+            },
             selectAggregate: function (newVal) {
                 this.$emit('update:aggregate', newVal)
                 this.$emit('update:inputText', this.input)
@@ -254,6 +319,17 @@
             },
             drawer: function (val) {
                 this.navigationDrawer = val;
+                console.log(this.input)
+                console.log(this.inputText)
+                if(this.inputText != this.input) {
+                    this.input = this.inputText
+                }
+                // if(this.value._type=="org.uengine.uml.model.Aggregate" && val){
+                //   // this.domainNameList;
+                //   // this.commandNameList;
+                //   console.log(this.domainNameList);
+                // }
+
             },
             //프로퍼티 창이 오픈되었을 때 모델값을 새로 반영한다.
             navigationDrawer: {
@@ -318,6 +394,30 @@
 
         },
         methods: {
+            entityADD: function (type, name) {
+                var me = this
+                console.log(type, name);
+                if (type.length != 0 && name.length != 0) {
+
+                    let tmpObject = {"type": type, "name": name}
+                    me.aggregateEntity.push(tmpObject);
+                    this.entityType = ""
+                    this.entityName = ""
+                } else {
+                    var designer = this.$parent.getComponent('modeling-designer')
+                    designer.text = "TYPE & NAME INPUT REQUEST"
+                    designer.snackbar = true
+
+                    console.log("GI");
+                }
+            },
+
+            entitySub: function (idx) {
+                var me = this
+                me.aggregateEntity[idx] = null
+                me.aggregateEntity = me.aggregateEntity.filter(n => n)
+
+            },
             addRelation: function (commandInputText, eventInputText) {
                 var designer = this.$parent.getComponent('modeling-designer')
                 var opengraph = this.$parent.getComponent('opengraph')
@@ -325,7 +425,7 @@
                 var commandId, eventId;
                 var me = this
 
-                console.log(this.innerAggregate['command'])
+                // console.log(this.innerAggregate['command'])
                 me.innerAggregate.command.forEach(function (commandTmp) {
                     if (commandTmp.inputText == commandInputText) {
                         commandId = commandTmp.elementView.id
@@ -362,7 +462,10 @@
                         if (commandTmp.elementView.id == relationTmp.from) {
                             domainList.forEach(function (domainTmp) {
                                 if (domainTmp.elementView.id == relationTmp.to) {
-                                    me.connectedList.push({'to': commandTmp, 'from': domainTmp})
+                                    me.connectedList.push({
+                                        'to': commandTmp,
+                                        'from': domainTmp
+                                    })
                                 }
                             })
                         }

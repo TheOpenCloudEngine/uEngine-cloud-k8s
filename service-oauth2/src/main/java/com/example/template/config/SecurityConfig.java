@@ -3,6 +3,8 @@ package com.example.template.config;
 import com.example.template.social.SocialService;
 import com.example.template.social.google.GoogleOAuth2ClientAuthenticationProcessingFilter;
 import lombok.AllArgsConstructor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
@@ -51,6 +53,7 @@ import java.util.List;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final OAuth2ClientContext oauth2ClientContext;
+    protected final Log logger = LogFactory.getLog(this.getClass());
 
     private final SocialService socialService;
 
@@ -143,6 +146,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private Filter ssoFilter() {
         CompositeFilter filter = new CompositeFilter();
         List<Filter> filters = new ArrayList<>();
+        logger.info(socialService);
         filters.add(ssoFilter(google(), new GoogleOAuth2ClientAuthenticationProcessingFilter(socialService)));
         filter.setFilters(filters);
         return filter;

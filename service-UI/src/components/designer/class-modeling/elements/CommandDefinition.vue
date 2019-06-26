@@ -2,8 +2,8 @@
     <div>
         <geometry-element
                 selectable
-                movable
-                resizable
+                :movable="!value.editing"
+                :resizable="!value.editing"
                 connectable
                 deletable
                 :angle.sync="value.elementView.angle"
@@ -15,7 +15,7 @@
                 v-on:dblclick="showProperty"
                 v-on:selectShape="selectedActivity"
                 v-on:deSelectShape="deSelectedActivity"
-                :label="value.inputText + value.aggregateText"
+                :label.sync="value.inputText + '\n\nConnect:: '+this.connectAggregateName"
                 :_style="{
                 'label-angle':value.elementView.angle,
                 'font-weight': 'bold','font-size': '16'
@@ -52,10 +52,12 @@
                 :drawer.sync="value.drawer"
                 :titleName.sync="value.name"
                 :inputText.sync="value.inputText"
-                :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'"
+                :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/command.png'"
                 :aggregate.sync="value.aggregate"
                 :aggregateList.sync="aggregateList"
                 :aggregateText.sync="value.aggregateText"
+                :connectAggregateName.sync="this.connectAggregateName"
+                :restApi.sync="value.restApi"
                 v-model="value"
         >
         </modeling-property-panel>
@@ -97,8 +99,8 @@
                     drawer: false,
                     selected: false,
                     inputText: '',
-                    aggregateText: '',
-                    closedAggreate: [],
+                    restApi: '',
+                    editing: false
                 }
             }
         },
@@ -127,12 +129,91 @@
                   })
               }
 
+            },
+            connectAggregateName: function (newVal) {
+              if(newVal != null) {
+                this.connectAggregateName = JSON.parse(JSON.stringify(newVal));
+
+                //좌표이동으로  동기화
+                var me = this
+                var designer = this.getComponent('modeling-designer')
+                me.rotateMove = true
+                me.value.elementView.x = me.value.elementView.x + 1
+                me.$nextTick(function () {
+                    me.value.elementView.width = me.tmpWidth
+                    me.value.elementView.height = me.tmpHeight
+                    me.rotateMove = true
+                    me.value.elementView.x = me.value.elementView.x - 1
+                    me.$nextTick(function () {
+                        me.value.elementView.width = me.tmpWidth
+                        me.value.elementView.height = me.tmpHeight
+                    })
+                })
+              }
+            },
+            connectAggregate:{
+                handler: function (newVal,oldVal) {
+                  var tmp = this.value;
+
+
+                  if($.isEmptyObject(oldVal)){
+                   //oldVal 없는 경우
+                                      //newVal 에 추가
+                                      if(!$.isEmptyObject(newVal)){
+                                        // console.log("NewVal Add");
+                                        newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
+                                      }else{
+                                        // console.log("No exist Aggregate");
+                                      }
+                  }else{
+                    //oldVal 있는 경우
+
+                      if(!$.isEmptyObject(newVal)){
+                              // 다른 어그리게이트 인지 파악
+                                if( newVal.elementView.id != oldVal.elementView.id)
+                                {
+                                        //이전 값 삭제
+                                          oldVal.innerAggregate[tmp.name.toLowerCase()].forEach(function(element,idx){
+                                            if(element.elementView.id == tmp.elementView.id){
+                                              oldVal.innerAggregate[tmp.name.toLowerCase()][idx] = null;
+                                              oldVal.innerAggregate[tmp.name.toLowerCase()] = oldVal.innerAggregate[tmp.name.toLowerCase()].filter(n => n)
+                                            }
+                                          })
+                                        //새로운 값 추가
+                                        // console.log("oldVal Delete NewVal Add")
+                                        newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
+
+                                }
+                                else
+                                {
+                                      // 같은 어그리게이트
+                                      var is = false
+                                      newVal.innerAggregate[tmp.name.toLowerCase()].forEach(function(element){
+                                        if(element.elementView.id == tmp.elementView.id){
+                                          //값은 값 존재시
+                                          is = true
+                                        }
+                                      })
+
+                                      if(!is){
+                                        // console.log("notEqual Aggregate");
+                                        newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
+                                      }
+                                }
+
+
+                              }
+                  }
+                }
             }
+
+
         },
         mounted: function () {
 
         },
         methods: {
+
         }
     }
 </script>

@@ -23,6 +23,7 @@ app.use((req, res, next) => {
     next();
 });
 
+
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
 });

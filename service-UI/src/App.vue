@@ -230,7 +230,7 @@
                     localStorage.removeItem('accessToken')
                 }
                 // window.location.href = "https://localhost:8082/login/google"
-                window.location.href = "https://a39536ba6544e11e9a56802910c21b39-1676829812.ap-northeast-2.elb.amazonaws.com:8080/login/google"
+                window.location.href = "http://service-oauth-lhgws4pe7a-uc.a.run.app/login/google?redirect_uri=http://localhost:8081"
             },
             logout() {
                 console.log('logout')

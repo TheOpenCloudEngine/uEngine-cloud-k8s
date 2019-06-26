@@ -2,8 +2,8 @@
   <div>
     <geometry-element
       selectable
-      movable
-      resizable
+      :movable="!value.editing"
+      :resizable="!value.editing"
       connectable
       deletable
       :angle.sync="value.elementView.angle"
@@ -54,6 +54,7 @@
             :titleName="value.name"
             :inputText.sync="value.inputText"
             :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/policy.png'"
+            :restApi.sync="value.restApi"
             v-model="value"
     >
     </modeling-property-panel>
@@ -94,7 +95,9 @@
           },
             drawer: false,
             selected: false,
-            inputText: ''
+            inputText: '',
+            restApi: '',
+            editing: false
         }
       }
     },

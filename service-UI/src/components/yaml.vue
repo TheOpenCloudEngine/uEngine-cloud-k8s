@@ -29,6 +29,7 @@
 
         watch: {},
         methods: {
+
             loadTextFromFile(ev) {
                 if (this.importType == 'yaml') {
                     this.$emit('update:plainText', '')

@@ -1,12 +1,17 @@
-
 server:
-  port: 8080
+  port:
+    8081
+#  http2:
+#    enabled: true
   ssl:
-    key-store: classpath:keystore.p12
+    key-store: keystore.p12
     key-store-password: cheese
     keyStoreType: PKCS12
     keyAlias: tomcat
-
+    enabled: true
+  http:
+    port:
+      8080
 spring:
   jpa:
     hibernate:
@@ -17,25 +22,34 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL57Dialect
         show_sql: true
-
+#  cloud:
+#    gcp:
+#      projectId: cloud-run-1
+#      sql:
+#        instanceName: ${CLOUDSQL_INSTANCE}
+#        databaseName: ${DBNAME}
+#        userName: ${DBUSER}
+#        password: ${DBPASS}
   datasource:
-    url: jdbc:mysql://uengine.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com:3306/uengine
-    username: root
-    password: my-secret-pw
+    url: jdbc:mysql://google/uengine?cloudSqlInstance=cloud-run-1:us-central1:sh-mysql&socketFactory=com.google.cloud.sql.mysql.SocketFactory&useSSL=false&user=root&password=my-secret-pw
+    # mybatis 설정시에는 driverClassName 을 넣어주어야함
+    username: ${DBUSER}
+    password: ${DBPASS}
+    #    username: root
+    #    password: my-secret-pw
     # mybatis 설정시에는 driverClassName 을 넣어주어야함
     driverClassName: com.mysql.cj.jdbc.Driver
 
-
-google :
-  client :
-    clientId : 267090511127-8qgradu0qo326i35oktfa543stg9og0v.apps.googleusercontent.com
-    clientSecret: t2l3nKyq55ut0ISRPCtwwtmu
-    accessTokenUri: https://www.googleapis.com/oauth2/v4/token
-    userAuthorizationUri: https://accounts.google.com/o/oauth2/v2/auth
+google:
+  client:
+    clientId: 291986658194-7qh8fnb5bsg0t0gvjghtf2giij23g2es.apps.googleusercontent.com
+    clientSecret: oj9gsyMZprsSqQv27ljNg0tL
+    accessTokenUri: https://oauth2.googleapis.com/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
     clientAuthenticationScheme: form
     scope:
-      - email
-      - profile
+    - email
+    - profile
   resource:
     userInfoUri: https://www.googleapis.com/oauth2/v3/userinfo
 
@@ -44,7 +58,9 @@ spring:
   profiles: default
 
 server:
-  port: 8082
+  port: 8080
 ---
 spring:
   profiles: docker
+
+

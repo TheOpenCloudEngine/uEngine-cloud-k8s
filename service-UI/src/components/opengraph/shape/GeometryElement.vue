@@ -30,6 +30,8 @@
           shape = new OG.shape.GeomShape();
           let keys = Object.keys(me.geometrys);
           shape.label = me.label;
+          // console.log("shape",shape);
+          // console.log("me",me);
           shape.SHAPE_ID = me.shapdId;
 
             //싱글 지오메트리.
