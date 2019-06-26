@@ -5,26 +5,11 @@ https://nodejs.org/ko/download/
 
 필요에 따라서 node.js 설치.
 
-
-<<<<<<< HEAD
-## Project setup
-1. 
-1. 1. aa  
-
 =======
 ### Project setup
 ```
 npm install
 ```
->>>>>>> refs/remotes/origin/master
-
-1. aaaa  
-aa 
-aa 
-aa  
-aa
-1. aa  aa
-   aa
 ### Compiles and hot-reloads for development
 ```
 npm run serve
