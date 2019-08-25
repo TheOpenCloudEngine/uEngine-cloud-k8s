@@ -294,7 +294,7 @@
             },
             restApiPush: function () {
                 var me = this;
-                me.$http.post(`https://event-storming-lhgws4pe7a-uc.a.run.app/event/${me.projectName}`, me.value, {
+                me.$http.post(`http://localhost:8080/event/${me.projectName}`, me.value, {
                         responseType: "arraybuffer",
                         headers: {
                             'Content-Type': 'application/zip;'
