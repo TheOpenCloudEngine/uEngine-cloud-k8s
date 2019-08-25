@@ -307,10 +307,10 @@ public class SampleController {
                     "import javax.servlet.http.HttpServletResponse;\n" +
                     "\n" +
                     "import org.springframework.beans.factory.annotation.Autowired;\n" +
-                    "import org.springframework.web.bind.annotation.PathVariable;\n" +
-                    "import org.springframework.web.bind.annotation.RequestMapping;\n" +
-                    "import org.springframework.web.bind.annotation.RequestMethod;\n" +
-                    "import org.springframework.web.bind.annotation.RestController;\n\n"+
+                    "import org.springframework.web.bind.annotation.*;\n" +
+//                    "import org.springframework.web.bind.annotation.RequestMapping;\n" +
+//                    "import org.springframework.web.bind.annotation.RequestMethod;\n" +
+//                    "import org.springframework.web.bind.annotation.RestController;\n\n"+
                     "@CrossOrigin(origins=\"*\")\n" +
                     "@RestController\n" +
                     "@RequestMapping(\"/"+Aggregate +"\")\n" +
