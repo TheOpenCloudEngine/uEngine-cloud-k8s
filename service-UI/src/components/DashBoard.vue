@@ -1,19 +1,18 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <div>
-        <v-layout row style="margin-bottom: 10px;">
+        <v-layout >
             <v-btn-toggle
-                    style="box-shadow: 0px 0px 0px 0px rgba(0,0,0,0), 0px 0px 0px 0px rgba(0,0,0,0), 0px 0px 0px 0px rgba(0,0,0,0)"
                     v-model="toggle_exclusive">
-                <v-btn fab flat color="primary" @click="types='pod'" style="margin: 2px;">
+                <v-btn fab text color="primary" @click="types='pod'" style="width: 150px;">
                     pods
                 </v-btn>
-                <v-btn fab flat color="primary" @click="types='deployment'" style="margin: 2px;">
+                <v-btn fab text color="primary" @click="types='deployment'" style="width: 150px;">
                     deployment
                 </v-btn>
-                <v-btn fab flat color="primary" @click="types='service'" style="margin: 2px; ">
+                <v-btn fab text color="primary" @click="types='service'" style="width: 150px;">
                     service
                 </v-btn>
-                <v-btn fab flat color="primary" @click="types='service'" style="margin: 2px; ">
+                <v-btn fab text color="primary" @click="types='service'" style="width: 150px;">
                     <v-icon>add</v-icon>
                 </v-btn>
             </v-btn-toggle>
@@ -29,14 +28,12 @@
         </v-layout>
         <!-- Title -->
         <v-data-table
-                :rows-per-page-items="pageItems"
                 :headers="headers"
                 :items="list"
                 class="elevation-1"
                 :loading="tableLoad"
                 :search="search"
                 :expand="expand"
-                :pagination.sync="pagination"
         >
             <template slot="items" slot-scope="props">
                 <tr v-bind:class="{ deletedItem: props.item.apiVersion == 'DELETED' }">

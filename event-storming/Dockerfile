@@ -6,5 +6,5 @@ RUN mvn package install
 
 FROM openjdk:8u111-jdk-alpine
 COPY --from=MAVEN_TOOL_CHAIN /tmp/target/*.jar app.jar
-EXPOSE 8080
+EXPOSE ${PORT}
 ENTRYPOINT ["java","-Xmx400M","-Dserver.port=${PORT}","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar","--spring.profiles.active=docker"]

@@ -54,7 +54,9 @@
             :titleName="value.name"
             :inputText.sync="value.inputText"
             :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/policy.png'"
-            :restApi.sync="value.restApi"
+            :aggregate.sync="value.aggregate"
+            :aggregateList.sync="aggregateList"
+            :connectAggregateName.sync="value.connectAggregateName"
             v-model="value"
     >
     </modeling-property-panel>
@@ -64,6 +66,7 @@
 
 <script>
   import Element from '../../modeling/Element'
+  var Mustache = require('mustache')
 
   export default {
     mixins: [Element],
@@ -97,7 +100,8 @@
             selected: false,
             inputText: '',
             restApi: '',
-            editing: false
+            editing: false,
+            connectAggregateName: ''
         }
       }
     },
@@ -113,13 +117,36 @@
 
     },
     watch: {
-
+        "value.connectAggregateName": function (newVal) {
+            console.log(newVal)
+            var me = this
+            var designer = this.getComponent('modeling-designer')
+            console.log(me.value.inputText)
+            designer.value.definition.forEach(function (temp) {
+                console.log(temp.inputText, newVal)
+                if (temp._type == "org.uengine.uml.model.Aggregate" && temp.inputText == newVal) {
+                    temp.innerAggregate[me.type.toLowerCase()].push(me.value)
+                }
+            })
+        },
+        "value.inputText": function (newVal) {
+            console.log(this.value)
+            // console.log(this.code)
+            // this.code = this.codeGenerate;
+            this.value.code = this.setPolicyTemplate(newVal,this.value)
+        }
     },
     mounted: function () {
 
     },
     methods: {
-
+        setPolicyTemplate(name,definition){
+          return Mustache.render(
+            "    @KafkaListener(topics = \"${eventTopic}\", groupId = \"{{inputText}}\") \n " +
+            "    public void {{inputText}}(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {\n" +
+            "        System.out.println(\"##### listener : \" + message); \n" +
+            "    }\n\n", definition)
+        },
     }
   }
 </script>

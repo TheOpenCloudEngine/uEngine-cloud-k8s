@@ -889,7 +889,8 @@
          */
         shape.onAddToGroup = function (groupElement, elements, eventOffset) {
           var addedComponents = [];
-          for (var i = 0; i < elements.lenght; i++) {
+          console.log(elements)
+          for (var i = 0; i < elements.length; i++) {
             addedComponents.push(me.canvasComponent.getElementById(elements[i].id) || elements[i]);
           }
           me.$emit('addToGroup',

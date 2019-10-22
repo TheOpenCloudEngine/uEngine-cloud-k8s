@@ -6,17 +6,16 @@
         <v-navigation-drawer v-model="navigationDrawer" absolute right temporary width="390">
 
             <v-list class="pa-1">
-                <v-list-tile avatar>
-
-                    <v-list-tile-avatar>
+                <v-list-item>
+                    <v-list-item-avatar>
                         <img :src="img">
-                    </v-list-tile-avatar>
+                    </v-list-item-avatar>
 
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ titleName }}</v-list-tile-title>
-                    </v-list-tile-content>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ titleName }}</v-list-item-title>
+                    </v-list-item-content>
 
-                </v-list-tile>
+                </v-list-item>
             </v-list>
 
             <v-list class="pt-0" dense>
@@ -28,7 +27,15 @@
                     </v-card-title>
 
                     <v-card-text>
-                        <v-textarea name="input-7-1" outline :label="titleName" auto-grow v-model="input"></v-textarea>
+                        <v-textarea name="input-7-1" outline :label="'Name'" auto-grow v-model="input"></v-textarea>
+                        <v-card outlined v-if="usedTranslate">
+                            <v-card-text @click="changeTranslate()">
+                                추천 단어 : {{ translateText }}
+                            </v-card-text>
+                            <v-card-text>
+                                선택시 변경 됩니다.
+                            </v-card-text>
+                        </v-card>
                     </v-card-text>
 
                     <!-- <v-card-text>
@@ -39,21 +46,24 @@
 
                 <v-card v-else-if="value.name == 'Aggregate'">
                     <v-card-text>
-                        <v-textarea name="input-7-1" outline :label="titleName" auto-grow v-model="input"></v-textarea>
+                        <v-textarea name="input-7-1" outline :label="'Name'" auto-grow v-model="input"></v-textarea>
+                        <v-card outlined v-if="usedTranslate">
+                            <v-card-text @click="changeTranslate()">
+                                추천 단어 : {{ translateText }}
+                            </v-card-text>
+                            <v-card-text>
+                                선택시 변경 됩니다.
+                            </v-card-text>
+                        </v-card>
                     </v-card-text>
 
-                    <v-data-table :items="aggregateEntity" class="elevation-1" hide-actions hide-headers>
-                        <template v-slot:items="props">
-                            <td>{{ props.item.type }}</td>
-                            <td class="text-xs-right">{{ props.item.name }}</td>
-                            <v-icon
-                                    small
-                                    @click="entitySub(props.index)"
-                            >
-                                delete
-                            </v-icon>
-                        </template>
-                    </v-data-table>
+                    <v-data-table
+                            :headers="headers"
+                            :items="entity"
+                            hide-default-header
+                            hide-default-footer
+                            class="elevation-1"
+                    ></v-data-table>
 
 
                     <v-layout justify-center row style="align: center;">
@@ -67,7 +77,8 @@
                     </v-layout>
 
                     <v-layout justify-end row wrap>
-                        <v-btn round color="primary" @click="entityADD(entityType,entityName);" dark>Entity ADD</v-btn>
+                        <v-btn rounded color="primary" @click="entityADD(entityType,entityName);" dark>Entity ADD
+                        </v-btn>
                     </v-layout>
 
                     <!-- <v-autocomplete v-model="restApiType" :items="restApiList" label="REST API TYPE" persistent-hint
@@ -81,7 +92,6 @@
                     <template>
                         <div>
                             <v-expansion-panel>
-
                                 <v-expansion-panel-content EventExpand>
                                     <template v-slot:header>연결된 리스트</template>
                                     <v-card>
@@ -160,30 +170,72 @@
 
                 </v-card>
 
-                <v-card v-else>
+                <v-card outlined v-else>
                     <v-card-text>
-                        <v-textarea name="input-7-1" outline :label="titleName" auto-grow v-model="input"></v-textarea>
+                        <v-textarea name="input-7-1" outline :label="'Name'" auto-grow v-model="input"></v-textarea>
+                        <v-card outlined v-if="value.name == 'event' && usedTranslate">
+
+                            <v-card-text @click="changeTranslate()">
+                                추천 단어 : {{ translateText }}
+                            </v-card-text>
+                            <v-card-text>
+                                선택시 변경 됩니다.
+                            </v-card-text>
+                        </v-card>
+                        <v-card outlined v-else-if="usedTranslate">
+
+                            <v-card-text @click="changeTranslate()">
+                                추천 단어 : {{ translateText }}
+                            </v-card-text>
+                            <v-card-text>
+                                선택시 변경 됩니다.
+                            </v-card-text>
+                        </v-card>
                     </v-card-text>
 
-                    <v-autocomplete v-model="restApiType" :items="restApiList" label="REST API TYPE" persistent-hint
+                    <v-data-table
+                            v-if="value.name == 'event'"
+                            :headers="headers"
+                            :items="entity"
+                            hide-default-header
+                            hide-default-footer
+                            class="elevation-1"
+                    ></v-data-table>
+                    <v-layout v-if="value.name == 'event'" justify-center row style="align: center;">
+                        <v-flex xs4>
+                            <v-select v-model="entityType" :items="entityTypeList" label="Standard"
+                                      style="margin-left: 10px; margin-right: 15px;"></v-select>
+                        </v-flex>
+                        <v-flex xs6>
+                            <v-text-field v-model="entityName" :counter="10" label="Name" required></v-text-field>
+                        </v-flex>
+                    </v-layout>
+                    <v-layout v-if="value.name == 'event'" justify-end row wrap>
+                        <v-btn rounded color="primary" @click="entityADD(entityType,entityName);" dark>Entity ADD
+                        </v-btn>
+                    </v-layout>
+
+                    <v-autocomplete v-if="value.name == 'Command'" v-model="restApiType" :items="restApiList"
+                                    label="REST API TYPE" persistent-hint
                                     prepend-icon="mdi-city">
                     </v-autocomplete>
 
                     <v-card-title>
-                        <span class="headline" v-if="titleName">연결된 Aggregate</span>
+                        <span class="headline" v-if="titleName">Aggregate 선택</span>
                     </v-card-title>
-
-                    <v-card-text style="margin-top: 17px font-size: 100px">
-                        {{ connectAggregateName }}
-                    </v-card-text>
+                    <v-autocomplete style="margin-left: 20px; margin-right: 20px;" v-model="aggregate"
+                                    :items="aggregateList" label="Select Aggregate" persistent-hint>
+                    </v-autocomplete>
                 </v-card>
-
             </v-list>
         </v-navigation-drawer>
     </v-layout>
 </template>
 
 <script>
+    var googleTranslate = require('google-translate')(process.env.VUE_APP_TRANSLATE_KEY);
+    var tensify = require('tensify');
+
     export default {
         name: 'modeling-property-panel',
         props: {
@@ -191,15 +243,24 @@
             value: Object,
             titleName: String,
             inputText: String,
-            // aggregateList: Array,
             connectAggregateName: String,
             otherList: Array,
             img: String,
             restApi: String,
             innerAggregate: Object,
-            aggregateEntity: Array,
+            entity: Array,
         },
         computed: {
+            aggregateList: function () {
+                var designer = this.$parent.getComponent('modeling-designer')
+
+                var tmp = []
+                designer.value.definition.forEach(function (tmpData) {
+                    if (tmpData._type == 'org.uengine.uml.model.Aggregate')
+                        tmp.push(tmpData.inputText)
+                })
+                return tmp
+            },
             commandNameList: function () {
                 var designer = this.$parent.getComponent('modeling-designer')
 
@@ -228,7 +289,7 @@
                 var tmp = []
                 var inner = false
                 // console.log(designer.value.relation);
-                this.innerAggregate.domain.forEach(function (domain) {
+                this.innerAggregate.event.forEach(function (domain) {
                     if (designer.value.relation.length == 0) {
                         //연결
                         tmp.push(domain.inputText)
@@ -273,7 +334,10 @@
                 entityTypeList: ['int', 'String', 'float', 'double', 'long'],
                 entityType: '',
                 entityName: '',
-
+                aggregate: '',
+                headers: [{value: 'type'}, {value: 'name'}],
+                translateText: '',
+                usedTranslate: false
             }
         },
         created: function () {
@@ -284,22 +348,64 @@
         },
         watch: {
             inputText: function (newVal) {
-                console.log(newVal)
-                if(this.input != newVal) {
+                // console.log(newVal)
+                if (this.input != newVal) {
                     this.input = newVal
                 }
             },
             input: function (newVal) {
+                var me = this
+
+                me.translateText = '';
+                if (this.value.name == 'event') {
+                    googleTranslate.detectLanguage(newVal, function (err, detection) {
+                        if (detection.language == 'ko') {
+                            googleTranslate.translate(newVal, 'en', function (err, translation) {
+                                me.usedTranslate = true
+                                me.translateText = _.camelCase(tensify(translation.translatedText).past_participle);
+                            });
+                        }
+                    });
+                } else if (this.value.name == 'policy') {
+                    googleTranslate.detectLanguage(newVal, function (err, detection) {
+                        if (detection.language == 'ko') {
+                            googleTranslate.translate(newVal, 'en', function (err, translation) {
+                                me.usedTranslate = true
+                                me.translateText = _.camelCase(translation.translatedText);
+                            });
+                        }
+                    });
+                } else {
+                    googleTranslate.detectLanguage(newVal, function (err, detection) {
+                        if (detection.language == 'ko') {
+                            googleTranslate.translate(newVal, 'en', function (err, translation) {
+                                me.usedTranslate = true
+                                me.translateText = translation.translatedText;
+                            });
+                        }
+                    });
+                }
+
+
                 if (this.titleName == "Aggregate") {
                     this.$emit('update:inputText', newVal)
                 } else if (this.titleName == "Boundary Context") {
                     this.$emit('update:inputText', newVal)
                 } else {
-                    if (this.selectAggregate.length > 0) {
-                        this.$emit('update:inputText', newVal)
-                        this.$emit('update:aggregateText', '\n \n \n Aggregate:\n' + this.selectAggregate)
+                    if (this.value.name == 'event') {
+                        if (this.selectAggregate.length > 0) {
+                            this.$emit('update:inputText', newVal)
+                            this.$emit('update:aggregateText', '\n \n \n Aggregate:\n' + this.selectAggregate)
+                        } else {
+                            this.$emit('update:inputText', newVal)
+                        }
                     } else {
-                        this.$emit('update:inputText', newVal)
+                        if (this.selectAggregate.length > 0) {
+                            this.$emit('update:inputText', newVal)
+                            this.$emit('update:aggregateText', '\n \n \n Aggregate:\n' + this.selectAggregate)
+                        } else {
+                            this.$emit('update:inputText', newVal)
+                        }
                     }
                 }
             },
@@ -319,17 +425,9 @@
             },
             drawer: function (val) {
                 this.navigationDrawer = val;
-                console.log(this.input)
-                console.log(this.inputText)
-                if(this.inputText != this.input) {
+                if (this.inputText != this.input) {
                     this.input = this.inputText
                 }
-                // if(this.value._type=="org.uengine.uml.model.Aggregate" && val){
-                //   // this.domainNameList;
-                //   // this.commandNameList;
-                //   console.log(this.domainNameList);
-                // }
-
             },
             //프로퍼티 창이 오픈되었을 때 모델값을 새로 반영한다.
             navigationDrawer: {
@@ -388,34 +486,40 @@
                     this.$emit('update:value', this._item);
                 },
                 deep: true
+            },
+            aggregate: function (val) {
+                // console.log(val)
+                this.$emit('update:connectAggregateName', val);
             }
         },
         mounted: function () {
 
         },
         methods: {
+            changeTranslate() {
+                this.input = this.translateText
+                this.usedTranslate = false
+            },
             entityADD: function (type, name) {
                 var me = this
-                console.log(type, name);
+                // console.log(type, name);
                 if (type.length != 0 && name.length != 0) {
 
-                    let tmpObject = {"type": type, "name": name}
-                    me.aggregateEntity.push(tmpObject);
+                    let tmpObject = {"type": type, "name": name, "upName": name.charAt(0).toUpperCase() + name.slice(1)}
+                    me.entity.push(tmpObject);
                     this.entityType = ""
                     this.entityName = ""
+
                 } else {
                     var designer = this.$parent.getComponent('modeling-designer')
                     designer.text = "TYPE & NAME INPUT REQUEST"
                     designer.snackbar = true
-
-                    console.log("GI");
                 }
             },
-
             entitySub: function (idx) {
                 var me = this
-                me.aggregateEntity[idx] = null
-                me.aggregateEntity = me.aggregateEntity.filter(n => n)
+                me.entity[idx] = null
+                me.entity = me.entity.filter(n => n)
 
             },
             addRelation: function (commandInputText, eventInputText) {
@@ -432,7 +536,7 @@
                     }
                 })
 
-                me.innerAggregate.domain.forEach(function (eventTmp) {
+                me.innerAggregate.event.forEach(function (eventTmp) {
                     if (eventTmp.inputText == eventInputText) {
                         eventId = eventTmp.elementView.id
                     }

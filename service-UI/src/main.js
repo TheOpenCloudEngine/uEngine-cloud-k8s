@@ -6,21 +6,24 @@ import router from './router'
 import store from './store'
 import './registerServiceWorker'
 import VueJWT from 'vuejs-jwt'
-
 import VModal from 'vue-js-modal'
 import EditYaml from './components/edityamlpage.vue'
 import textReader from './components/yaml.vue'
 import Opengraph from './components/opengraph'
 import ClassModeling from './components/designer/class-modeling'
 import Modeling from './components/designer/modeling'
+import Mustache from 'mustache'
+import CodeMirror from 'vue-codemirror'
 
+Vue.use(Mustache)
+Vue.use(CodeMirror)
 Vue.use(Opengraph);
 Vue.use(ClassModeling);
 Vue.use(Modeling);
-
-import Metaworks4 from '../node_modules/metaworks4'
-
-Vue.use(Metaworks4);
+// import Metaworks4 from '../node_modules/metaworks4'
+import vuetify from './plugins/vuetify';
+//
+// Vue.use(Metaworks4);
 
 Vue.use(VModal)
 Vue.component('EditYaml', EditYaml)
@@ -41,10 +44,14 @@ if( process.env.NODE_ENV == "development" ){
     window.API_HOST = process.env.VUE_APP_API_HOST
 }
 
+// const TRANSLATE_KEY =`${process.env.VUE_APP_TRANSLATE_KEY}`
+// console.log(TRANSLATE_KEY)
+
 Vue.config.productionTip = false
 
 new Vue({
-  router,
-  store,
-  render: function (h) { return h(App) }
+    router,
+    store,
+    vuetify,
+    render: function (h) { return h(App) }
 }).$mount('#app')

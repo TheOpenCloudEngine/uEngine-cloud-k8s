@@ -20,6 +20,7 @@
 
     },
     methods: {
+
       generateShape: function () {
         var me = this;
         var shape = new OG.shape.GroupShape();

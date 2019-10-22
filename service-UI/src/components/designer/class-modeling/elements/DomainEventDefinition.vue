@@ -17,7 +17,8 @@
                 v-on:dblclick="showProperty"
                 v-on:rotateShape="onRotateShape"
                 v-on:labelChanged="onLabelChanged"
-                :label.sync="value.inputText + '\n\nConnect:: '+this.connectAggregateName"
+                v-on:addedToGroup="onAddedToGroup"
+                :label.sync="value.inputText"
                 :_style="{
                 'label-angle':value.elementView.angle,
                 'font-weight': 'bold','font-size': '16'
@@ -57,9 +58,9 @@
                 :inputText.sync="value.inputText"
                 :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'"
                 :aggregate.sync="value.aggregate"
+                :entity.sync="value.entity"
                 :aggregateList.sync="aggregateList"
-                :connectAggregateName.sync="this.connectAggregateName"
-                :restApi.sync="value.restApi"
+                :connectAggregateName.sync="value.connectAggregateName"
                 v-model="value"
         >
         </modeling-property-panel>
@@ -70,6 +71,8 @@
 <script>
     import Element from '../../modeling/Element'
 
+    var Mustache = require('mustache')
+
     export default {
         mixins: [Element],
         name: 'domain-event-definition',
@@ -79,7 +82,7 @@
                 return {}
             },
             type() {
-                return 'Domain'
+                return 'Event'
             },
             className() {
                 return 'org.uengine.uml.model.Domain'
@@ -87,7 +90,7 @@
             createNew(elementId, x, y, width, height, angle) {
                 return {
                     _type: this.className(),
-                    name: 'Domain',
+                    name: 'event',
                     elementView: {
                         '_type': 'org.uengine.modeling.Domain',
                         'id': elementId,
@@ -102,8 +105,12 @@
                     selected: false,
                     inputText: '',
                     restApi: '',
-                    editing: false
-                  }
+                    editing: false,
+                    connectAggregateName: '',
+                    entity: [],
+                    code: '',
+                    boundedContext: ''
+                }
             }
         },
         data: function () {
@@ -121,91 +128,61 @@
 
         },
         watch: {
-          connectAggregateName: function (newVal) {
-
-            if(newVal != null) {
-              this.connectAggregateName = JSON.parse(JSON.stringify(newVal));
-
-              //좌표이동으로  동기화
-              var me = this
-              var designer = this.getComponent('modeling-designer')
-              me.rotateMove = true
-              me.value.elementView.x = me.value.elementView.x + 1
-              me.$nextTick(function () {
-                  me.value.elementView.width = me.tmpWidth
-                  me.value.elementView.height = me.tmpHeight
-                  me.rotateMove = true
-                  me.value.elementView.x = me.value.elementView.x - 1
-                  me.$nextTick(function () {
-                      me.value.elementView.width = me.tmpWidth
-                      me.value.elementView.height = me.tmpHeight
-                  })
-              })
+            "value.connectAggregateName": function (newVal, oldVal) {
+                console.log(newVal,oldVal)
+                var me = this
+                var designer = this.getComponent('modeling-designer')
+                console.log(me.value.inputText)
+                designer.value.definition.forEach(function (temp) {
+                    console.log(temp.inputText, newVal)
+                    if(temp._type == "org.uengine.uml.model.Aggregate" && temp.inputText == oldVal) {
+                        temp.innerAggregate[me.type.toLowerCase()].splice(temp.innerAggregate[me.type.toLowerCase()].indexOf(oldVal),1);
+                    }
+                    if (temp._type == "org.uengine.uml.model.Aggregate" && temp.inputText == newVal) {
+                        temp.innerAggregate[me.type.toLowerCase()].push(me.value.inputText)
+                    }
+                })
+            },
+            "value.inputText": function (newVal) {
+                console.log(this.value)
+                // console.log(this.code)
+                // this.code = this.codeGenerate;
+                this.value.code = this.setEventTemplate(newVal, this.value)
+            },
+            "value.entity": function () {
+                var me = this
+                console.log(this.value)
+                // console.log(this.code)
+                // this.code = this.codeGenerate;
+                this.value.code = this.setEventTemplate(me.value.inputText, this.value)
             }
-
-          },
-          connectAggregate:{
-              handler: function (newVal,oldVal) {
-                var tmp = this.value;
-
-
-                if($.isEmptyObject(oldVal)){
-                 //oldVal 없는 경우
-                                    //newVal 에 추가
-                                    if(!$.isEmptyObject(newVal)){
-                                      // console.log("NewVal Add");
-                                      newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
-                                    }else{
-                                      // console.log("No exist Aggregate");
-                                    }
-                }else{
-                  //oldVal 있는 경우
-
-                    if(!$.isEmptyObject(newVal)){
-                            // 다른 어그리게이트 인지 파악
-                              if( newVal.elementView.id != oldVal.elementView.id)
-                              {
-                                      //이전 값 삭제
-                                        oldVal.innerAggregate[tmp.name.toLowerCase()].forEach(function(element,idx){
-                                          if(element.elementView.id == tmp.elementView.id){
-                                            oldVal.innerAggregate[tmp.name.toLowerCase()][idx] = null;
-                                            oldVal.innerAggregate[tmp.name.toLowerCase()] = oldVal.innerAggregate[tmp.name.toLowerCase()].filter(n => n)
-                                          }
-                                        })
-                                      //새로운 값 추가
-                                      // console.log("oldVal Delete NewVal Add")
-                                      newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
-
-
-                              }
-                              else
-                              {
-                                    // 같은 어그리게이트
-                                    var is = false
-                                    newVal.innerAggregate[tmp.name.toLowerCase()].forEach(function(element){
-                                      if(element.elementView.id == tmp.elementView.id){
-                                        //값은 값 존재시
-                                        is = true
-                                      }
-                                    })
-
-                                    if(!is){
-                                      // console.log("notEqual Aggregate");
-                                      newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
-
-                                    }
-                              }
-
-
-                            }
-                }
-              }
-          }
         },
         mounted: function () {
         },
         methods: {
-
+            setEventTemplate(name, definition) {
+                return Mustache.render(
+                    "package com.example.template;\n" +
+                    "\n" +
+                    "import java.io.Serializable;\n" +
+                    "\n" +
+                    "public class {{inputText}} extends AbstractEvent {\n" +
+                    "\n" +
+                    "{{#entity}}" +
+                    "    public {{type}} {{name}};\n" +
+                    "{{/entity}}\n" +
+                    "\n" +
+                    "{{#entity}}" +
+                    "    public {{type}} get{{upName}}() {\n" +
+                    "        return {{name}};\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    public void set{{upName}}({{type}} {{name}}) {\n" +
+                    "        this.{{name}} = {{name}};\n" +
+                    "    }\n" +
+                    "{{/entity}}" +
+                    "}", definition)
+            },
         }
     }
 </script>

@@ -7,56 +7,58 @@
                 app
         >
             <v-list dense>
-                <v-list-tile avatar style="margin-top: 10px;" v-if="userInfo">
-                    <v-list-tile-avatar>
-                        <img :src=userInfo.thumbnail>
-                    </v-list-tile-avatar>
+                <!--<v-list-tile avatar style="margin-top: 10px;" v-if="userInfo">-->
+                <!--<v-list-tile-avatar>-->
+                <!--<img :src=userInfo.thumbnail>-->
+                <!--</v-list-tile-avatar>-->
 
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ userInfo.user_name}}</v-list-tile-title>
-                        <v-list-tile-title>{{ userInfo.nickname}}</v-list-tile-title>
+                <!--<v-list-tile-content>-->
+                <!--<v-list-tile-title>{{ userInfo.user_name}}</v-list-tile-title>-->
+                <!--<v-list-tile-title>{{ userInfo.nickname}}</v-list-tile-title>-->
 
-                    </v-list-tile-content>
-                </v-list-tile>
+                <!--</v-list-tile-content>-->
+                <!--</v-list-tile>-->
                 <template v-for="item in items">
-                    <v-list-tile :key="item.text" ripple :to="item.route">
-                        <v-list-tile-action>
+                    <v-list-item :key="item.text" ripple :to="item.route">
+                        <v-list-item-action>
                             <v-icon>{{ item.icon }}</v-icon>
-                        </v-list-tile-action>
-                        <v-list-tile-content>
-                            <v-list-tile-title>
+                        </v-list-item-action>
+                        <v-list-item-content>
+                            <v-list-item-title>
                                 {{ item.text }}
-                            </v-list-tile-title>
-                        </v-list-tile-content>
-                    </v-list-tile>
+                            </v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
                 </template>
             </v-list>
         </v-navigation-drawer>
-        <v-toolbar
+        <v-app-bar
                 :clipped-left="$vuetify.breakpoint.lgAndUp"
                 color="blue darken-3"
                 dark
                 app
                 fixed
         >
-            <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
-                <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-                <span class="hidden-sm-and-down">uEngine</span>
+            <v-toolbar-title style="width: 340px" class="ml-0 pl-3">
+                <v-layout>
+                    <v-app-bar-nav-icon style="margin-right: 20px;" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+                    <v-img max-height=45 max-width=220 src="../public/static/image/Logo_black_stroke7.png"></v-img>
+                </v-layout>
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn flat color="white" @click="logout()" v-if="authorized">
+            <v-btn text color="white" @click="logout()" v-if="authorized">
                 Logout
             </v-btn>
-            <v-btn flat color="white" @click="googleLogin()" v-if="!authorized">
+            <v-btn text color="white" @click="googleLogin()" v-if="!authorized">
                 Login
             </v-btn>
             <!--<v-btn flat color="white" @click="callCurl()">-->
-                <!--Button-->
+            <!--Button-->
             <!--</v-btn>-->
             <v-btn icon @click="dialog = true">
                 <v-icon>settings</v-icon>
             </v-btn>
-        </v-toolbar>
+        </v-app-bar>
         <v-content>
             <v-container fluid fill-height>
                 <v-layout row wrap>
@@ -66,7 +68,6 @@
                 </v-layout>
             </v-container>
         </v-content>
-
         <!-- Setting Dialog -->
         <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
             <v-card>
@@ -138,11 +139,12 @@
             kubeHost: '',
             kubeToken: '',
             items: [
-                {icon: 'home', text: 'Home', route: '/'},
-                {icon: 'fa-sticky-note', text: 'Event', route: '/event'},
+                {icon: 'fa-book', text: 'Home', route: '/'},
+                {icon: 'fa-sticky-note', text: 'EventStorming', route: '/event'},
             ],
             api: [],
-            snackbar: false
+            snackbar: false,
+            fab:false
         }),
         props: {
             source: String
@@ -155,6 +157,14 @@
             window.localStorage.removeItem("accessToken");
         },
         computed: {
+            activeFab () {
+                switch (this.tabs) {
+                    case 'one': return { class: 'purple', icon: 'account_circle' }
+                    case 'two': return { class: 'red', icon: 'edit' }
+                    case 'three': return { class: 'green', icon: 'keyboard_arrow_up' }
+                    default: return {}
+                }
+            },
             authorized() {
                 if (window.localStorage.getItem("accessToken") == null) {
                     window.authorized = false;
@@ -199,7 +209,11 @@
                     me.kubeHost = result.data.host
                     me.kubeToken = result.data.token
 
-                    let tmp = {kubeHost: result.data.host , kubeToken: result.data.token, userName: me.userInfo.user_name}
+                    let tmp = {
+                        kubeHost: result.data.host,
+                        kubeToken: result.data.token,
+                        userName: me.userInfo.user_name
+                    }
 
                     this.$store.dispatch('LOGIN', tmp)
                 }).catch((e) => {
@@ -218,7 +232,7 @@
                     host: me.kubeHost,
                     token: me.kubeToken
                 }).then((result) => {
-                    let tmp = {kubeHost: me.kubeHost , kubeToken: me.kubeHost, userName: me.userInfo.user_name}
+                    let tmp = {kubeHost: me.kubeHost, kubeToken: me.kubeHost, userName: me.userInfo.user_name}
                     me.$store.dispatch('LOGIN', tmp)
                 })
 
@@ -245,4 +259,5 @@
         }
     }
 </script>
+
 

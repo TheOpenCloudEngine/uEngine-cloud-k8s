@@ -111,7 +111,8 @@ app.get('/logout', function (req, res) {
 });
 
 app.post('/paint', (req, res) => {
-    pusher.trigger('presence-event', 'draw', req.body);
+    console.log("aa")
+    pusher.trigger('paint', 'draw', req.body);
     res.json(req.body);
 });
 

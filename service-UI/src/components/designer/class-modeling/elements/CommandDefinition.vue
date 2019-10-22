@@ -15,7 +15,7 @@
                 v-on:dblclick="showProperty"
                 v-on:selectShape="selectedActivity"
                 v-on:deSelectShape="deSelectedActivity"
-                :label.sync="value.inputText + '\n\nConnect:: '+this.connectAggregateName"
+                :label.sync="value.inputText"
                 :_style="{
                 'label-angle':value.elementView.angle,
                 'font-weight': 'bold','font-size': '16'
@@ -31,7 +31,7 @@
           'stroke': '#5099F7',
           fill: '#5099F7',
           'fill-opacity': 1,
-          r: '1'
+          r: '1', 'z-index': '998'
         }"
             >
             </geometry-rect>
@@ -56,7 +56,7 @@
                 :aggregate.sync="value.aggregate"
                 :aggregateList.sync="aggregateList"
                 :aggregateText.sync="value.aggregateText"
-                :connectAggregateName.sync="this.connectAggregateName"
+                :connectAggregateName.sync="value.connectAggregateName"
                 :restApi.sync="value.restApi"
                 v-model="value"
         >
@@ -67,6 +67,8 @@
 
 <script>
     import Element from '../../modeling/Element'
+
+    var Mustache = require('mustache')
 
     export default {
         mixins: [Element],
@@ -94,13 +96,16 @@
                         'y': y,
                         'width': width,
                         'height': height,
-                        'style': JSON.stringify({})
+                        'style': JSON.stringify({}),
+                        'z-index': 999
                     },
                     drawer: false,
                     selected: false,
                     inputText: '',
                     restApi: '',
-                    editing: false
+                    editing: false,
+                    connectAggregateName: '',
+                    code: ''
                 }
             }
         },
@@ -117,103 +122,40 @@
 
         },
         watch: {
-          'value.drawer': function (newValue, oldValue) {
-              var designer = this.getComponent('modeling-designer')
-
-              var me = this
-
-              if (newValue == true) {
-                  designer.value.definition.forEach(function(temp) {
-                    if(temp._type == "org.uengine.uml.model.Aggregate" )
-                    me.aggregateList.push(temp.inputText);
-                  })
-              }
-
-            },
-            connectAggregateName: function (newVal) {
-              if(newVal != null) {
-                this.connectAggregateName = JSON.parse(JSON.stringify(newVal));
-
-                //좌표이동으로  동기화
+            "value.connectAggregateName": function (newVal, oldVal) {
+                console.log(newVal,oldVal)
                 var me = this
                 var designer = this.getComponent('modeling-designer')
-                me.rotateMove = true
-                me.value.elementView.x = me.value.elementView.x + 1
-                me.$nextTick(function () {
-                    me.value.elementView.width = me.tmpWidth
-                    me.value.elementView.height = me.tmpHeight
-                    me.rotateMove = true
-                    me.value.elementView.x = me.value.elementView.x - 1
-                    me.$nextTick(function () {
-                        me.value.elementView.width = me.tmpWidth
-                        me.value.elementView.height = me.tmpHeight
-                    })
+                console.log(me.value.inputText)
+                designer.value.definition.forEach(function (temp) {
+                    console.log(temp.inputText, newVal)
+                    if (temp._type == "org.uengine.uml.model.Aggregate" && temp.inputText == newVal) {
+                        temp.innerAggregate[me.type.toLowerCase()].push(me.value)
+                    }
                 })
-              }
+
+                this.value.code = me.setCommandTemplate()
             },
-            connectAggregate:{
-                handler: function (newVal,oldVal) {
-                  var tmp = this.value;
-
-
-                  if($.isEmptyObject(oldVal)){
-                   //oldVal 없는 경우
-                                      //newVal 에 추가
-                                      if(!$.isEmptyObject(newVal)){
-                                        // console.log("NewVal Add");
-                                        newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
-                                      }else{
-                                        // console.log("No exist Aggregate");
-                                      }
-                  }else{
-                    //oldVal 있는 경우
-
-                      if(!$.isEmptyObject(newVal)){
-                              // 다른 어그리게이트 인지 파악
-                                if( newVal.elementView.id != oldVal.elementView.id)
-                                {
-                                        //이전 값 삭제
-                                          oldVal.innerAggregate[tmp.name.toLowerCase()].forEach(function(element,idx){
-                                            if(element.elementView.id == tmp.elementView.id){
-                                              oldVal.innerAggregate[tmp.name.toLowerCase()][idx] = null;
-                                              oldVal.innerAggregate[tmp.name.toLowerCase()] = oldVal.innerAggregate[tmp.name.toLowerCase()].filter(n => n)
-                                            }
-                                          })
-                                        //새로운 값 추가
-                                        // console.log("oldVal Delete NewVal Add")
-                                        newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
-
-                                }
-                                else
-                                {
-                                      // 같은 어그리게이트
-                                      var is = false
-                                      newVal.innerAggregate[tmp.name.toLowerCase()].forEach(function(element){
-                                        if(element.elementView.id == tmp.elementView.id){
-                                          //값은 값 존재시
-                                          is = true
-                                        }
-                                      })
-
-                                      if(!is){
-                                        // console.log("notEqual Aggregate");
-                                        newVal.innerAggregate[tmp.name.toLowerCase()].push(tmp);
-                                      }
-                                }
-
-
-                              }
-                  }
-                }
+            "value.inputText": function () {
+                // console.log(this.code)
+                // this.code = this.codeGenerate;
+                this.value.code = this.setCommandTemplate()
             }
-
-
         },
         mounted: function () {
 
         },
         methods: {
 
+            setCommandTemplate() {
+                var me = this;
+                return Mustache.render(
+                    "    @RequestMapping(value = \"/{{connectAggregateName}}/{{inputText}}/\", method = RequestMethod.GET, produces = \"application/json;charset=UTF-8\")\n" +
+                    "    public void {{inputText}}(HttpServletRequest request, HttpServletResponse response \n " +
+                    "    ) throws Exception { \n" +
+                    "    \n"+
+                    "    }\n\n", me.value)
+            },
         }
     }
 </script>

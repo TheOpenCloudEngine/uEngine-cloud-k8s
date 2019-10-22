@@ -952,6 +952,7 @@
                     canvas.removeSlider();
                 }
                 else {
+                    console.log(this.sliderId)
                     if (!canvas._CONFIG.SLIDER) {
                         canvas.addSlider({
                             slider: $("#" + this.sliderId),
@@ -1015,7 +1016,7 @@
 
                         //TODO 네비게이터의 이미지가 $nextTick 이전에 스냅샷을 따왔기 때문에, 이미 화면이 틀어져있음.
                         //이를 위해서는 오픈그래프의 메소드를 오버라이드 해야한다. => updateSlider => 캔버스 사이즈 강제 고정으로.
-                        //me.canvas.updateNavigatior();
+                        // me.canvas.updateNavigatior();
                     })
                 });
 

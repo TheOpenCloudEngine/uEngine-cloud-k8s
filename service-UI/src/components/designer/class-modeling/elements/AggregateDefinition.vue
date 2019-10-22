@@ -54,7 +54,7 @@
                 :titleName="value.name"
                 :inputText.sync="value.inputText"
                 :innerAggregate="value.innerAggregate"
-                :aggregateEntity.sync="value.aggregateEntity"
+                :entity.sync="value.aggregateEntity"
                 :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/aggregate.png'"
                 :restApi.sync="value.restApi"
                 v-model="value"
@@ -66,6 +66,7 @@
 
 <script>
     import Element from '../../modeling/Element'
+    var Mustache = require('mustache')
 
     export default {
         mixins: [Element],
@@ -86,9 +87,11 @@
                     _type: this.className(),
                     name: 'Aggregate',
                     innerAggregate: {
-                        'domain': [],
+                        'event': [],
                         'command': [],
                         'view': [],
+                        'policy': [],
+                        'external': []
                     },
                     elementView: {
                         '_type': 'org.uengine.modeling.Aggregate',
@@ -103,7 +106,12 @@
                     selected: false,
                     inputText: '',
                     restApi: '',
-                    aggregateEntity: []
+                    aggregateEntity: [{type: "Long", name: "id", upName: "Id", id: true}],
+                    aggregateCode: '',
+                    repositoryCode: '',
+                    eventListenerCode: '',
+                    controllerCode: '',
+                    boundedContext: ''
                 }
 
             }
@@ -120,14 +128,150 @@
 
         },
         watch: {
+            "value.inputText": function (newVal) {
+                console.log(this.value)
+                // console.log(this.code)
+                // this.code = this.codeGenerate;
+                this.value.aggregateCode = this.setAggregateTemplate()
+                this.value.repositoryCode = this.setRepositoryTemplate()
+                this.value.controllerCode = this.setControllerTemplate()
+                this.value.eventListenerCode = this.setEventListenerTemplate()
 
+            },
+            "value.aggregateEntity": function () {
+                var me = this
+                console.log(this.value)
+                // console.log(this.code)
+                // this.code = this.codeGenerate;
+
+                this.value.aggregateCode = me.setAggregateTemplate()
+            },
+            "value.innerAggregate": {
+                handler () {
+                    this.value.aggregateCode = this.setAggregateTemplate()
+                    this.value.repositoryCode = this.setRepositoryTemplate()
+                    this.value.controllerCode = this.setControllerTemplate()
+                    this.value.eventListenerCode = this.setEventListenerTemplate()
+                },
+                deep: true
+            }
         },
         mounted: function () {
 
         },
         methods: {
+            setRepositoryTemplate() {
+                var me = this
+                return Mustache.render(
+                    "package com.example.template;\n " +
+                    "import org.springframework.data.repository.PagingAndSortingRepository; \n " +
+                    "public interface {{ inputText }}Repository extends PagingAndSortingRepository < {{ inputText }}, Long > { \n " +
+                    "}\n", me.value)
+            },
+            setControllerTemplate(){
+                var me = this
+                return Mustache.render(
+                    "package com.example.template;\n" +
+                    "\n" +
+                    "import org.springframework.beans.factory.annotation.Autowired;\n" +
+                    "import org.springframework.web.bind.annotation.PathVariable;\n" +
+                    "import org.springframework.web.bind.annotation.RequestMapping;\n" +
+                    "import org.springframework.web.bind.annotation.RequestMethod;\n" +
+                    "import org.springframework.web.bind.annotation.RestController;\n" +
+                    "\n" +
+                    "import javax.servlet.http.HttpServletRequest;\n" +
+                    "import javax.servlet.http.HttpServletResponse;\n" +
+                    "import java.util.List;\n" +
+                    "\n" +
+                    "@RestController\n" +
+                    "public class {{ inputText }}Controller {\n" +
+                    "\n" +
+                    "{{#innerAggregate}}" +
+                    "{{#command}}" +
+                    "{{{code}}}" +
+                    "{{/command}}" +
+                    "{{/innerAggregate}}" +
+                    "}", me.value)
+            },
+            setEventListenerTemplate(){
+                var me = this
+                return Mustache.render("package com.example.template;\n" +
+                    "\n" +
+                    "import com.fasterxml.jackson.databind.DeserializationFeature;\n" +
+                    "import com.fasterxml.jackson.databind.ObjectMapper;\n" +
+                    "import org.apache.kafka.clients.consumer.ConsumerRecord;\n" +
+                    "import org.apache.kafka.clients.producer.ProducerRecord;\n" +
+                    "import org.springframework.beans.factory.annotation.Autowired;\n" +
+                    "import org.springframework.kafka.annotation.KafkaListener;\n" +
+                    "import org.springframework.kafka.core.KafkaTemplate;\n" +
+                    "import org.springframework.messaging.handler.annotation.Payload;\n" +
+                    "import org.springframework.stereotype.Service;\n" +
+                    "\n" +
+                    "import java.io.IOException;\n" +
+                    "import java.util.Optional;\n" +
+                    "\n" +
+                    "@Service\n" +
+                    "public class {{ inputText }}EventListener {\n" +
+                    "\n" +
+                    "    @Autowired\n" +
+                    "    private KafkaTemplate kafkaTemplate;\n" +
+                    "\n" +
+                    "    @Autowired\n" +
+                    "    private {{ inputText }}Repository {{ inputText }}Repository;\n" +
+                    "\n" +
+                    "{{#innerAggregate}}" +
+                    "{{#policy}}" +
+                    "{{{code}}}" +
+                    "{{/policy}}" +
+                    "{{/innerAggregate}}" +
+                    // "    @KafkaListener(topics = \"${eventTopic}\")\n" +
+                    // "    public void {{ name }}(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {\n" +
+                    // "        System.out.println(\"##### listener : \" + message);\n" +
+                    // "\n" +
+                    // "       \n" +
+                    "}", me.value)
+            },
+            setAggregateTemplate() {
+                var me = this
+                return Mustache.render(
+                    "package com.example.template;\n" +
+                    "\n" +
+                    "import com.fasterxml.jackson.core.JsonProcessingException;\n" +
+                    "import com.fasterxml.jackson.databind.ObjectMapper;\n" +
+                    "import org.apache.kafka.clients.producer.ProducerRecord;\n" +
+                    "import org.springframework.core.env.Environment;\n" +
+                    "import org.springframework.kafka.core.KafkaTemplate;\n" +
+                    "\n" +
+                    "import javax.persistence.*;\n" +
+                    "\n" +
+                    "@Entity\n" +
+                    "public class {{inputText}} {\n" +
+                    "\n" +
+                    "{{#aggregateEntity}}\n" +
+                        "{{#id}}"+
+                    "    @Id\n" +
+                    "    @GeneratedValue\n" +
+                    "    private {{type}} {{name}};\n\n" +
+                    "{{/id}}"+
+                    "{{^id}}"+
+                    "    public {{type}} {{name}};\n\n" +
+                    "{{/id}}"+
+                    "{{/aggregateEntity}}\n" +
 
-        }
+                    "{{#aggregateEntity}} \n" +
+                    "    public {{type}} get{{upName}}() { \n" +
+                    "        return {{name}};\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    public void set{{upName}}({{type}} {{name}}) { \n" +
+                    "        this.{{name}} = {{name}};\n" +
+                    "    }\n" +
+                    "{{/aggregateEntity}}\n" +
+                    "\n" +
+                    "}", me.value)
+            }
+        },
+
     }
 </script>
 

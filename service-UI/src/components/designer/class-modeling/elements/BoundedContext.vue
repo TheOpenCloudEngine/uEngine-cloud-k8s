@@ -14,6 +14,7 @@
                 v-on:selectShape="selectedActivity"
                 v-on:deSelectShape="deSelectedActivity"
                 v-on:dblclick="showProperty"
+                v-on:addToGroup="onAddToGroup"
                 :_style="{stroke:'black'}">
             <sub-elements>
                 <!--title-->

@@ -1,6 +1,6 @@
 <template>
-    <div class="text-reader" style="text-align:center; margin: 10px">
-        <label class="v-btn v-btn theme--light success" for="ex_file">Upload</label>
+    <div class="text-reader" style="max-width: 300px; text-align:center; margin-left: 10px; margin-top: 16px">
+        <label class="v-btn v-btn--contained theme--light v-size--default success" for="ex_file">Upload</label>
         <input id="ex_file" type="file" @change="loadTextFromFile"/>
     </div>
 </template>

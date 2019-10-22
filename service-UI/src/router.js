@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Dashboard from './views/dashboardpage.vue'
+// import Dashboard from './views/dashboardpage.vue'
+import EventStormingListPage from './components/EventStormingList/EventStormingListPage.vue'
+import Introduce from './components/EventStormingList/Introduce.vue'
+
+
 
 Vue.use(Router)
 
@@ -15,17 +19,21 @@ Vue.component('process-designer', ProcessDesigner);
 Vue.component('class-modeler', ClassModeler)
 
 export default new Router({
-    mode: 'history',
     base: process.env.BASE_URL,
     routes: [
         {
             path: '/',
-            name: 'Dashboard',
-            component: Dashboard
+            name: 'Introduce',
+            component: Introduce
         },
         {
             path: '/event',
-            name: 'Event',
+            name: 'EventStorming',
+            component: EventStormingListPage
+        },
+        {
+            path: '/event/:id',
+            name: 'EventStorming',
             component: ClassModeler
         },
         // {
