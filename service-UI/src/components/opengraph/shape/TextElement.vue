@@ -18,9 +18,9 @@
     watch: {
         text: function (newVal) {
             var me = this;
-            console.log('newVal: ', newVal)
+            // console.log('newVal: ', newVal)
             this.props.text = newVal
-            console.log(this.props.text)
+            // console.log(this.props.text)
 
         }
     },

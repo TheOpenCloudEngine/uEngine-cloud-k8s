@@ -1,10 +1,17 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
     <div class="canvas-panel">
         <v-layout right>
+            <modal name="uml-modal" :height='"80%"' :width="'80%'">
+                <class-modeler></class-modeler>
+            </modal>
+
             <modal name="code-modal" scrollable :height='"auto"' :width="'80%'">
                 <v-card>
                     <v-card-title>
                         <span class="headline">Code View</span>
+                        <v-btn text>
+                            <v-icon middle>info</v-icon>
+                        </v-btn>
                     </v-card-title>
                     <v-card-text>
                         <!-- 형태:
@@ -52,6 +59,7 @@
                     </v-card-text>
                 </v-card>
             </modal>
+
             <opengraph ref="opengraph" focus-canvas-on-select wheelScalable :labelEditable="true"
                        :dragPageMovable="dragPageMovable" :enableContextmenu="false" :enableRootContextmenu="false"
                        :enableHotkeyCtrlC="false" :enableHotkeyCtrlV="false"
@@ -97,9 +105,9 @@
 
                 <!--<v-btn color="info" v-on:click.native="addNewMember">addNewMember-->
                 <!--</v-btn>-->
-<!--                <v-btn color="info" v-on:click.native="restApiPush"-->
-<!--                       style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">BUILD-->
-<!--                </v-btn>-->
+                <!--                <v-btn color="info" v-on:click.native="restApiPush"-->
+                <!--                       style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">BUILD-->
+                <!--                </v-btn>-->
                 <v-btn color="info" v-on:click.native="codeModalShow"
                        style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">Generate
                 </v-btn>
@@ -119,18 +127,19 @@
 
 
             <v-card class="tools" style="top:100px; text-align: center;">
-                <span class="bpmn-icon-hand-tool" v-bind:class="{ icons : !dragPageMovable, hands : dragPageMovable }" _width="30"
-                   _height="30" v-on:click="toggleGrip">
+                <span class="bpmn-icon-hand-tool" v-bind:class="{ icons : !dragPageMovable, hands : dragPageMovable }"
+                      _width="30"
+                      _height="30" v-on:click="toggleGrip">
                      <v-tooltip md-direction="right">Hands</v-tooltip>
                 </span>
                 <v-tooltip right v-for="(item, key) in elementTypes" :key="key">
                     <template v-slot:activator="{ on }">
                         <span
-                          class="icons draggable"
-                          align="center"
-                          :_component="item.component"
-                          :_width="item.width"
-                          :_height="item.height">
+                                class="icons draggable"
+                                align="center"
+                                :_component="item.component"
+                                :_width="item.width"
+                                :_height="item.height">
                         <img height="30px" width="30px" :src="item.src" v-on="on">
                         </span>
                     </template>
@@ -223,8 +232,8 @@
                 members: [],
                 valueTmp: {},
                 pathTmp: [],
-                maxWidth:0,
-                maxHeight:0,
+                maxWidth: 0,
+                maxHeight: 0,
             }
         },
         beforeDestroy: function () {
@@ -1069,53 +1078,57 @@
                                 name: item.inputText,
                                 children: boundedItems
                             }
+
                             tmpList.push(boundedFolder)
+                            console.log(item)
 
                             item.dataList.forEach(function (tmpItem) {
-                                if (tmpItem._type == 'org.uengine.uml.model.Domain') {
-                                    event.name = tmpItem.inputText + '.java';
+                                if (tmpItem._type == 'org.uengine.uml.model.Domain' && tmpItem.inputText.length > 0) {
+                                    console.log(tmpItem.upName)
+
+                                    event.name = tmpItem.upName + '.java';
                                     event.type = tmpItem._type;
                                     event.code = tmpItem.code;
-                                    event.file = 'Java'
+                                    event.file = 'java'
 
-                                    tmpList.some(function (tmp,index) {
+                                    tmpList.some(function (tmp, index) {
                                         if (tmp.name == tmpItem.boundedContext) {
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(event)
+                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(JSON.parse(JSON.stringify(event)))
                                         }
                                     })
                                     // [1].children[0].children[1].children[0].children[0].children[0].children.push(event)
-                                } else if (item._type == 'org.uengine.uml.model.Aggregate') {
-                                    tmpList.some(function (tmp,index) {
+                                } else if (tmpItem._type == 'org.uengine.uml.model.Aggregate' && tmpItem.inputText.length > 0) {
+                                    tmpList.some(function (tmp, index) {
                                         if (tmp.name == tmpItem.boundedContext) {
-                                            event.type = tmpItem._type;
-                                            event.name = tmpItem.inputText + 'Repository.java';
-                                            event.code = tmpItem.repositoryCode;
-                                            event.file = 'Java'
-                                            console.log(tmp)
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(JSON.parse(JSON.stringify(event)));
+                                            var repositoryTmp = JSON.parse(JSON.stringify(event));
+                                            repositoryTmp.name = tmpItem.upName + 'Repository.java';
+                                            repositoryTmp.type = tmpItem._type;
+                                            repositoryTmp.code = tmpItem.repositoryCode;
+                                            repositoryTmp.file = 'java'
+                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(repositoryTmp);
 
-                                            event.type = tmpItem._type;
-                                            event.name = tmpItem.inputText + '.java';
-                                            event.code = tmpItem.aggregateCode;
-                                            event.file = 'Java'
+                                            var aggregateTmp = JSON.parse(JSON.stringify(event));
+                                            aggregateTmp.name = tmpItem.upName + '.java';
+                                            aggregateTmp.type = tmpItem._type;
+                                            aggregateTmp.code = tmpItem.aggregateCode;
+                                            aggregateTmp.file = 'java'
+                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(aggregateTmp);
 
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(JSON.parse(JSON.stringify(event)));
+                                            var eventLisnterTmp = JSON.parse(JSON.stringify(event));
+                                            eventLisnterTmp.name = tmpItem.upName + 'EventListener.java';
+                                            eventLisnterTmp.type = tmpItem._type;
+                                            eventLisnterTmp.code = tmpItem.eventListenerCode;
+                                            eventLisnterTmp.file = 'java'
+                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(eventLisnterTmp);
 
-                                            event.name = tmpItem.inputText + 'EventListener.java';
-                                            event.type = tmpItem._type;
-                                            event.code = tmpItem.eventListenerCode;
-                                            event.file = 'Java'
-
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(JSON.parse(JSON.stringify(event)));
-
-                                            event.name = tmpItem.inputText + 'Controller.java';
-                                            event.type = tmpItem._type;
-                                            event.code = tmpItem.controllerCode;
-                                            event.file = 'Java'
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(JSON.parse(JSON.stringify(event)));
+                                            var controllerTmp = JSON.parse(JSON.stringify(event));
+                                            controllerTmp.name = tmpItem.upName + 'Controller.java';
+                                            controllerTmp.type = tmpItem._type;
+                                            controllerTmp.code = tmpItem.controllerCode;
+                                            controllerTmp.file = 'java'
+                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(controllerTmp);
                                         }
                                     })
-
                                 }
                             })
                         }
@@ -1134,18 +1147,22 @@
 
             me.$ModelingBus.$on('MoveEvent', function () {
                 me.$nextTick(function () {
-                    // me.connectInfoR("add", 'https://stickershop.line-scdn.net/stickershop/v1/product/718/LINEStorePC/main.png;compress=true', 'Zang')
                     me.undoArray.push(JSON.parse(JSON.stringify(me.value)));
                     me.redoArray = [];
                     me.value.definition.forEach(function (tmp) {
-                        // console.log(tmp)
                         if (tmp.selected == true) {
-                            // console.log(tmp)
-                            // me.syncOthers(tmp);
                         }
                     })
                 })
-            })
+            });
+
+            me.$ModelingBus.$on('umlDiagram', function () {
+                me.umlModalShow()
+                console.log("aa")
+                me.$nextTick(function () {
+                })
+            });
+
             this.userId = v4();
             me.pusher = new Pusher('33169ca8c59c1f7f97cd', {
                 cluster: 'ap3',
@@ -1178,7 +1195,7 @@
                         // me.value.definition.push(newVal)
                     } else {
                         me.value['relation'].some(function (tmp, index) {
-                            console.log(tmp, index)
+                            // console.log(tmp, index)
                             if (tmp._type != 'org.uengine.uml.model.bounded') {
                                 me.value['relation'] = [
                                     ...me.value['relation'].slice(0, index),
@@ -1204,12 +1221,12 @@
                 //$nextTick delays the callback function until Vue has updated the DOM
                 // (which usually happens as a result of us changing the data
                 //  so make any DOM changes here
-                this.canvas.addSlider({
-                    slider: $("#canvas_slider"),
-                    width: 200,
-                    height: 300,
-                    appendTo: "body"
-                });
+                // this.canvas.addSlider({
+                //     slider: $("#canvas_slider"),
+                //     width: 200,
+                //     height: 300,
+                //     appendTo: "body"
+                // });
 
                 this.canvas._CONFIG.FAST_LOADING = false;
 
@@ -1245,14 +1262,14 @@
         },
         watch: {
             open(newVal) {
-                console.log(newVal)
+                // console.log(newVal)
 
             }
         },
 
         methods: {
             inputValue(name) {
-                console.log(name)
+                // console.log(name)
                 var test = [
                     name
                 ]
@@ -1261,6 +1278,10 @@
             codeModalShow() {
                 this.$modal.show('code-modal');
             },
+            umlModalShow() {
+                console.log("aa")
+                this.$modal.show('uml-modal');
+            },
             generateZip() {
                 var me = this
                 me.codeList.forEach(function (list) {
@@ -1268,7 +1289,7 @@
                         //Array
                         // console.log(list.children)
                         // console.log(list.name)
-                        me.revers(list.children, list.name)
+                        me.reverse(list.children, list.name)
                     } else {
                         me.pathTmp.push({path: list.name, code: list.code})
                         // var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
@@ -1311,7 +1332,7 @@
                     });
 
             },
-            revers(item, path) {
+            reverse(item, path) {
                 var me = this
                 item.forEach(function (list) {
                     if (list.children) {
@@ -1320,7 +1341,7 @@
                         var tmpPath = path + '/' + list.name
                         console.log(tmpPath)
 
-                        me.revers(list.children, tmpPath);
+                        me.reverse(list.children, tmpPath);
                     } else {
                         //파일생성하
                         console.log(list.name)
@@ -1477,19 +1498,45 @@
                 });
                 FileSaver.saveAs(file);
             },
+            deleteBoundary(definitionArray, deleteItem) {
+
+                //해당 바운더리 찾기
+                definitionArray.forEach(function (definitionTmp, index) {
+                    if (deleteItem.boundedContext == definitionTmp.inputText && definitionTmp._type == 'org.uengine.uml.model.bounded') {
+                        console.log(deleteItem.boundedContext, definitionTmp.inputText)
+
+                        definitionTmp.dataList.forEach(function (item, idx) {
+                            if (item.inputText == deleteItem.inputText && item._type == deleteItem._type) {
+                                console.log(definitionTmp.dataList[idx])
+                                definitionTmp.dataList[idx] = null;
+
+                                definitionTmp.dataList = definitionTmp.dataList.filter(n => n)
+                            }
+                        })
+
+                    }
+                })
+
+            },
             deleteActivity: function () {
                 var me = this
                 if (!me.drawer) {
                     let selected = []
+
                     let definitionArray = JSON.parse(JSON.stringify(me.value.definition));
                     let relationArray = JSON.parse(JSON.stringify(me.value.relation));
-                    console.log(me.value)
+
                     definitionArray.forEach(function (definitionTmp, index) {
                         if (definitionTmp.selected) {
+                            if (definitionTmp.boundedContext) {
+                                me.deleteBoundary(definitionArray, definitionTmp);
+
+                            }
                             selected.push(definitionTmp.elementView.id)
                             definitionArray[index] = null
                         }
                     })
+
                     definitionArray = definitionArray.filter(n => n)
                     selected.forEach(function (selectedTmp) {
                         relationArray.forEach(function (relation, index) {
@@ -1662,7 +1709,7 @@
                 this.enableHistoryAdd = true;
                 var me = this;
                 var additionalData = {};
-
+                console.log(originalData)
                 var vueComponent = me.getComponentByName(componentInfo.component);
                 // console.log(componentInfo.component , this.relationVueComponentName)
                 var element;
@@ -1693,23 +1740,7 @@
                 if (element._type == 'org.uengine.uml.model.relation') {
                     me.value['relation'].push(element);
                 } else {
-                    // if (element._type == 'org.uengine.uml.model.bounded' && me.value['definition'].length != 0) {
-                    //     me.value['definition'].some(function (tmp, index) {
-                    //         console.log(tmp, index)
-                    //         if (tmp._type != 'org.uengine.uml.model.bounded') {
-                    //             me.value['definition'] = [
-                    //                 ...me.value['definition'].slice(0, index),
-                    //                 element,
-                    //                 ...me.value['definition'].slice(index)
-                    //             ]
-                    //             return;
-                    //         }
-                    //         if (me.value['definition'].length - 1 == index) {
-                    //             me.value['definition'].push(element);
-                    //         }
-                    //     })
-                    // } else {
-                        me.value['definition'].push(element);
+                    me.value['definition'].push(element);
                 }
                 me.undoArray.push(JSON.parse(JSON.stringify(me.value)));
                 me.redoArray = [];

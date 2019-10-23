@@ -61,6 +61,7 @@
                 :entity.sync="value.entity"
                 :aggregateList.sync="aggregateList"
                 :connectAggregateName.sync="value.connectAggregateName"
+                :connectAggregateEntity.sync="value.connectAggregateEntity"
                 v-model="value"
         >
         </modeling-property-panel>
@@ -89,10 +90,11 @@
             },
             createNew(elementId, x, y, width, height, angle) {
                 return {
+                    upName: '',
                     _type: this.className(),
                     name: 'event',
                     elementView: {
-                        '_type': 'org.uengine.modeling.Domain',
+                        '_type': 'org.uengine.uml.model.Domain',
                         'id': elementId,
                         'x': x,
                         'y': y,
@@ -107,8 +109,10 @@
                     restApi: '',
                     editing: false,
                     connectAggregateName: '',
+                    connectAggregateEntity:[],
                     entity: [],
                     code: '',
+                    relationInfo:'',
                     boundedContext: ''
                 }
             }
@@ -128,8 +132,11 @@
 
         },
         watch: {
+            "value.relationInfo": function (newVal) {
+                // console.log(newVal)
+            },
             "value.connectAggregateName": function (newVal, oldVal) {
-                console.log(newVal,oldVal)
+                // console.log(newVal,oldVal)
                 var me = this
                 var designer = this.getComponent('modeling-designer')
                 console.log(me.value.inputText)
@@ -139,34 +146,39 @@
                         temp.innerAggregate[me.type.toLowerCase()].splice(temp.innerAggregate[me.type.toLowerCase()].indexOf(oldVal),1);
                     }
                     if (temp._type == "org.uengine.uml.model.Aggregate" && temp.inputText == newVal) {
+                        me.value.entity = JSON.parse(JSON.stringify(temp.aggregateEntity))
                         temp.innerAggregate[me.type.toLowerCase()].push(me.value.inputText)
                     }
                 })
             },
             "value.inputText": function (newVal) {
-                console.log(this.value)
+                // console.log(this.value)
                 // console.log(this.code)
                 // this.code = this.codeGenerate;
+                // console.log(newVal.charAt(0).toUpperCase(),newVal.slice(1))
+                this.value.upName = newVal.charAt(0).toUpperCase() + newVal.slice(1)
                 this.value.code = this.setEventTemplate(newVal, this.value)
+
             },
             "value.entity": function () {
                 var me = this
                 console.log(this.value)
                 // console.log(this.code)
                 // this.code = this.codeGenerate;
-                this.value.code = this.setEventTemplate(me.value.inputText, this.value)
+                this.value.code = this.setEventTemplate()
             }
         },
         mounted: function () {
         },
         methods: {
-            setEventTemplate(name, definition) {
+            setEventTemplate() {
+                var me = this
                 return Mustache.render(
                     "package com.example.template;\n" +
                     "\n" +
                     "import java.io.Serializable;\n" +
                     "\n" +
-                    "public class {{inputText}} extends AbstractEvent {\n" +
+                    "public class {{upName}} extends AbstractEvent {\n" +
                     "\n" +
                     "{{#entity}}" +
                     "    public {{type}} {{name}};\n" +
@@ -181,7 +193,7 @@
                     "        this.{{name}} = {{name}};\n" +
                     "    }\n" +
                     "{{/entity}}" +
-                    "}", definition)
+                    "}", me.value)
             },
         }
     }

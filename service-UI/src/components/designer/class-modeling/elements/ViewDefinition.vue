@@ -4,7 +4,6 @@
                 selectable
                 :movable="!value.editing"
                 :resizable="!value.editing"
-                connectable
                 deletable
                 :angle.sync="value.elementView.angle"
                 :id.sync="value.elementView.id"
@@ -87,7 +86,7 @@
                     _type: this.className(),
                     name: 'View',
                     elementView: {
-                        '_type': 'org.uengine.modeling.View',
+                        '_type': 'org.uengine.uml.model.View',
                         'id': elementId,
                         'x': x,
                         'y': y,

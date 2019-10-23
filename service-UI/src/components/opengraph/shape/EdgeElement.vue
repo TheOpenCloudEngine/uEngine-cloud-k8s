@@ -10,7 +10,9 @@
   export default {
     mixins: [OpengraphElement],
     name: 'edge-element',
-    props: {},
+    props: {
+      _style:Object,
+    },
     computed: {},
     data: function () {
       return {}

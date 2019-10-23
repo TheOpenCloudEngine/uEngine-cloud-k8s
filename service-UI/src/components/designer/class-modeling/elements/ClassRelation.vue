@@ -17,12 +17,12 @@
         </edge-element>
 
         <modeling-property-panel
+                v-if="value.sourceElement._type != 'org.uengine.uml.model.Policy'"
                 :drawer.sync="value.drawer"
                 :titleName="value.name"
                 :inputText.sync="value.inputText"
                 v-model="value"
-        >
-        </modeling-property-panel>
+        ></modeling-property-panel>
     </div>
 </template>
 
@@ -52,45 +52,38 @@
                 return 'org.uengine.uml.model.relation'
             },
             style_() {
-                if (this.value._type == "org.uengine.uml.model.Aggregation") {
+                console.log(this.value)
+                if (this.value._type == "org.uengine.uml.model.relation" && this.value.relationType == 'Pub') {
                     var style = {
-                        "arrow-end": ("01".indexOf(this.value.sourceMultiplicity) > -1 ? "none" : "diamond"),
-                        "arrow-start": ("01".indexOf(this.value.targetMultiplicity) > -1 ? "none" : "diamond")
-                    };
-
-                    if ("01".indexOf(this.value.sourceMultiplicity) == -1) {
-                        if (!style.marker) style.marker = {};
-
-                        style.marker.end = {
-                            'id': 'OG.marker.AggregationMarker',
-                            'size': [10, 8]
-                        }
+                        "arrow-end": "block",
+                        'stroke-width': '1.3', 'stroke-dasharray': '- ',
+                        // 'marker': {
+                        //     'end': {
+                        //         'id': 'OG.marker.MessageFlowArrowStartMarker',
+                        //         'size': [8, 6]
+                        //     },
+                        //     'start': {
+                        //         'id': 'OG.marker.MessageFlowArrowEndMarker',
+                        //         'size': [6, 6]
+                        //     }
+                        // }
                     }
-
-                    if ("01".indexOf(this.value.targetMultiplicity) == -1) {
-                        if (!style.marker) style.marker = {};
-
-                        style.marker.start = {
-                            'id': 'OG.marker.AggregationMarker',
-                            'size': [10, 8]
-                        }
+                } else if (this.value._type == "org.uengine.uml.model.relation") {
+                    var style = {
+                        "arrow-end": "block",
+                        // 'marker': {
+                        //     'end': {
+                        //         'id': 'OG.marker.MessageFlowArrowStartMarker',
+                        //         'size': [8, 6]
+                        //     },
+                        //     'start': {
+                        //         'id': 'OG.marker.MessageFlowArrowEndMarker',
+                        //         'size': [6, 6]
+                        //     }
+                        // }
                     }
-
-                    return style;
-
-                } else if (this.value._type == "org.uengine.uml.model.Generalization") {
-                    return ({
-                        "arrow-end": "none",
-                        'marker': {
-                            'start': {
-                                'id': 'OG.marker.GeneralizationMarker',
-                                'size': [8, 8]
-                            }
-                        }
-
-                    });
-
                 }
+                return style
             },
             type() {
                 return 'org.uengine.uml.model.relation'
@@ -99,20 +92,21 @@
                 return {
                     _type: this.type(),
                     name: 'Relation',
-                    sourceClassName: from.name,
-                    targetClassName: to.name,
+                    relationType: '',
+                    sourceElement: from,
+                    targetElement: to,
                     from: from.elementView.id,
                     to: to.elementView.id,
                     selected: false,
                     relationView: {
                         style: JSON.stringify({
                             "arrow-start": "none",
-                            "arrow-end": "none"
+                            "arrow-end": "none",
                         }),
                         value: vertices,
                         from: from.elementView.id,
                         to: to.elementView.id,
-                        needReconnect: true
+                        needReconnect: true,
                     },
                     sourceMultiplicity: 1,
                     targetMultiplicity: 1,
@@ -138,15 +132,10 @@
                 otherwise: false
             };
         },
-        watch: {
-
-
-        },
+        watch: {},
         mounted: function () {
         },
-        methods: {
-
-        }
+        methods: {}
     }
 </script>
 

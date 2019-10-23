@@ -3,8 +3,7 @@
 -->
 <template>
     <v-layout wrap>
-        <v-navigation-drawer v-model="navigationDrawer" absolute right temporary width="390">
-
+        <v-navigation-drawer v-model="navigationDrawer" absolute right width="390">
             <v-list class="pa-1">
                 <v-list-item>
                     <v-list-item-avatar>
@@ -37,14 +36,10 @@
                             </v-card-text>
                         </v-card>
                     </v-card-text>
-
-                    <!-- <v-card-text>
-                      <v-autocomplete v-model="restApiType" :items="restApiList" label="REST API TYPE" persistent-hint prepend-icon="mdi-city">
-                      </v-autocomplete>
-                    </v-card-text> -->
                 </v-card>
 
-                <v-card v-else-if="value.name == 'Aggregate'">
+                <v-card flat v-else-if="value.name == 'Aggregate'">
+                <!--입력창-->
                     <v-card-text>
                         <v-textarea name="input-7-1" outline :label="'Name'" auto-grow v-model="input"></v-textarea>
                         <v-card outlined v-if="usedTranslate">
@@ -57,13 +52,24 @@
                         </v-card>
                     </v-card-text>
 
+                    <!--  정보 -->
                     <v-data-table
                             :headers="headers"
                             :items="entity"
                             hide-default-header
                             hide-default-footer
                             class="elevation-1"
-                    ></v-data-table>
+                    >
+                        <template v-slot:item.action="{ item }">
+                            <v-icon
+                                    v-if="item.name !='id'"
+                                    small
+                                    @click="deleteEntity(entity,item)"
+                            >
+                                delete
+                            </v-icon>
+                        </template>
+                    </v-data-table>
 
 
                     <v-layout justify-center row style="align: center;">
@@ -76,98 +82,113 @@
                         </v-flex>
                     </v-layout>
 
-                    <v-layout justify-end row wrap>
-                        <v-btn rounded color="primary" @click="entityADD(entityType,entityName);" dark>Entity ADD
+                    <v-layout justify-end wrap>
+                        <v-btn rounded color="primary" @click="entityADD(entityType,entityName)" dark>Entity ADD
                         </v-btn>
                     </v-layout>
 
                     <!-- <v-autocomplete v-model="restApiType" :items="restApiList" label="REST API TYPE" persistent-hint
                                                 prepend-icon="mdi-city">
                                 </v-autocomplete> -->
-
-                    <v-card-title>
-                        <span class="headline" v-if="titleName">연결 리스트 </span>
-                    </v-card-title>
+                    <v-divider dark style="margin-top: 10px; margin-bottom: 10px;"></v-divider>
+                    <v-btn  block color="info" rounded @click="umlDiagramOpen()"> UML Diagram Editor</v-btn>
                     <!--expand 표시 부분  -->
-                    <template>
-                        <div>
-                            <v-expansion-panel>
-                                <v-expansion-panel-content EventExpand>
-                                    <template v-slot:header>연결된 리스트</template>
-                                    <v-card>
-                                        <v-card-text style="padding-top: 0px">
-                                            <v-layout row wrap>
-                                                <v-flex xs1>
-                                                    <v-card-text class="px-0" align="center">Index</v-card-text>
-                                                </v-flex>
-                                                <v-flex xs3>
-                                                    <v-card-text class="px-0" align="center">To</v-card-text>
-                                                </v-flex>
-                                                <v-flex xs3>
-                                                    <v-img style="margin-top: 13px"
-                                                           :src="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/right-arrow.png'"></v-img>
-                                                </v-flex>
-                                                <v-flex xs3>
-                                                    <v-card-text class="px-0" align="center">From</v-card-text>
-                                                </v-flex>
-                                            </v-layout>
-                                            <v-layout v-for="(item, index) in connectedList" row wrap>
-                                                <v-flex xs1>
-                                                    <v-card-text class="px-0" align="center">{{index + 1}}</v-card-text>
-                                                </v-flex>
-                                                <v-flex xs3>
-                                                    <v-card-text class="px-0" align="center">{{item.to.inputText}}
-                                                    </v-card-text>
-                                                </v-flex>
-                                                <v-flex xs3 grow>
-                                                    <v-img style="margin-top: 13px"
-                                                           :src="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/right-arrow.png'"></v-img>
-                                                </v-flex>
-                                                <v-flex xs3>
-                                                    <v-card-text class="px-0" align="center">{{item.from.inputText}}
-                                                    </v-card-text>
-                                                </v-flex>
-                                            </v-layout>
-                                        </v-card-text>
-                                    </v-card>
-                                </v-expansion-panel-content>
+<!--                    <template>-->
+<!--                        <div>-->
+<!--                            <v-expansion-panel>-->
+<!--                                <v-expansion-panel-content EventExpand>-->
+<!--                                    <template v-slot:header>연결된 리스트</template>-->
+<!--                                    <v-card>-->
+<!--                                        <v-card-text style="padding-top: 0px">-->
+<!--                                            <v-layout row wrap>-->
+<!--                                                <v-flex xs1>-->
+<!--                                                    <v-card-text class="px-0" align="center">Index</v-card-text>-->
+<!--                                                </v-flex>-->
+<!--                                                <v-flex xs3>-->
+<!--                                                    <v-card-text class="px-0" align="center">To</v-card-text>-->
+<!--                                                </v-flex>-->
+<!--                                                <v-flex xs3>-->
+<!--                                                    <v-img style="margin-top: 13px"-->
+<!--                                                           :src="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/right-arrow.png'"></v-img>-->
+<!--                                                </v-flex>-->
+<!--                                                <v-flex xs3>-->
+<!--                                                    <v-card-text class="px-0" align="center">From</v-card-text>-->
+<!--                                                </v-flex>-->
+<!--                                            </v-layout>-->
+<!--                                            <v-layout v-for="(item, index) in connectedList" row wrap>-->
+<!--                                                <v-flex xs1>-->
+<!--                                                    <v-card-text class="px-0" align="center">{{index + 1}}</v-card-text>-->
+<!--                                                </v-flex>-->
+<!--                                                <v-flex xs3>-->
+<!--                                                    <v-card-text class="px-0" align="center">{{item.to.inputText}}-->
+<!--                                                    </v-card-text>-->
+<!--                                                </v-flex>-->
+<!--                                                <v-flex xs3 grow>-->
+<!--                                                    <v-img style="margin-top: 13px"-->
+<!--                                                           :src="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/right-arrow.png'"></v-img>-->
+<!--                                                </v-flex>-->
+<!--                                                <v-flex xs3>-->
+<!--                                                    <v-card-text class="px-0" align="center">{{item.from.inputText}}-->
+<!--                                                    </v-card-text>-->
+<!--                                                </v-flex>-->
+<!--                                            </v-layout>-->
+<!--                                        </v-card-text>-->
+<!--                                    </v-card>-->
+<!--                                </v-expansion-panel-content>-->
 
-                                <v-expansion-panel-content CommandExpand>
-                                    <template v-slot:header>연결X 리스트</template>
-                                    <v-card>
-                                        <v-card-text>
-                                            연결 가능 리스트
-                                        </v-card-text>
-                                        <v-layout row wrap>
-                                            <v-flex xs4>
-                                                <v-autocomplete v-model="selectCommand" :items="commandNameList"
-                                                                label="CommandList" persistent-hint
-                                                                prepend-icon="mdi-city"></v-autocomplete>
-                                            </v-flex>
+<!--                                <v-expansion-panel-content CommandExpand>-->
+<!--                                    <template v-slot:header>연결X 리스트</template>-->
+<!--                                    <v-card>-->
+<!--                                        <v-card-text>-->
+<!--                                            연결 가능 리스트-->
+<!--                                        </v-card-text>-->
+<!--                                        <v-layout row wrap>-->
+<!--                                            <v-flex xs4>-->
+<!--                                                <v-autocomplete v-model="selectCommand" :items="commandNameList"-->
+<!--                                                                label="CommandList" persistent-hint-->
+<!--                                                                prepend-icon="mdi-city"></v-autocomplete>-->
+<!--                                            </v-flex>-->
 
-                                            <!--<v-flex xs3>-->
-                                            <!--<v-img style="margin-top: 13px"-->
-                                            <!--:src="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/right-arrow.png'"></v-img>-->
-                                            <!--</v-flex>-->
-                                            <v-flex xs4>
-                                                <v-autocomplete v-model="selectEvent" :items="domainNameList"
-                                                                label="EventList" persistent-hint
-                                                                prepend-icon="mdi-city"></v-autocomplete>
-                                            </v-flex>
-                                            <v-flex xs1>
-                                                <v-btn style="margin-top: 17px" small
-                                                       @click="addRelation(selectCommand,selectEvent)" color="success">
-                                                    추가
-                                                </v-btn>
-                                            </v-flex>
-                                        </v-layout>
-                                    </v-card>
-                                </v-expansion-panel-content>
+<!--                                            &lt;!&ndash;<v-flex xs3>&ndash;&gt;-->
+<!--                                            &lt;!&ndash;<v-img style="margin-top: 13px"&ndash;&gt;-->
+<!--                                            &lt;!&ndash;:src="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/right-arrow.png'"></v-img>&ndash;&gt;-->
+<!--                                            &lt;!&ndash;</v-flex>&ndash;&gt;-->
+<!--                                            <v-flex xs4>-->
+<!--                                                <v-autocomplete v-model="selectEvent" :items="domainNameList"-->
+<!--                                                                label="EventList" persistent-hint-->
+<!--                                                                prepend-icon="mdi-city"></v-autocomplete>-->
+<!--                                            </v-flex>-->
+<!--                                            <v-flex xs1>-->
+<!--                                                <v-btn style="margin-top: 17px" small-->
+<!--                                                       @click="addRelation(selectCommand,selectEvent)" color="success">-->
+<!--                                                    추가-->
+<!--                                                </v-btn>-->
+<!--                                            </v-flex>-->
+<!--                                        </v-layout>-->
+<!--                                    </v-card>-->
+<!--                                </v-expansion-panel-content>-->
 
-                            </v-expansion-panel>
-                        </div>
-                    </template>
+<!--                            </v-expansion-panel>-->
+<!--                        </div>-->
+<!--                    </template>-->
+                </v-card>
 
+                <v-card flat v-else-if=" value.name == 'Relation' && value.sourceElement._type == 'org.uengine.uml.model.Domain' ">
+
+                    <div> 현재: {{value.relationType}}</div>
+                    <v-card-text>
+                        <v-col>
+                            <v-row justify="center"
+                                   class="mb-6"
+                                   no-gutters>
+                                <v-btn class="pa-2" block  @click="restApiTypeSet(value,'Pub')" v-if="value.sourceElement._type == 'org.uengine.uml.model.Domain'" > PUB </v-btn>
+                                <v-btn class="pa-2" block  @click="restApiTypeSet(value,'Get')" > GET </v-btn>
+                                <v-btn class="pa-2" block  @click="restApiTypeSet(value,'Post')" > POST </v-btn>
+                                <v-btn class="pa-2" block  @click="restApiTypeSet(value,'Put')" > PUT </v-btn>
+                                <v-btn class="pa-2" block  @click="restApiTypeSet(value,'Delete')" > DELETE </v-btn>
+                            </v-row>
+                        </v-col>
+                    </v-card-text>
                 </v-card>
 
                 <v-card outlined v-else>
@@ -200,7 +221,18 @@
                             hide-default-header
                             hide-default-footer
                             class="elevation-1"
-                    ></v-data-table>
+                    >
+
+                        <template v-slot:item.action="{ item }">
+                            <v-icon
+                                    small
+                                    @click="deleteEntity(entity,item)"
+                            >
+                                delete
+                            </v-icon>
+                        </template>
+                    </v-data-table>
+
                     <v-layout v-if="value.name == 'event'" justify-center row style="align: center;">
                         <v-flex xs4>
                             <v-select v-model="entityType" :items="entityTypeList" label="Standard"
@@ -244,6 +276,7 @@
             titleName: String,
             inputText: String,
             connectAggregateName: String,
+            connectAggregateEntity: Array,
             otherList: Array,
             img: String,
             restApi: String,
@@ -261,6 +294,14 @@
                 })
                 return tmp
             },
+            // aggregateListName:function(){
+            //   var me = this
+            //     var tmp= []
+            //   me.aggregateList.forEach(function (agg) {
+            //       tmp.push(agg.inputText)
+            //   })
+            //     return tmp
+            // },
             commandNameList: function () {
                 var designer = this.$parent.getComponent('modeling-designer')
 
@@ -328,6 +369,7 @@
                 selectEvent: '',
                 selectCommand: '',
                 connectedList: [],
+                connectedListName:{},
                 componentKey: 0,
                 restApiList: ['GET', 'POST', 'PUT', 'DELETE'],
                 restApiType: '',
@@ -335,9 +377,9 @@
                 entityType: '',
                 entityName: '',
                 aggregate: '',
-                headers: [{value: 'type'}, {value: 'name'}],
+                headers: [{text: 'type',value: 'type'}, {text: 'name',value: 'name'}, { text: 'Actions', value: 'action', sortable: false },],
                 translateText: '',
-                usedTranslate: false
+                usedTranslate: false,
             }
         },
         created: function () {
@@ -496,6 +538,36 @@
 
         },
         methods: {
+            umlDiagramOpen() {
+                var me =this
+                console.log("aa")
+                me.$ModelingBus.$emit('umlDiagram');
+            },
+            deleteEntity(entity,val){
+                var me = this
+
+                me.entity.forEach(function(element,idx){
+                    if(element.name == val.name && element.type == val.type){
+
+                        if (idx > -1)
+                           me.entity.splice(idx, 1)
+
+                        me.$emit('update:entity',me.entity);
+                    }
+                })
+
+                console.log(val)
+            },
+            restApiTypeSet(val,set){
+                if( val.sourceElement._type == 'org.uengine.uml.model.Domain' && set=='Publish' ){
+                    val.sourceElement.relationInfo='Publish'
+                    val.targetElement.relationInfo='Subscribe'
+                }else{
+                    val.sourceElement.relationInfo=set;
+                    // val.targetElement.relationInfo=set;
+                }
+                val.relationType=set;
+            },
             changeTranslate() {
                 this.input = this.translateText
                 this.usedTranslate = false

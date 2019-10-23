@@ -4,7 +4,6 @@
                 selectable
                 :movable="!value.editing"
                 :resizable="!value.editing"
-                connectable
                 deletable
                 :angle.sync="value.elementView.angle"
                 :id.sync="value.elementView.id"
@@ -85,7 +84,7 @@
                     _type: this.className(),
                     name: 'External',
                     elementView: {
-                        '_type': 'org.uengine.modeling.External',
+                        '_type': 'org.uengine.uml.model.External',
                         'id': elementId,
                         'x': x,
                         'y': y,

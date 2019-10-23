@@ -10,13 +10,16 @@ Vue.use(Router)
 
 import ModelerRouter from './components/designer/ModelerRouter'
 import ProcessDesigner from './components/designer/process/ProcessDesigner'
+import EventModeler from './components/designer/class-modeling/EventModeler'
 import ClassModeler from './components/designer/class-modeling/ClassModeler'
 import ModelerImageGenerator from './components/designer/ModelerImageGenerator'
 
 Vue.component('modeler-router', ModelerRouter);
 Vue.component('modeler-image-generator', ModelerImageGenerator);
 Vue.component('process-designer', ProcessDesigner);
+Vue.component('event-modeler', EventModeler)
 Vue.component('class-modeler', ClassModeler)
+
 
 export default new Router({
     base: process.env.BASE_URL,
@@ -34,7 +37,7 @@ export default new Router({
         {
             path: '/event/:id',
             name: 'EventStorming',
-            component: ClassModeler
+            component: EventModeler
         },
         // {
         //   path: '/about',

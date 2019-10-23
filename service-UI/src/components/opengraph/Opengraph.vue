@@ -7,8 +7,11 @@
             <div class="canvas-container" :id="id">
             </div>
         </div>
-        <div :id="sliderId">
-        </div>
+        <v-card style="position:relative; height: 200px">
+            <v-card-text style="position:absolute" :id="sliderId">
+            </v-card-text>
+        </v-card>
+
     </div>
 </template>
 
@@ -952,14 +955,18 @@
                     canvas.removeSlider();
                 }
                 else {
-                    console.log(this.sliderId)
+                    // console.log(this.canvas.)
+                    console.log(canvas._CONTAINER)
                     if (!canvas._CONFIG.SLIDER) {
                         canvas.addSlider({
                             slider: $("#" + this.sliderId),
+                            left: 20,
                             width: 200,
                             height: 300,
-                            appendTo: "body"
+                            appendTo: "body",
+                            position: {my: "bottom", at: "bottom", of: canvas._CONTAINER}
                         });
+                        $("#" + this.sliderId).css("position","absolute")
                     }
                 }
 

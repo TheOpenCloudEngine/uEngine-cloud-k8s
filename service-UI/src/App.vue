@@ -39,13 +39,15 @@
                 app
                 fixed
         >
-            <v-toolbar-title style="width: 340px" class="ml-0 pl-3">
+            <v-toolbar-title style="width: 700px" class="ml-0 pl-3">
                 <v-layout>
                     <v-app-bar-nav-icon style="margin-right: 20px;" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
                     <v-img max-height=45 max-width=220 src="../public/static/image/Logo_black_stroke7.png"></v-img>
+                    <div class="font-weight-bold" style="font-size: 16px; margin-top: 24px">  by uEngine</div>
                 </v-layout>
             </v-toolbar-title>
             <v-spacer></v-spacer>
+            <v-btn text color="white" @click="infoDialog = true"><v-icon medium>info</v-icon></v-btn>
             <v-btn text color="white" @click="logout()" v-if="authorized">
                 Logout
             </v-btn>
@@ -68,6 +70,42 @@
                 </v-layout>
             </v-container>
         </v-content>
+
+        <!--  설명 Dialog -->
+        <v-dialog
+                v-model="infoDialog"
+                style="width: 700px; height: 700px;"
+        >
+            <v-card>
+                <v-card-title class="headline">How to use EventStorming-tool?</v-card-title>
+
+                <v-carousel
+                        v-model="infoNum"
+                        show-arrows="true"
+                >
+                    <v-carousel-item
+                            v-for="(slider, i) in infoSlider"
+                            :key="slider"
+                            :src="slider"
+                    >
+<!--                        <v-sheet-->
+<!--                                height="100%"-->
+<!--                                tile-->
+<!--                        >-->
+<!--                            <v-row-->
+<!--                                    class="fill-height"-->
+<!--                                    align="center"-->
+<!--                                    justify="center"-->
+<!--                            >-->
+<!--                                <div class="display-3">Slide {{ i + 1 }}</div>-->
+<!--                            </v-row>-->
+<!--                        </v-sheet>-->
+                    </v-carousel-item>
+                </v-carousel>
+
+            </v-card>
+        </v-dialog>
+
         <!-- Setting Dialog -->
         <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
             <v-card>
@@ -133,13 +171,19 @@
 
     export default {
         data: () => ({
+            infoSlider: [
+                'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png',
+                'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/policy.png',
+            ],
+            infoNum: 0,
             dialog: false,
             drawer: false,
             isLogin: false,
+            infoDialog: false,
             kubeHost: '',
             kubeToken: '',
             items: [
-                {icon: 'fa-book', text: 'Home', route: '/'},
+                {icon: 'fa-book', text: 'Introduce', route: '/'},
                 {icon: 'fa-sticky-note', text: 'EventStorming', route: '/event'},
             ],
             api: [],

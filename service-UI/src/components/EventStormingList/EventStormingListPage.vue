@@ -32,7 +32,29 @@
                     </v-card-actions>
                 </v-card>
             </v-col>
+            <v-col
+                    cols="6"
+                    md="4"
+            >
+                <v-card
+                        class="mx-auto"
+                        max-width="344"
+                        align="center"
+                >
+                <v-btn text block @click="addDialog=true"> 추가 </v-btn>
+                </v-card>
+            </v-col>
         </v-row>
+
+        <v-dialog v-model="addDialog" width="300px">
+            <v-card>
+                <v-text-field
+                        v-model="name"
+                        label="Name"
+                ></v-text-field>
+                <v-btn @click="stormingListAdd"> 추가</v-btn>
+            </v-card>
+        </v-dialog>
 
     </v-container>
 </template>
@@ -42,8 +64,23 @@
         name: "EventStormingListPage",
         data() {
             return {
-                stormingList: [{id: 1, name: 'initData'},{id: 2, name: 'testData'},{id: 3, name: 'testData2'},{id: 4, name: 'testData3'}]
+                stormingList: [
+                    {id: 1, name: 'initData'},
+                    ],
+                addDialog:false,
+                name:'Test',
             }
+        },
+        methods:{
+            stormingListAdd(){
+                var me =  this
+                    let data={
+                        'id': me.stormingList.length,
+                        'name': me.name
+                    }
+                me.stormingList.push(data)
+                me.addDialog=false
+            },
         }
     }
 </script>

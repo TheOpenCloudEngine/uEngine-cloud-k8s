@@ -65,7 +65,7 @@
                     _type: this.className(),
                     name: 'Bounded Context',
                     elementView: {
-                        '_type': 'org.uengine.modeling.bounded',
+                        '_type': 'org.uengine.uml.model.bounded',
                         'id': elementId,
                         'x': x,
                         'y': y,
@@ -110,10 +110,17 @@
             //     }
             // },
             'value.inputText': function (newVal) {
+                var me = this
                 this.value.elementView.x = this.value.elementView.x + 1
                 this.$nextTick(function () {
                     this.value.elementView.x = this.value.elementView.x -1
                 })
+
+                if(me.value.dataList.length > 1) {
+                    me.value.dataList.forEach(function (tmp) {
+                        tmp.boundedContext = newVal
+                    })
+                }
             }
         },
         mounted: function () {
