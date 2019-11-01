@@ -1,10 +1,16 @@
 <template>
-    <v-container>
+    <v-container
+    >
+
         <v-card>
             <v-card-title v-if="value[0][0]">
                 {{value[0][0].name}}
             </v-card-title>
-            <v-card-text>
+            <v-card-text
+                    id="scroll-target"
+                    style="max-height: 700px"
+                    class="overflow-y-auto"
+            >
                 <codemirror
                         ref="codemirror"
                         :value="code"
@@ -12,11 +18,11 @@
                         @ready="onCmReady"
                         @Focus="onCmFocus"
                         @input="onCmCodeChange"
-                        :height="500"
+                        :height="700"
+
                 >
                 </codemirror>
             </v-card-text>
-
         </v-card>
 
     </v-container>
@@ -42,6 +48,7 @@
         data() {
             return {
                 code: '',
+                offsetTop: 0,
                 definitionList: []
             }
         },
@@ -59,7 +66,8 @@
                             lineWrapping: true,
                             matchBrackets: true,
                             scroll: true,
-                            readOnly: 'nocursor'
+                            readOnly: 'nocursor',
+                            scrollbarStyle : null
                         }
                     } else if (this.value[0][0].name.includes('.yml') || this.value[0][0].name.includes('.yaml')) {
                         var type = {
@@ -147,7 +155,9 @@
             }
         },
         methods: {
-
+            onScroll (e) {
+                this.offsetTop = e.target.scrollTop
+            },
             onCmReady(cm) {
                 // console.log('the editor is readied!', cm)
 

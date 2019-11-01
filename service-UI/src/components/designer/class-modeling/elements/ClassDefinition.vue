@@ -10,11 +10,10 @@
       :x.sync="value.elementView.x"
       :y.sync="value.elementView.y"
       :width.sync="value.elementView.width"
+      :height.sync="value.elementView.height"
       :height="titleH + (value.fieldDescriptors ? value.fieldDescriptors.length * itemH : 0)"
-      v-on:removeShape="onRemoveShape"
       v-on:dblclick="showProperty"
     >
-      <!--v-on:dblclick="$refs['dialog'].open()"-->
       <geometry-rect
         :_style="{
           'fill-r': 1,
@@ -30,16 +29,16 @@
 
       <sub-elements>
         <!--title-->
-        <text-element v-if="value.classReference"
-          :sub-width="'100%'"
-          :sub-height="titleH/2"
-          :sub-top="0"
-          :sub-left="0"
-          text="<<Bounded Context>>">
-        </text-element>
+<!--        <text-element v-if="value.classReference"-->
+<!--          :sub-width="'100%'"-->
+<!--          :sub-height="titleH/2"-->
+<!--          :sub-top="0"-->
+<!--          :sub-left="0"-->
+<!--          text="<<Bounded Context>>">-->
+<!--        </text-element>-->
         <text-element
           :sub-width="'100%'"
-          :sub-height="titleH"
+          :sub-height="titleH/2"
           :sub-top="0"
           :sub-left="0"
           :sub-style="{'font-weight': 'bold'}"
@@ -53,27 +52,28 @@
         >
         </edge-element>
 
-        <text-element v-if="value.fieldDescriptors" v-for="(item, index) in value.fieldDescriptors"
+        <text-element v-if="value.fieldDescriptors"
+                      v-for="(item, index) in value.fieldDescriptors"
                       :sub-width="'90%'"
-                      :sub-height="itemH"
+                      :sub-height="'30%'"
                       :sub-top="titleH + (index * itemH)"
-                      :sub-left="'5%'"
-                      :sub-style="{'text-anchor': 'start'}"
-                      :text="'+'+item.name + ': ' + item.className.substring(item.className.lastIndexOf('.')+1, item.className.length)">
+                      :sub-style="{'text-anchor': 'start', 'font-size': 15 }"
+                      :text="'+'+item.name + ': ' + item.type"
+                      >
         </text-element>
       </sub-elements>
     </geometry-element>
 
 
     <modeling-property-panel
-      :drawer.sync="drawer"
-      v-model="value"
-      style="height: 100%"
+            :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'"
+            :drawer.sync="value.drawer"
+            :fieldDescriptors.sync="value.fieldDescriptors"
+            v-model="value"
     >
       <template slot="properties-contents" style="height: 100%">
 
         <v-switch v-model="reference">Reference from other model (Bounded Context)</v-switch>
-
         <div v-if="!reference" >
           <v-container >
             <v-text-field type="text"
@@ -132,6 +132,8 @@
 <script>
   import Element from '../../modeling/Element'
 
+  var Mustache = require('mustache')
+
   export default {
     mixins: [Element],
     name: 'class-definition',
@@ -147,21 +149,27 @@
         return 'org.uengine.uml.model.ClassDefinition'
       },
       createNew(elementId, x, y, width, height) {
-
         return {
           _type: this.className(),
           name: 'Class',
-          fieldDescriptors: [],
+          fieldDescriptors: [{type: "Long", name: "id", upName: "Id", id: true}],
           elementView: {
             '_type': 'org.uengine.modeling.ElementView',
             'id': elementId,
             'x': x,
             'y': y,
-            'width': width,
-            'height': height,
+            'width': 100,
+            'height': 100,
             'style': JSON.stringify({})
           },
-            drawer: false
+          drawer: false,
+          selected: false,
+          inputText: '',
+          editing: false,
+          code: '',
+          relationInfo:'',
+          boundedContext: ''
+
         }
       }
     },
@@ -185,24 +193,31 @@
     watch: {
       referenceClassName: function(){
         this.updateClassInfo();
+      },
+      "value.fieldDescriptors": function (newVal) {
+        this.value.fieldDescriptors=newVal
+      },
+
+    },
+    computed:{
+      "value.fieldDescriptors":function () {
+        
       }
-
-
     },
     mounted: function () {
 
     },
     methods: {
 
-      addAttribute: function () {
-        this.value.fieldDescriptors.push({
-          name: 'attribute',
-          className: 'java.lang.String',
-          attributes: {},
-          _type: 'org.uengine.uml.model.Attribute'
-
-        });
-      },
+      // addAttribute: function () {
+      //   this.value.fieldDescriptors.push({
+      //     name: 'attribute',
+      //     className: 'java.lang.String',
+      //     attributes: {},
+      //     _type: 'org.uengine.uml.model.Attribute'
+      //
+      //   });
+      // },
       removeAttribute: function (attribute) {
         this.value.fieldDescriptors.splice(this.value.fieldDescriptors.indexOf(attribute), 1);
       },

@@ -24,18 +24,18 @@ Vue.component('class-modeler', ClassModeler)
 export default new Router({
     base: process.env.BASE_URL,
     routes: [
+        // {
+        //     path: '/',
+        //     name: 'Introduce',
+        //     component: Introduce
+        // },
+        // {
+        //     path: '/event',
+        //     name: 'EventStorming',
+        //     component: EventStormingListPage
+        // },
         {
             path: '/',
-            name: 'Introduce',
-            component: Introduce
-        },
-        {
-            path: '/event',
-            name: 'EventStorming',
-            component: EventStormingListPage
-        },
-        {
-            path: '/event/:id',
             name: 'EventStorming',
             component: EventModeler
         },

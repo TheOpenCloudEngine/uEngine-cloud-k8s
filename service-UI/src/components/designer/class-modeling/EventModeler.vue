@@ -80,6 +80,14 @@
                         'src': 'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/bounded2.png'
 
                     },
+                    {
+                        'icon': 'bpmn-icon-start-actor-none',//'OG.shape.essencia.Alpha',
+                        'component': 'actor-definition',
+                        'label': 'Actor',
+                        'width': '100',
+                        'height': '100',
+                        'src': 'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/actor.png'
+                    },
                 ],
             }
         },

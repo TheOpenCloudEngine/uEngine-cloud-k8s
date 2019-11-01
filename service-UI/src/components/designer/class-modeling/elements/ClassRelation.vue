@@ -1,6 +1,7 @@
 <template>
     <div>
         <edge-element
+                v-if="value.sourceElement._type != 'org.uengine.uml.model.Policy'"
                 selectable
                 connectable
                 deletable
@@ -8,7 +9,7 @@
                 :from.sync="value.from"
                 :to.sync="value.to"
                 :_style="style_"
-                :label="value.inputText"
+                :label="value.relationType"
                 v-on:removeShape="onRemoveShape"
                 v-on:dblclick="showProperty"
                 v-on:selectShape="selectedActivity"
@@ -52,35 +53,17 @@
                 return 'org.uengine.uml.model.relation'
             },
             style_() {
-                console.log(this.value)
-                if (this.value._type == "org.uengine.uml.model.relation" && this.value.relationType == 'Pub') {
+                if (this.value._type == "org.uengine.uml.model.relation" && this.value.relationType == 'Pub/Sub') {
                     var style = {
                         "arrow-end": "block",
-                        'stroke-width': '1.3', 'stroke-dasharray': '- ',
-                        // 'marker': {
-                        //     'end': {
-                        //         'id': 'OG.marker.MessageFlowArrowStartMarker',
-                        //         'size': [8, 6]
-                        //     },
-                        //     'start': {
-                        //         'id': 'OG.marker.MessageFlowArrowEndMarker',
-                        //         'size': [6, 6]
-                        //     }
-                        // }
+                        'stroke-width': '1.3',
+                        'stroke-dasharray': '- ',
+                        'font-size':20,
                     }
                 } else if (this.value._type == "org.uengine.uml.model.relation") {
                     var style = {
                         "arrow-end": "block",
-                        // 'marker': {
-                        //     'end': {
-                        //         'id': 'OG.marker.MessageFlowArrowStartMarker',
-                        //         'size': [8, 6]
-                        //     },
-                        //     'start': {
-                        //         'id': 'OG.marker.MessageFlowArrowEndMarker',
-                        //         'size': [6, 6]
-                        //     }
-                        // }
+                        'font-size':20,
                     }
                 }
                 return style
@@ -134,8 +117,10 @@
         },
         watch: {},
         mounted: function () {
+
         },
-        methods: {}
+        methods: {
+        }
     }
 </script>
 

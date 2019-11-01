@@ -43,11 +43,13 @@
                 <v-layout>
                     <v-app-bar-nav-icon style="margin-right: 20px;" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
                     <v-img max-height=45 max-width=220 src="../public/static/image/Logo_black_stroke7.png"></v-img>
-                    <div class="font-weight-bold" style="font-size: 16px; margin-top: 24px">  by uEngine</div>
+                    <div class="font-weight-bold" style="font-size: 16px; margin-top: 24px"> by uEngine</div>
                 </v-layout>
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn text color="white" @click="infoDialog = true"><v-icon medium>info</v-icon></v-btn>
+            <v-btn text color="white" @click="overlay = true">
+                <v-icon medium>info</v-icon>
+            </v-btn>
             <v-btn text color="white" @click="logout()" v-if="authorized">
                 Logout
             </v-btn>
@@ -70,7 +72,22 @@
                 </v-layout>
             </v-container>
         </v-content>
+        <v-overlay :value="overlay"
+                   align="end"
+        >
+        <v-btn
+                icon
+                @click="overlay = false"
+        >
+            <v-icon>mdi-close</v-icon>
+        </v-btn>
+            <youtube-media :video-id="'K99_Q0qn0Oc'"
+                           player-width="1206"
+                           player-height="658"
 
+            ></youtube-media>
+
+        </v-overlay>
         <!--  설명 Dialog -->
         <v-dialog
                 v-model="infoDialog"
@@ -88,18 +105,18 @@
                             :key="slider"
                             :src="slider"
                     >
-<!--                        <v-sheet-->
-<!--                                height="100%"-->
-<!--                                tile-->
-<!--                        >-->
-<!--                            <v-row-->
-<!--                                    class="fill-height"-->
-<!--                                    align="center"-->
-<!--                                    justify="center"-->
-<!--                            >-->
-<!--                                <div class="display-3">Slide {{ i + 1 }}</div>-->
-<!--                            </v-row>-->
-<!--                        </v-sheet>-->
+                        <!--                        <v-sheet-->
+                        <!--                                height="100%"-->
+                        <!--                                tile-->
+                        <!--                        >-->
+                        <!--                            <v-row-->
+                        <!--                                    class="fill-height"-->
+                        <!--                                    align="center"-->
+                        <!--                                    justify="center"-->
+                        <!--                            >-->
+                        <!--                                <div class="display-3">Slide {{ i + 1 }}</div>-->
+                        <!--                            </v-row>-->
+                        <!--                        </v-sheet>-->
                     </v-carousel-item>
                 </v-carousel>
 
@@ -183,30 +200,35 @@
             kubeHost: '',
             kubeToken: '',
             items: [
-                {icon: 'fa-book', text: 'Introduce', route: '/'},
-                {icon: 'fa-sticky-note', text: 'EventStorming', route: '/event'},
+                // {icon: 'fa-book', text: 'Introduce', route: '/'},
+                {icon: 'fa-sticky-note', text: 'EventStorming', route: '/'},
             ],
             api: [],
             snackbar: false,
-            fab:false
+            fab: false,
+            overlay: true
         }),
         props: {
             source: String
         },
         components: {
             axios,
-            https
+            https,
         },
         beforeDestroy() {
             window.localStorage.removeItem("accessToken");
         },
         computed: {
-            activeFab () {
+            activeFab() {
                 switch (this.tabs) {
-                    case 'one': return { class: 'purple', icon: 'account_circle' }
-                    case 'two': return { class: 'red', icon: 'edit' }
-                    case 'three': return { class: 'green', icon: 'keyboard_arrow_up' }
-                    default: return {}
+                    case 'one':
+                        return {class: 'purple', icon: 'account_circle'}
+                    case 'two':
+                        return {class: 'red', icon: 'edit'}
+                    case 'three':
+                        return {class: 'green', icon: 'keyboard_arrow_up'}
+                    default:
+                        return {}
                 }
             },
             authorized() {

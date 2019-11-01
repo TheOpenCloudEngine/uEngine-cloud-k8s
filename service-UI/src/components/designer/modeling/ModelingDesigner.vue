@@ -5,13 +5,10 @@
                 <class-modeler></class-modeler>
             </modal>
 
-            <modal name="code-modal" scrollable :height='"auto"' :width="'80%'">
+            <modal name="code-modal" :width="'80%'" :height='"80%"'  >
                 <v-card>
                     <v-card-title>
-                        <span class="headline">Code View</span>
-                        <v-btn text>
-                            <v-icon middle>info</v-icon>
-                        </v-btn>
+                        <span class="headline">Code Preview</span>
                     </v-card-title>
                     <v-card-text>
                         <!-- 형태:
@@ -23,7 +20,9 @@
                             <v-col :lg="3"
                                    :md="6"
                                    :sm="2"
-                                   style="margin-right: 15px; border-right: 1px solid black"
+                                   style="margin-right: 15px; border-right: 1px solid black; max-height: 800px;"
+                                   id="scroll-target"
+                                   class="overflow-auto"
                             >
                                 <v-treeview
                                         :items="codeList"
@@ -33,6 +32,7 @@
                                         open-on-click
                                         return-object
                                         open-all
+                                        dense
                                 >
                                     <template v-slot:prepend="{ item, open }">
                                         <v-icon v-if="!item.file">
@@ -109,7 +109,8 @@
                 <!--                       style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">BUILD-->
                 <!--                </v-btn>-->
                 <v-btn color="info" v-on:click.native="codeModalShow"
-                       style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">Generate
+                       style="margin-top: 16px; margin-left: 5px; margin-right: 10px; font-variant-caps: normal ">code
+                    Preview
                 </v-btn>
                 <v-btn color="info" v-on:click.native="generateZip"
                        style="margin-top: 16px; margin-left: 5px; margin-right: 10px;">Download Archive
@@ -152,7 +153,7 @@
         <v-snackbar v-model="snackbar" :color="color" :multi-line="mode === 'multi-line'" :timeout="timeout"
                     :vertical="mode === 'vertical'">
             {{ text }}
-            <v-btn dark flat @click="snackbar = false">
+            <v-btn dark @click="snackbar = false">
                 Close
             </v-btn>
         </v-snackbar>
@@ -207,6 +208,7 @@
                     'definition': [],
                     'relation': []
                 },
+                UMLValue: {},
                 items: [],
                 enableHistoryAdd: false,
                 undoing: false,
@@ -217,13 +219,18 @@
                 noPushUndo: false,
                 redoArray: [],
                 undoArray: [],
+                undoRedoArray: [],
+                undoRedoIndex: 0,
+                currentIndex: 0,
                 imageBase: 'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/symbol/',
                 userId: '',
+                //스낵바 옵션
                 snackbar: false,
                 color: 'error',
                 mode: 'multi-line',
                 timeout: 6000,
                 text: '수정중입니다.',
+                //
                 pusher: {},
                 connectCount: 0,
                 connectInfo: [],
@@ -270,7 +277,7 @@
                 get: function () {
                     var me = this
                     let tmpList = JSON.parse(JSON.stringify(me.items));
-                    // console.log(me.items)
+                    console.log(me.items)
 
                     me.value.definition.forEach(function (item) {
                         var event = {
@@ -279,26 +286,9 @@
                             type: '',
                             code: ''
                         }
-                        // console.log(item)
-                        if (item._type == 'org.uengine.uml.model.bounded') {
-                            // console.log(item)
 
+                        if (item._type == 'org.uengine.uml.model.bounded') {
                             var boundedItems = [
-                                {
-                                    name: '.mvn',
-                                    children: [
-                                        {
-                                            name: 'wrapper',
-                                            children: [
-                                                {
-                                                    name: 'maven-wrapper.properties',
-                                                    file: 'txt',
-                                                    code: "distributionUrl=https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.3.9/apache-maven-3.3.9-bin.zip"
-                                                }
-                                            ],
-                                        },
-                                    ],
-                                },
                                 {
                                     name: 'src',
                                     children: [
@@ -1072,19 +1062,19 @@
                                         "\t</build>\n" +
                                         "\n" +
                                         "</project>"
-                                },
+                                }
                             ]
+
+
                             var boundedFolder = {
                                 name: item.inputText,
                                 children: boundedItems
                             }
 
                             tmpList.push(boundedFolder)
-                            console.log(item)
 
                             item.dataList.forEach(function (tmpItem) {
                                 if (tmpItem._type == 'org.uengine.uml.model.Domain' && tmpItem.inputText.length > 0) {
-                                    console.log(tmpItem.upName)
 
                                     event.name = tmpItem.upName + '.java';
                                     event.type = tmpItem._type;
@@ -1093,7 +1083,7 @@
 
                                     tmpList.some(function (tmp, index) {
                                         if (tmp.name == tmpItem.boundedContext) {
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(JSON.parse(JSON.stringify(event)))
+                                            tmp.children[0].children[0].children[1].children[0].children[0].children[0].children.push(JSON.parse(JSON.stringify(event)))
                                         }
                                     })
                                     // [1].children[0].children[1].children[0].children[0].children[0].children.push(event)
@@ -1105,28 +1095,42 @@
                                             repositoryTmp.type = tmpItem._type;
                                             repositoryTmp.code = tmpItem.repositoryCode;
                                             repositoryTmp.file = 'java'
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(repositoryTmp);
+                                            tmp.children[0].children[0].children[1].children[0].children[0].children[0].children.push(repositoryTmp);
 
                                             var aggregateTmp = JSON.parse(JSON.stringify(event));
                                             aggregateTmp.name = tmpItem.upName + '.java';
                                             aggregateTmp.type = tmpItem._type;
                                             aggregateTmp.code = tmpItem.aggregateCode;
                                             aggregateTmp.file = 'java'
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(aggregateTmp);
+                                            tmp.children[0].children[0].children[1].children[0].children[0].children[0].children.push(aggregateTmp);
 
                                             var eventLisnterTmp = JSON.parse(JSON.stringify(event));
                                             eventLisnterTmp.name = tmpItem.upName + 'EventListener.java';
                                             eventLisnterTmp.type = tmpItem._type;
                                             eventLisnterTmp.code = tmpItem.eventListenerCode;
                                             eventLisnterTmp.file = 'java'
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(eventLisnterTmp);
+                                            tmp.children[0].children[0].children[1].children[0].children[0].children[0].children.push(eventLisnterTmp);
 
                                             var controllerTmp = JSON.parse(JSON.stringify(event));
                                             controllerTmp.name = tmpItem.upName + 'Controller.java';
                                             controllerTmp.type = tmpItem._type;
                                             controllerTmp.code = tmpItem.controllerCode;
                                             controllerTmp.file = 'java'
-                                            tmp.children[1].children[0].children[1].children[0].children[0].children[0].children.push(controllerTmp);
+                                            tmp.children[0].children[0].children[1].children[0].children[0].children[0].children.push(controllerTmp);
+                                        }
+                                    })
+                                } else if (tmpItem._type == 'org.uengine.uml.model.Policy' && tmpItem.relationInfo == 'Pub/Sub') {
+                                    event.name = tmpItem.relationEventInfo.upName + '.java';
+                                    event.type = tmpItem.relationEventInfo._type;
+                                    event.code = tmpItem.relationEventInfo.code;
+                                    event.file = 'java'
+
+
+                                    console.log(tmpList)
+                                    console.log(tmpItem)
+                                    tmpList.some(function (tmp, index) {
+                                        if (tmp.name == tmpItem.boundedContext) {
+                                            tmp.children[0].children[0].children[1].children[0].children[0].children[0].children.push(JSON.parse(JSON.stringify(event)))
                                         }
                                     })
                                 }
@@ -1149,6 +1153,11 @@
                 me.$nextTick(function () {
                     me.undoArray.push(JSON.parse(JSON.stringify(me.value)));
                     me.redoArray = [];
+
+                    // me.undoRedoArray.push(JSON.parse(JSON.stringify(me.value)));
+                    // me.undoRedoIndex = me.undoRedoIndex + 1
+                    // me.currentIndex = me.undoRedoIndex
+
                     me.value.definition.forEach(function (tmp) {
                         if (tmp.selected == true) {
                         }
@@ -1158,7 +1167,6 @@
 
             me.$ModelingBus.$on('umlDiagram', function () {
                 me.umlModalShow()
-                console.log("aa")
                 me.$nextTick(function () {
                 })
             });
@@ -1232,10 +1240,17 @@
 
                 // this.canvas.updateSlider();
                 //timer end
-                me.undoArray.push({
+
+                // me.undoArray.push({
+                //     'definition': [],
+                //     'relation': []
+                // })
+
+                me.undoRedoArray.push({
                     'definition': [],
                     'relation': []
                 })
+
                 this.$refs.opengraph.printTimer(startTime, new Date().getTime());
 
                 $(document).keydown((evt) => {
@@ -1247,9 +1262,11 @@
                         this.deleteActivity();
                     } else if (evt.keyCode == 90 && (evt.metaKey || evt.ctrlKey)) {
                         if (evt.shiftKey) {
-                            me.redo()
+                            // me.redo();
+                            me.undoRedo('redo');
                         } else {
-                            me.undo();
+                            // me.undo();
+                            me.undoRedo('undo');
                         }
                     }
                 });
@@ -1260,13 +1277,7 @@
             //     console.log("WIDTH",va.target.innerWidth)
             // })
         },
-        watch: {
-            open(newVal) {
-                // console.log(newVal)
-
-            }
-        },
-
+        watch: {},
         methods: {
             inputValue(name) {
                 // console.log(name)
@@ -1279,7 +1290,6 @@
                 this.$modal.show('code-modal');
             },
             umlModalShow() {
-                console.log("aa")
                 this.$modal.show('uml-modal');
             },
             generateZip() {
@@ -1355,10 +1365,6 @@
                     }
                 })
             },
-            // makeFiles(List){
-            //
-            //
-            // },
             codeModalhide() {
                 this.$modal.hide('code-modal');
             },
@@ -1627,6 +1633,9 @@
                     s4() + '-' + s4() + s4() + s4();
             },
             onConnectShape: function (edge, from, to) {
+                console.log(edge)
+                console.log(from)
+                console.log(to)
                 var me = this;
                 // console.log(edge)
                 //존재하는 릴레이션인 경우 (뷰 컴포넌트), 데이터 매핑에 의해 자동으로 from, to 가 변경되어있기 때문에 따로 로직은 필요없음.
@@ -1671,45 +1680,71 @@
                     // this.syncOthers();
                 }
             },
-            redo: function () {
+            undoRedo: function (cmd) {
                 var me = this
                 if (!me.drawer) {
-                    if (me.redoArray.length > 0) {
-                        var tmpData = me.redoArray.pop();
-                        me.value = JSON.parse(JSON.stringify(tmpData));
-                        if (me.undoArray.length == 0 && me.value.length == 0) {
-                            me.undoArray.push({
-                                'definition': [],
-                                'relation': []
-                            })
+                    if (cmd == 'redo') {
+                        console.log('redo')
+                        if (me.currentIndex < me.undoRedoArray.length - 1) {
+                            me.currentIndex = me.currentIndex + 1
+                            me.value = JSON.parse(JSON.stringify(me.undoRedoArray[me.currentIndex]));
+                        } else {
+                            me.text = "Last element"
+                            me.snackbar = true
+                            me.timeout = 500
                         }
-                        me.undoArray.push(JSON.parse(JSON.stringify(tmpData)));
-                        // this.syncOthers(JSON.parse(JSON.stringify(tmpData)));
-                    } else {
+                    } else if (cmd == 'undo') {
+                        console.log('undo')
+                        if (me.currentIndex > 0) {
+                            me.currentIndex = me.currentIndex - 1
+                            me.value = JSON.parse(JSON.stringify(me.undoRedoArray[me.currentIndex]));
+                        } else {
+                            me.text = "Last Element"
+                            me.snackbar = true
+                            me.timeout = 500
+                        }
                     }
                 }
+
             },
-            undo: function () {
-                var me = this;
-                if (!me.drawer) {
-                    if (me.undoArray.length > 1) {
-                        me.redoArray.push(me.undoArray[me.undoArray.length - 1])
-                        me.undoArray.pop()
-                        me.value = JSON.parse(JSON.stringify(me.undoArray[me.undoArray.length - 1]))
-                    } else if (me.undoArray.length == 1) {
-                        me.undoArray.pop();
-                        // console.log("undo length 0")
-                        me.undoArray.push(JSON.parse(JSON.stringify(me.value)))
-                        // this.syncOthers(JSON.parse(JSON.stringify(me.value)));
-                    } else {
-                    }
-                }
-            },
+            // redo: function () {
+            //     var me = this
+            //     if (!me.drawer) {
+            //         if (me.redoArray.length > 0) {
+            //             var tmpData = me.redoArray.pop();
+            //             me.value = JSON.parse(JSON.stringify(tmpData));
+            //             if (me.undoArray.length == 0 && me.value.length == 0) {
+            //                 me.undoArray.push({
+            //                     'definition': [],
+            //                     'relation': []
+            //                 })
+            //             }
+            //             me.undoArray.push(JSON.parse(JSON.stringify(tmpData)));
+            //             // this.syncOthers(JSON.parse(JSON.stringify(tmpData)));
+            //         } else {
+            //         }
+            //     }
+            // },
+            // undo: function () {
+            //     var me = this;
+            //     if (!me.drawer) {
+            //         if (me.undoArray.length > 1) {
+            //             me.redoArray.push(me.undoArray[me.undoArray.length - 1])
+            //             me.undoArray.pop()
+            //             me.value = JSON.parse(JSON.stringify(me.undoArray[me.undoArray.length - 1]))
+            //         } else if (me.undoArray.length == 1) {
+            //             me.undoArray.pop();
+            //             // console.log("undo length 0")
+            //             me.undoArray.push(JSON.parse(JSON.stringify(me.value)))
+            //             // this.syncOthers(JSON.parse(JSON.stringify(me.value)));
+            //         } else {
+            //         }
+            //     }
+            // },
             addElement: function (componentInfo, newTracingTag, originalData) {
                 this.enableHistoryAdd = true;
                 var me = this;
                 var additionalData = {};
-                console.log(originalData)
                 var vueComponent = me.getComponentByName(componentInfo.component);
                 // console.log(componentInfo.component , this.relationVueComponentName)
                 var element;
@@ -1737,13 +1772,23 @@
                         'relation': []
                     }
                 }
+
                 if (element._type == 'org.uengine.uml.model.relation') {
                     me.value['relation'].push(element);
                 } else {
                     me.value['definition'].push(element);
                 }
+
                 me.undoArray.push(JSON.parse(JSON.stringify(me.value)));
-                me.redoArray = [];
+                // me.redoArray = [];
+
+
+                //new UndoRedo
+                me.undoRedoArray.push(JSON.parse(JSON.stringify(me.value)));
+                me.undoRedoIndex = me.undoRedoIndex + 1
+                me.currentIndex = me.undoRedoIndex
+
+                //pusher
                 // this.syncOthers(element);
             },
 

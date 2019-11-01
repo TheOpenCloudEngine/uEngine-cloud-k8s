@@ -101,9 +101,12 @@
                     selected: false,
                     inputText: '',
                     restApi: '',
+                    code:'',
                     editing: false,
                     connectAggregateName: '',
                     relationInfo: '',
+                    relationEventInfo:[],
+                    boundedContext: '',
                 }
             }
         },
@@ -121,8 +124,7 @@
         },
         watch: {
             "value.relationInfo": function (newVal) {
-                console.log(newVal)
-                if (newVal == 'Pub' || newVal == 'Sub') {
+                if (newVal == 'Pub/Sub') {
                     this.value.code = this.setPolicyKafkaTemplate(this.value)
                 } else {
                     this.value.code = this.setPolicyRestTemplate(this.value)
@@ -152,10 +154,25 @@
         methods: {
             setPolicyKafkaTemplate(definition) {
                 return Mustache.render(
-                    "    @KafkaListener(topics = \"${eventTopic}\", groupId = \"{{inputText}}\") \n " +
-                    "    public void {{inputText}}(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {\n" +
+                    "     @KafkaListener(topics = \"${eventTopic}\", groupId = \"{{inputText}}\") \n " +
+                    "{{#relationEventInfo}}" +
+                    "     public void on{{upName}}(@Payload String message, ConsumerRecord<?, ?> consumerRecord) {\n" +
                     "        System.out.println(\"##### listener : \" + message); \n" +
-                    "    }\n\n", definition)
+                    "        ObjectMapper objectMapper = new ObjectMapper();\n" +
+                    "        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);\n\n" +
+                    "           {{upName}} {{inputText}} = null; \n" +
+                    "           try {\n\n" +
+                    "               {{inputText}} = objectMapper.readValue(message, {{upName}}.class);\n" +
+                    "               System.out.println(\" #### type = \" + {{inputText}}.getEventType());\n\n" +
+                    "\n" +
+                    "                  if( {{inputText}}.getEventType() != null && {{inputText}}.getEventType().equals({{upName}}.class.getSimpleName())){\n\n" +
+                    "                   // TO-DO :: Implement your Logic here.  \n\n" +
+                    "               }\n" +
+                    "           } catch (Exception e) {\n\n" +
+                    "           }\n" +
+                    "       }\n" +
+                    "{{/relationEventInfo}}\n" +
+                    "\n\n", definition)
             },
             setPolicyRestTemplate(name, definition) {
                 return Mustache.render(

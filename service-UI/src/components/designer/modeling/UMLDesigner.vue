@@ -29,6 +29,7 @@
 
 
             <v-card class="tools" style="top:100px; text-align: center;">
+
                 <span class="bpmn-icon-hand-tool" v-bind:class="{ icons : !dragPageMovable, hands : dragPageMovable }"
                       _width="30"
                       _height="30" v-on:click="toggleGrip">
@@ -47,6 +48,7 @@
                     </template>
                     <span>{{item.label}}</span>
                 </v-tooltip>
+
             </v-card>
         </v-layout>
         <modeler-image-generator ref="modeler-image-generator"></modeler-image-generator>
@@ -77,7 +79,7 @@
             CodeViewer
         },
         props: {
-            elementTypes: Array
+            elementTypes: Array,
         },
         data() {
             return {
@@ -126,6 +128,7 @@
                 pathTmp: [],
                 maxWidth: 0,
                 maxHeight: 0,
+
             }
         },
         beforeDestroy: function () {

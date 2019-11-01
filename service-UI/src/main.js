@@ -14,6 +14,7 @@ import ClassModeling from './components/designer/class-modeling'
 import Modeling from './components/designer/modeling'
 import Mustache from 'mustache'
 import CodeMirror from 'vue-codemirror'
+import VueYouTubeEmbed from 'vue-youtube-embed'
 
 Vue.use(Mustache)
 Vue.use(CodeMirror)
@@ -32,7 +33,7 @@ Vue.component('text-reader', textReader)
 var options = {'keyName' : 'accessToken'};
 
 Vue.use(VueJWT, options)
-
+Vue.use(VueYouTubeEmbed, { global: true, componentId: "youtube-media" })
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 Vue.prototype.$EventBus = new Vue()

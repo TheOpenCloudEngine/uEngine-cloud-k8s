@@ -7,13 +7,13 @@
             ref="designer"
     >
     </uml-designer>
+
 </template>
 
 <script>
     export default {
         name: 'class-designer',
         props: {
-
         },
         data() {
             return {
@@ -23,6 +23,14 @@
                         'icon': 'bpmn-icon-start-event-none',//'OG.shape.essencia.Alpha',
                         'component': 'class-definition',
                         'label': 'Class',
+                        'width': '100',
+                        'height': '100',
+                        'src': 'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'
+                    },
+                    {
+                        'icon': 'bpmn-icon-start-event-none',//'OG.shape.essencia.Alpha',
+                        'component': 'class-definition',
+                        'label': 'relation',
                         'width': '100',
                         'height': '100'
                     }

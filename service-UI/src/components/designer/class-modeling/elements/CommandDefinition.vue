@@ -56,7 +56,6 @@
                 :aggregateList.sync="aggregateList"
                 :aggregateText.sync="value.aggregateText"
                 :connectAggregateName.sync="value.connectAggregateName"
-                :restApi.sync="value.restApi"
                 v-model="value"
         >
         </modeling-property-panel>
@@ -137,9 +136,8 @@
                 this.value.code = me.setCommandTemplate()
             },
             "value.inputText": function (newVal) {
-                // console.log(this.code)
-                // this.code = this.codeGenerate;
-                this.codeInputText = _.camelCase(newVal)
+                // this.value.codeInputText = _.camelCase(newVal)
+                this.value.codeInputText = newVal.charAt(0).toUpperCase() + newVal.slice(1)
                 this.value.code = this.setCommandTemplate()
             }
         },
@@ -151,7 +149,7 @@
             setCommandTemplate() {
                 var me = this;
                 return Mustache.render(
-                    "    @RequestMapping(value = \"/{{connectAggregateName}}/{{codeInputText}}/\", method = RequestMethod.{{restApi}}, produces = \"application/json;charset=UTF-8\")\n" +
+                    "    @RequestMapping(value = \"/{{connectAggregateName}}/{{inputText}}/\", method = RequestMethod.{{restApi}}, produces = \"application/json;charset=UTF-8\")\n" +
                     "    public void {{codeInputText}}(HttpServletRequest request, HttpServletResponse response \n " +
                     "    ) throws Exception { \n" +
                     "    \n"+

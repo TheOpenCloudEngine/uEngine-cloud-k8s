@@ -163,7 +163,7 @@
 
             },
             onAddToGroup: function (groupElement, elements, eventOffset ) {
-                console.log(groupElement, elements, eventOffset)
+
                 elements.forEach(function (element) {
                     var inner = false
                     groupElement.$parent.value.dataList.some(function (tmp) {
