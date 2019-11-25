@@ -1,0 +1,330 @@
+<template>
+    <div>
+        <geometry-element
+                selectable
+                :movable="!value.editing"
+                :resizable="!value.editing"
+                connectable
+                deletable
+                :id.sync="value.elementView.id"
+                :x.sync="value.elementView.x"
+                :y.sync="value.elementView.y"
+                :width.sync="value.elementView.width"
+                :height.sync="value.elementView.height"
+                :angle.sync="value.elementView.angle"
+                v-on:selectShape="selectedActivity"
+                v-on:deSelectShape="deSelectedActivity"
+                v-on:dblclick="showProperty"
+                v-on:rotateShape="onRotateShape"
+                v-on:labelChanged="onLabelChanged"
+                v-on:addedToGroup="onAddedToGroup"
+<<<<<<< HEAD
+                :label.sync="value.name"
+=======
+                :label.sync="value.inputText"
+>>>>>>> 797c7f9cdf5590053c70e9ea705e6ebb6c5801b8
+                :_style="{
+                'label-angle':value.elementView.angle,
+                'font-weight': 'bold','font-size': '16'
+                }"
+        >
+            <!--v-on:dblclick="$refs['dialog'].open()"-->
+            <geometry-rect
+                    :_style="{
+          'fill-r': 1,
+          'fill-cx': .1,
+          'fill-cy': .1,
+          'stroke-width': 1.4,
+          'stroke': '#F1A746',
+          fill: '#F1A746',
+          'fill-opacity': 1,
+          r: '1'
+        }"
+            >
+            </geometry-rect>
+            <sub-elements>
+                <!--title-->
+                <text-element
+                        :sub-width="'100%'"
+                        :sub-height="titleH"
+                        :sub-top="0"
+                        :sub-left="0"
+                        :text="value.classReference ? value.classReference : '<< Event >>'">
+                </text-element>
+
+            </sub-elements>
+        </geometry-element>
+
+
+        <modeling-property-panel
+<<<<<<< HEAD
+=======
+                :drawer.sync="value.drawer"
+                :titleName.sync="value.name"
+                :inputText.sync="value.inputText"
+                :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'"
+                :aggregate.sync="value.aggregate"
+                :entity.sync="value.entity"
+                :aggregateList.sync="aggregateList"
+                :connectAggregateName.sync="value.connectAggregateName"
+                :connectAggregateEntity.sync="value.connectAggregateEntity"
+                :publishType.sync="value.publishType"
+>>>>>>> 797c7f9cdf5590053c70e9ea705e6ebb6c5801b8
+                v-model="value"
+                titleName="Event"
+                :img="'https://raw.githubusercontent.com/kimsanghoon1/k8s-UI/master/public/static/image/event/event.png'"
+        >
+        </modeling-property-panel>
+
+    </div>
+</template>
+
+<script>
+    import Element from '../../modeling/Element'
+
+    var Mustache = require('mustache')
+
+    export default {
+        mixins: [Element],
+        name: 'domain-event-definition',
+        props: {},
+        computed: {
+            namePascalCase() {
+                var me = this
+                return me.name.charAt(0).toUpperCase() + me.name.slice(1)
+            },
+            defaultStyle() {
+                return {}
+            },
+<<<<<<< HEAD
+=======
+            type() {
+                return 'Event'
+            },
+>>>>>>> 797c7f9cdf5590053c70e9ea705e6ebb6c5801b8
+            className() {
+                return 'org.uengine.model.Event'
+            },
+
+            createNew(elementId, x, y, width, height, angle) {
+                return {
+<<<<<<< HEAD
+                    description_text: '도메인 전문가가 정의함. \n' +
+                        '이벤트 퍼블리싱',
+                    _type: this.className(),
+                    name: '',
+                    namePascalCase: '',
+                    nameCamelCase: '',
+                    aggregate:[],
+                    aggregateId: '',
+                    boundedContext: '',
+                    fieldDescriptors: [],
+                    elementView: {
+                        '_type': this.className(),
+=======
+                    upName: '',
+                    _type: this.className(),
+                    name: 'Event',
+                    elementView: {
+                        '_type': 'org.uengine.uml.model.Domain',
+>>>>>>> 797c7f9cdf5590053c70e9ea705e6ebb6c5801b8
+                        'id': elementId,
+                        'x': x,
+                        'y': y,
+                        'width': 100,
+                        'height': 100,
+                        'style': JSON.stringify({}),
+                        'angle': 0,
+                    },
+                    checkValue: false,
+                    drawer: false,
+                    selected: false,
+<<<<<<< HEAD
+                    editing: false,
+                    eventToPolicy: '',
+                    trigger: '@PrePersist',
+=======
+                    inputText: '',
+                    restApi: '',
+                    editing: false,
+                    connectAggregateName: '',
+                    connectAggregateEntity:[],
+                    entity: [],
+                    code: '',
+                    publishTypeCode:'',
+                    relationInfo:'',
+                    boundedContext: '',
+                    publishType:'',
+>>>>>>> 797c7f9cdf5590053c70e9ea705e6ebb6c5801b8
+                }
+            }
+        },
+        data: function () {
+            return {
+                itemH: 20,
+                titleH: (this.value.classReference ? 60 : 30),
+                reference: this.value.classReference != null,
+                referenceClassName: this.value.classReference,
+            };
+        },
+        created: function () {
+
+        },
+        watch: {
+<<<<<<< HEAD
+            "value.aggregateId": function (newVal, oldVal) {
+                var me = this
+                var designer = this.getComponent('modeling-designer')
+
+                 designer.value.definition.forEach(function (temp) {
+
+                    if (oldVal != null)
+                        if (temp._type == "org.uengine.model.Aggregate" && temp.elementView.id == oldVal) {
+                            temp.events.forEach(function (ev, idx) {
+                                if (ev.elementView.id == me.value.elementView.id) {
+                                    if (idx > -1) temp.events.splice(idx, 1)
+                                }
+                            })
+                        }
+
+                    if (temp._type == "org.uengine.model.Aggregate" && temp.elementView.id == newVal) {
+                        // me.value.aggregateName = temp.name
+                        me.value.aggregate = JSON.parse(JSON.stringify(temp))
+                        me.value.fieldDescriptors = JSON.parse(JSON.stringify(temp.aggregateRoot.fieldDescriptors))
+                        temp.events.push(me.value)
+                    }
+                })
+            },
+            "value.name": function (newVal) {
+                this.value.checkValue = true
+            },
+            "value.drawer": function (newVal) {
+                var me = this
+                if (newVal == false) {
+                    if (me.value.checkValue) {
+                        var me = this
+
+                        //text 변경
+                        //me.value.namePascalCase = me.value.name.charAt(0).toUpperCase() + me.value.name.slice(1)
+
+                        //update event 정보 변경
+                        var designer = this.getComponent('modeling-designer')
+                        designer.value.definition.forEach(function (element) {
+
+                            if (element._type == "org.uengine.model.Aggregate" && element.name == me.value.aggregateName) {
+                                element.events.forEach(function (ev) {
+                                    if (ev.elementView.id == me.value.elementView.id) {
+                                        ev.name = me.value.name
+                                    }
+                                })
+                            }
+                        })
+
+                        // 변경 완
+                        me.value.checkValue = false
+                    }
+                }
+=======
+            "value.connectAggregateName": function (newVal, oldVal) {
+                console.log('connect Aggregate')
+                // console.log(newVal,oldVal)
+                var me = this
+                var designer = this.getComponent('modeling-designer')
+
+                designer.value.definition.forEach(function (temp) {
+                    console.log(temp.inputText, newVal)
+                    if(temp._type == "org.uengine.uml.model.Aggregate" && temp.inputText == oldVal) {
+                        temp.innerAggregate[me.type.toLowerCase()].splice(temp.innerAggregate[me.type.toLowerCase()].indexOf(oldVal),1);
+                    }
+                    if (temp._type == "org.uengine.uml.model.Aggregate" && temp.inputText == newVal) {
+                        me.value.entity = JSON.parse(JSON.stringify(temp.aggregateEntity))
+                        temp.innerAggregate[me.type.toLowerCase()].push(me.value)
+                    }
+                })
+            },
+            "value.inputText": function (newVal) {
+                // console.log(this.value)
+                // console.log(this.code)
+                // this.code = this.codeGenerate;
+                // console.log(newVal.charAt(0).toUpperCase(),newVal.slice(1))
+                this.value.upName = newVal.charAt(0).toUpperCase() + newVal.slice(1)
+                this.value.code = this.setEventTemplate(newVal, this.value)
+
+            },
+            "value.entity": function () {
+                var me = this
+                // console.log(this.code)
+                // this.code = this.codeGenerate;
+                this.value.code = this.setEventTemplate()
+            },
+            "value.publishType": function () {
+                this.value.publishTypeCode=this.setPublishTypeTemplate()
+>>>>>>> 797c7f9cdf5590053c70e9ea705e6ebb6c5801b8
+            }
+        },
+        mounted: function () {
+        },
+<<<<<<< HEAD
+        methods: {}
+=======
+        methods: {
+            setPublishTypeTemplate(){
+                var me = this
+                return Mustache.render(
+                    "\n" +
+                    "{{publishType}}\n" +
+                    "    private void publish{{upName}}() {\n" +
+                    "        KafkaTemplate kafkaTemplate = Application.applicationContext.getBean(KafkaTemplate.class);\n" +
+                    "        RestTemplate restTemplate = Application.applicationContext.getBean(RestTemplate.class);\n" +
+                    "\n" +
+                    "        Environment env = Application.applicationContext.getEnvironment();\n" +
+                    "        ObjectMapper objectMapper = new ObjectMapper();\n" +
+                    "        String json = null;\n" +
+                    "\n" +
+                    "        {{upName}} {{inputText}} = new {{upName}}();\n" +
+                    "        try {\n" +
+                    "                BeanUtils.copyProperties(this, {{inputText}});\n" +
+                    "                json = objectMapper.writeValueAsString({{inputText}});" +
+                    "\n" +
+                    "        } catch (JsonProcessingException e) {\n" +
+                    "            throw new RuntimeException(\"JSON format exception\", e);\n" +
+                    "        }\n" +
+                    "\n" +
+                    "        String topicName = env.getProperty(\"eventTopic\");\n" +
+                    "        ProducerRecord producerRecord = new ProducerRecord<>(topicName, json);\n" +
+                    "        kafkaTemplate.send(producerRecord);\n" +
+                    "    }\n\n",me.value)
+
+            },
+            setEventTemplate() {
+                var me = this
+                return Mustache.render(
+                    "package com.example.template;\n" +
+                    "\n" +
+                    "import java.io.Serializable;\n" +
+                    "\n" +
+                    "public class {{upName}} extends AbstractEvent {\n" +
+                    "\n" +
+                    "{{#entity}}" +
+                    "    public {{type}} {{name}};\n" +
+                    "{{/entity}}\n" +
+                    "\n" +
+                    "{{#entity}}" +
+                    "    public {{type}} get{{upName}}() {\n" +
+                    "        return {{name}};\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    public void set{{upName}}({{type}} {{name}}) {\n" +
+                    "        this.{{name}} = {{name}};\n" +
+                    "    }\n" +
+                    "{{/entity}}" +
+                    "}\n", me.value)
+            },
+        }
+>>>>>>> 797c7f9cdf5590053c70e9ea705e6ebb6c5801b8
+    }
+</script>
+
+
+<style scoped lang="scss" rel="stylesheet/scss">
+</style>

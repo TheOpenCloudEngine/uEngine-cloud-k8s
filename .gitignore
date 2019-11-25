@@ -40,3 +40,4 @@ secrets.yml
 .sts4-cache
 node_modules
 .dist/
+cloud-run-1-cb2c560a9e31.json

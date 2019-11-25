@@ -33,7 +33,7 @@ public class ServicesController {
 
         return list;
     }
-    
+
     @RequestMapping(value = "/namespaces/{namespace}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Services> getServicesByNamespace(HttpServletRequest request,
                                          HttpServletResponse response,
@@ -49,7 +49,7 @@ public class ServicesController {
 
         return list;
     }
-    
+
     @RequestMapping(value = "/namespaces/{namespace}/{name}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Services> getServicesByNamespaceName(HttpServletRequest request,
                                          HttpServletResponse response,

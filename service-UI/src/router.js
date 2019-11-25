@@ -1,24 +1,44 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Dashboard from './views/dashboardpage.vue'
-import Home from './components/HelloWorld'
+// import Dashboard from './views/dashboardpage.vue'
+import EventStormingListPage from './components/EventStormingList/EventStormingListPage.vue'
+import Introduce from './components/EventStormingList/Introduce.vue'
+
+
 
 Vue.use(Router)
 
+import ModelerRouter from './components/designer/ModelerRouter'
+import ProcessDesigner from './components/designer/process/ProcessDesigner'
+import EventModeler from './components/designer/class-modeling/EventModeler'
+import ClassModeler from './components/designer/class-modeling/ClassModeler'
+import ModelerImageGenerator from './components/designer/ModelerImageGenerator'
+
+Vue.component('modeler-router', ModelerRouter);
+Vue.component('modeler-image-generator', ModelerImageGenerator);
+Vue.component('process-designer', ProcessDesigner);
+Vue.component('event-modeler', EventModeler)
+Vue.component('class-modeler', ClassModeler)
+
+
 export default new Router({
-    mode: 'history',
     base: process.env.BASE_URL,
     routes: [
+        // {
+        //     path: '/',
+        //     name: 'Introduce',
+        //     component: Introduce
+        // },
+        // {
+        //     path: '/event',
+        //     name: 'EventStorming',
+        //     component: EventStormingListPage
+        // },
         {
             path: '/',
-            name: 'Dashboard',
-            component: Dashboard
+            name: 'EventStorming',
+            component: EventModeler
         },
-        // {
-        //     path: '/yaml',
-        //     name: 'EditYaml',
-        //     component: EditYaml
-        // },
         // {
         //   path: '/about',
         //   name: 'about',

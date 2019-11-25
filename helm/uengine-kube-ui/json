@@ -1,0 +1,2061 @@
+{
+  "kind": "PodList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/namespaces/default/pods/",
+    "resourceVersion": "5899966"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "deploy-monitor-676768f57b-vksn2",
+        "generateName": "deploy-monitor-676768f57b-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/deploy-monitor-676768f57b-vksn2",
+        "uid": "1711012f-4623-11e9-a568-02910c21b398",
+        "resourceVersion": "3910279",
+        "creationTimestamp": "2019-03-14T06:33:33Z",
+        "labels": {
+          "app": "deploy-monitor",
+          "app.kubernetes.io/managed-by": "spinnaker",
+          "app.kubernetes.io/name": "uenginek8s",
+          "pod-template-hash": "2323249136"
+        },
+        "annotations": {
+          "artifact.spinnaker.io/location": "default",
+          "artifact.spinnaker.io/name": "deploy-monitor",
+          "artifact.spinnaker.io/type": "kubernetes/deployment",
+          "kubernetes.io/limit-ranger": "LimitRanger plugin set: cpu request for container deploy-monitor",
+          "moniker.spinnaker.io/application": "uenginek8s",
+          "moniker.spinnaker.io/cluster": "deployment deploy-monitor",
+          "sidecar.istio.io/status": "{\"version\":\"50128f63e7b050c58e1cdce95b577358054109ad2aff4bc4995158c06924a43b\",\"initContainers\":[\"istio-init\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"],\"imagePullSecrets\":null}"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "name": "deploy-monitor-676768f57b",
+            "uid": "8d2598de-4493-11e9-a568-02910c21b398",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "default-token-zwxhl",
+            "secret": {
+              "secretName": "default-token-zwxhl",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "istio-envoy",
+            "emptyDir": {
+              "medium": "Memory"
+            }
+          },
+          {
+            "name": "istio-certs",
+            "secret": {
+              "secretName": "istio.default",
+              "defaultMode": 420,
+              "optional": true
+            }
+          }
+        ],
+        "initContainers": [
+          {
+            "name": "istio-init",
+            "image": "docker.io/istio/proxy_init:1.0.5",
+            "args": [
+              "-p",
+              "15001",
+              "-u",
+              "1337",
+              "-m",
+              "REDIRECT",
+              "-i",
+              "*",
+              "-x",
+              "",
+              "-b",
+              "",
+              "-d",
+              ""
+            ],
+            "resources": {
+              
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              },
+              "privileged": true
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "deploy-monitor",
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/deploy-monitor",
+            "resources": {
+              "requests": {
+                "cpu": "100m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "default-token-zwxhl",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always"
+          },
+          {
+            "name": "istio-proxy",
+            "image": "docker.io/istio/proxyv2:1.0.5",
+            "args": [
+              "proxy",
+              "sidecar",
+              "--configPath",
+              "/etc/istio/proxy",
+              "--binaryPath",
+              "/usr/local/bin/envoy",
+              "--serviceCluster",
+              "deploy-monitor",
+              "--drainDuration",
+              "45s",
+              "--parentShutdownDuration",
+              "1m0s",
+              "--discoveryAddress",
+              "istio-pilot.istio-system:15007",
+              "--discoveryRefreshDelay",
+              "1s",
+              "--zipkinAddress",
+              "zipkin.istio-system:9411",
+              "--connectTimeout",
+              "10s",
+              "--proxyAdminPort",
+              "15000",
+              "--controlPlaneAuthPolicy",
+              "NONE"
+            ],
+            "ports": [
+              {
+                "name": "http-envoy-prom",
+                "containerPort": 15090,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "INSTANCE_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_INTERCEPTION_MODE",
+                "value": "REDIRECT"
+              },
+              {
+                "name": "ISTIO_METAJSON_ANNOTATIONS",
+                "value": "{\"artifact.spinnaker.io/location\":\"default\",\"artifact.spinnaker.io/name\":\"deploy-monitor\",\"artifact.spinnaker.io/type\":\"kubernetes/deployment\",\"kubernetes.io/limit-ranger\":\"LimitRanger plugin set: cpu request for container deploy-monitor\",\"moniker.spinnaker.io/application\":\"uenginek8s\",\"moniker.spinnaker.io/cluster\":\"deployment deploy-monitor\"}\n"
+              },
+              {
+                "name": "ISTIO_METAJSON_LABELS",
+                "value": "{\"app\":\"deploy-monitor\",\"app.kubernetes.io/managed-by\":\"spinnaker\",\"app.kubernetes.io/name\":\"uenginek8s\",\"pod-template-hash\":\"2323249136\"}\n"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "10m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "istio-envoy",
+                "mountPath": "/etc/istio/proxy"
+              },
+              {
+                "name": "istio-certs",
+                "readOnly": true,
+                "mountPath": "/etc/certs/"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "runAsUser": 1337,
+              "readOnlyRootFilesystem": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "ip-172-20-36-93.ap-northeast-2.compute.internal",
+        "securityContext": {
+          
+        },
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ],
+        "priority": 0
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:33:35Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:33:46Z"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": null
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:33:33Z"
+          }
+        ],
+        "hostIP": "172.20.36.93",
+        "podIP": "100.96.6.76",
+        "startTime": "2019-03-14T06:33:33Z",
+        "initContainerStatuses": [
+          {
+            "name": "istio-init",
+            "state": {
+              "terminated": {
+                "exitCode": 0,
+                "reason": "Completed",
+                "startedAt": "2019-03-14T06:33:35Z",
+                "finishedAt": "2019-03-14T06:33:35Z",
+                "containerID": "docker://d5f5fc41857d8a362ad5b61256dc6110d6e1bdde9edf6c6bf4c80b4e568c5845"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxy_init:1.0.5",
+            "imageID": "docker-pullable://istio/proxy_init@sha256:6acdf7ffa6b6615b3fd79028220f0550f705d03ba97b66126e0990639a9f3593",
+            "containerID": "docker://d5f5fc41857d8a362ad5b61256dc6110d6e1bdde9edf6c6bf4c80b4e568c5845"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "deploy-monitor",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-14T06:33:46Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/deploy-monitor:latest",
+            "imageID": "docker-pullable://979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/deploy-monitor@sha256:d8073f2f5e24bfe0d679d23dd94c471144e3b8ad44c2d8666bf851ec690dfdc1",
+            "containerID": "docker://9dc179d28c41b856123a5dfd615e95403db56cf21e9ca037bf75e436a20e7e3f"
+          },
+          {
+            "name": "istio-proxy",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-14T06:33:46Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxyv2:1.0.5",
+            "imageID": "docker-pullable://istio/proxyv2@sha256:8b7d549100638a3697886e549c149fb588800861de8c83605557a9b4b20343d4",
+            "containerID": "docker://4d9059eb289b966d8f744505324d121f6f21586010158656775c665a68fdad54"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    },
+    {
+      "metadata": {
+        "name": "pod-monitor-576ddd78b-xf7rm",
+        "generateName": "pod-monitor-576ddd78b-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/pod-monitor-576ddd78b-xf7rm",
+        "uid": "8cd50446-4493-11e9-a568-02910c21b398",
+        "resourceVersion": "3508040",
+        "creationTimestamp": "2019-03-12T06:53:32Z",
+        "labels": {
+          "app": "pod-monitor",
+          "app.kubernetes.io/managed-by": "spinnaker",
+          "app.kubernetes.io/name": "uenginek8s",
+          "pod-template-hash": "132888346"
+        },
+        "annotations": {
+          "artifact.spinnaker.io/location": "default",
+          "artifact.spinnaker.io/name": "pod-monitor",
+          "artifact.spinnaker.io/type": "kubernetes/deployment",
+          "kubernetes.io/limit-ranger": "LimitRanger plugin set: cpu request for container pod-monitor",
+          "moniker.spinnaker.io/application": "uenginek8s",
+          "moniker.spinnaker.io/cluster": "deployment pod-monitor",
+          "sidecar.istio.io/status": "{\"version\":\"50128f63e7b050c58e1cdce95b577358054109ad2aff4bc4995158c06924a43b\",\"initContainers\":[\"istio-init\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"],\"imagePullSecrets\":null}"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "name": "pod-monitor-576ddd78b",
+            "uid": "8cd2debc-4493-11e9-a568-02910c21b398",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "default-token-zwxhl",
+            "secret": {
+              "secretName": "default-token-zwxhl",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "istio-envoy",
+            "emptyDir": {
+              "medium": "Memory"
+            }
+          },
+          {
+            "name": "istio-certs",
+            "secret": {
+              "secretName": "istio.default",
+              "defaultMode": 420,
+              "optional": true
+            }
+          }
+        ],
+        "initContainers": [
+          {
+            "name": "istio-init",
+            "image": "docker.io/istio/proxy_init:1.0.5",
+            "args": [
+              "-p",
+              "15001",
+              "-u",
+              "1337",
+              "-m",
+              "REDIRECT",
+              "-i",
+              "*",
+              "-x",
+              "",
+              "-b",
+              "",
+              "-d",
+              ""
+            ],
+            "resources": {
+              
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              },
+              "privileged": true
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "pod-monitor",
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/pod-monitor",
+            "resources": {
+              "requests": {
+                "cpu": "100m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "default-token-zwxhl",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always"
+          },
+          {
+            "name": "istio-proxy",
+            "image": "docker.io/istio/proxyv2:1.0.5",
+            "args": [
+              "proxy",
+              "sidecar",
+              "--configPath",
+              "/etc/istio/proxy",
+              "--binaryPath",
+              "/usr/local/bin/envoy",
+              "--serviceCluster",
+              "pod-monitor",
+              "--drainDuration",
+              "45s",
+              "--parentShutdownDuration",
+              "1m0s",
+              "--discoveryAddress",
+              "istio-pilot.istio-system:15007",
+              "--discoveryRefreshDelay",
+              "1s",
+              "--zipkinAddress",
+              "zipkin.istio-system:9411",
+              "--connectTimeout",
+              "10s",
+              "--proxyAdminPort",
+              "15000",
+              "--controlPlaneAuthPolicy",
+              "NONE"
+            ],
+            "ports": [
+              {
+                "name": "http-envoy-prom",
+                "containerPort": 15090,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "INSTANCE_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_INTERCEPTION_MODE",
+                "value": "REDIRECT"
+              },
+              {
+                "name": "ISTIO_METAJSON_ANNOTATIONS",
+                "value": "{\"artifact.spinnaker.io/location\":\"default\",\"artifact.spinnaker.io/name\":\"pod-monitor\",\"artifact.spinnaker.io/type\":\"kubernetes/deployment\",\"kubernetes.io/limit-ranger\":\"LimitRanger plugin set: cpu request for container pod-monitor\",\"moniker.spinnaker.io/application\":\"uenginek8s\",\"moniker.spinnaker.io/cluster\":\"deployment pod-monitor\"}\n"
+              },
+              {
+                "name": "ISTIO_METAJSON_LABELS",
+                "value": "{\"app\":\"pod-monitor\",\"app.kubernetes.io/managed-by\":\"spinnaker\",\"app.kubernetes.io/name\":\"uenginek8s\",\"pod-template-hash\":\"132888346\"}\n"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "10m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "istio-envoy",
+                "mountPath": "/etc/istio/proxy"
+              },
+              {
+                "name": "istio-certs",
+                "readOnly": true,
+                "mountPath": "/etc/certs/"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "runAsUser": 1337,
+              "readOnlyRootFilesystem": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "ip-172-20-58-194.ap-northeast-2.compute.internal",
+        "securityContext": {
+          
+        },
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ],
+        "priority": 0
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-12T06:53:34Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-12T06:53:38Z"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": null
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-12T06:53:32Z"
+          }
+        ],
+        "hostIP": "172.20.58.194",
+        "podIP": "100.96.9.96",
+        "startTime": "2019-03-12T06:53:32Z",
+        "initContainerStatuses": [
+          {
+            "name": "istio-init",
+            "state": {
+              "terminated": {
+                "exitCode": 0,
+                "reason": "Completed",
+                "startedAt": "2019-03-12T06:53:34Z",
+                "finishedAt": "2019-03-12T06:53:34Z",
+                "containerID": "docker://124fcf7ed8173037814703851e519908fa63fc7fd8ac787db278a74bf97f4801"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxy_init:1.0.5",
+            "imageID": "docker-pullable://istio/proxy_init@sha256:6acdf7ffa6b6615b3fd79028220f0550f705d03ba97b66126e0990639a9f3593",
+            "containerID": "docker://124fcf7ed8173037814703851e519908fa63fc7fd8ac787db278a74bf97f4801"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "istio-proxy",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-12T06:53:37Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxyv2:1.0.5",
+            "imageID": "docker-pullable://istio/proxyv2@sha256:8b7d549100638a3697886e549c149fb588800861de8c83605557a9b4b20343d4",
+            "containerID": "docker://23fb0fa8e9650a6a2c3d61f038d6837d7932ef8db03a772920a86873db281a73"
+          },
+          {
+            "name": "pod-monitor",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-12T06:53:37Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/pod-monitor:latest",
+            "imageID": "docker-pullable://979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/pod-monitor@sha256:9a82815a5af97a3248b74bf984503ce3038c5af14d571c7dd479ec1d6020771a",
+            "containerID": "docker://42577a4b9641d35d63c0db5b231b583b193b43e3d4a8246a8d99ece39108a312"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    },
+    {
+      "metadata": {
+        "name": "service-kube-controller-5f68c6b48d-vgp9n",
+        "generateName": "service-kube-controller-5f68c6b48d-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/service-kube-controller-5f68c6b48d-vgp9n",
+        "uid": "172f735d-4623-11e9-a568-02910c21b398",
+        "resourceVersion": "3910398",
+        "creationTimestamp": "2019-03-14T06:33:33Z",
+        "labels": {
+          "app": "service-kube-controller",
+          "app.kubernetes.io/managed-by": "spinnaker",
+          "app.kubernetes.io/name": "uenginek8s",
+          "pod-template-hash": "1924726048"
+        },
+        "annotations": {
+          "artifact.spinnaker.io/location": "default",
+          "artifact.spinnaker.io/name": "service-kube-controller",
+          "artifact.spinnaker.io/type": "kubernetes/deployment",
+          "kubernetes.io/limit-ranger": "LimitRanger plugin set: cpu request for container service-kube-controller",
+          "moniker.spinnaker.io/application": "uenginek8s",
+          "moniker.spinnaker.io/cluster": "deployment service-kube-controller",
+          "sidecar.istio.io/status": "{\"version\":\"50128f63e7b050c58e1cdce95b577358054109ad2aff4bc4995158c06924a43b\",\"initContainers\":[\"istio-init\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"],\"imagePullSecrets\":null}"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "name": "service-kube-controller-5f68c6b48d",
+            "uid": "8dfbb61f-4493-11e9-a568-02910c21b398",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "default-token-zwxhl",
+            "secret": {
+              "secretName": "default-token-zwxhl",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "istio-envoy",
+            "emptyDir": {
+              "medium": "Memory"
+            }
+          },
+          {
+            "name": "istio-certs",
+            "secret": {
+              "secretName": "istio.default",
+              "defaultMode": 420,
+              "optional": true
+            }
+          }
+        ],
+        "initContainers": [
+          {
+            "name": "istio-init",
+            "image": "docker.io/istio/proxy_init:1.0.5",
+            "args": [
+              "-p",
+              "15001",
+              "-u",
+              "1337",
+              "-m",
+              "REDIRECT",
+              "-i",
+              "*",
+              "-x",
+              "",
+              "-b",
+              "",
+              "-d",
+              ""
+            ],
+            "resources": {
+              
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              },
+              "privileged": true
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "service-kube-controller",
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/service-kube-controller",
+            "resources": {
+              "requests": {
+                "cpu": "100m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "default-token-zwxhl",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always"
+          },
+          {
+            "name": "istio-proxy",
+            "image": "docker.io/istio/proxyv2:1.0.5",
+            "args": [
+              "proxy",
+              "sidecar",
+              "--configPath",
+              "/etc/istio/proxy",
+              "--binaryPath",
+              "/usr/local/bin/envoy",
+              "--serviceCluster",
+              "service-kube-controller",
+              "--drainDuration",
+              "45s",
+              "--parentShutdownDuration",
+              "1m0s",
+              "--discoveryAddress",
+              "istio-pilot.istio-system:15007",
+              "--discoveryRefreshDelay",
+              "1s",
+              "--zipkinAddress",
+              "zipkin.istio-system:9411",
+              "--connectTimeout",
+              "10s",
+              "--proxyAdminPort",
+              "15000",
+              "--controlPlaneAuthPolicy",
+              "NONE"
+            ],
+            "ports": [
+              {
+                "name": "http-envoy-prom",
+                "containerPort": 15090,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "INSTANCE_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_INTERCEPTION_MODE",
+                "value": "REDIRECT"
+              },
+              {
+                "name": "ISTIO_METAJSON_ANNOTATIONS",
+                "value": "{\"artifact.spinnaker.io/location\":\"default\",\"artifact.spinnaker.io/name\":\"service-kube-controller\",\"artifact.spinnaker.io/type\":\"kubernetes/deployment\",\"kubernetes.io/limit-ranger\":\"LimitRanger plugin set: cpu request for container service-kube-controller\",\"moniker.spinnaker.io/application\":\"uenginek8s\",\"moniker.spinnaker.io/cluster\":\"deployment service-kube-controller\"}\n"
+              },
+              {
+                "name": "ISTIO_METAJSON_LABELS",
+                "value": "{\"app\":\"service-kube-controller\",\"app.kubernetes.io/managed-by\":\"spinnaker\",\"app.kubernetes.io/name\":\"uenginek8s\",\"pod-template-hash\":\"1924726048\"}\n"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "10m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "istio-envoy",
+                "mountPath": "/etc/istio/proxy"
+              },
+              {
+                "name": "istio-certs",
+                "readOnly": true,
+                "mountPath": "/etc/certs/"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "runAsUser": 1337,
+              "readOnlyRootFilesystem": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "ip-172-20-51-219.ap-northeast-2.compute.internal",
+        "securityContext": {
+          
+        },
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ],
+        "priority": 0
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:33:35Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:34:25Z"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": null
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:33:33Z"
+          }
+        ],
+        "hostIP": "172.20.51.219",
+        "podIP": "100.96.8.66",
+        "startTime": "2019-03-14T06:33:33Z",
+        "initContainerStatuses": [
+          {
+            "name": "istio-init",
+            "state": {
+              "terminated": {
+                "exitCode": 0,
+                "reason": "Completed",
+                "startedAt": "2019-03-14T06:33:35Z",
+                "finishedAt": "2019-03-14T06:33:35Z",
+                "containerID": "docker://9aaf504e1ad83e1f0767d5e0cdc4da779b5362d397d0a42de058d3b0fd5b1e69"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxy_init:1.0.5",
+            "imageID": "docker-pullable://istio/proxy_init@sha256:6acdf7ffa6b6615b3fd79028220f0550f705d03ba97b66126e0990639a9f3593",
+            "containerID": "docker://9aaf504e1ad83e1f0767d5e0cdc4da779b5362d397d0a42de058d3b0fd5b1e69"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "istio-proxy",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-14T06:34:25Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxyv2:1.0.5",
+            "imageID": "docker-pullable://istio/proxyv2@sha256:8b7d549100638a3697886e549c149fb588800861de8c83605557a9b4b20343d4",
+            "containerID": "docker://49247de56cd195183de32dad182e8d434b6b247cf7b42d605474488b00d0107d"
+          },
+          {
+            "name": "service-kube-controller",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-14T06:34:25Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/service-kube-controller:latest",
+            "imageID": "docker-pullable://979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/service-kube-controller@sha256:a25f8e339d72b1c404257e91a7a226c2093671b1f89972229418826b08cdb7b3",
+            "containerID": "docker://3e029ccea6819230a49cb70a9235a363a93bab9011b3216346a8e8999c5f0513"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    },
+    {
+      "metadata": {
+        "name": "service-monitor-6bc8dd946-pn2g7",
+        "generateName": "service-monitor-6bc8dd946-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/service-monitor-6bc8dd946-pn2g7",
+        "uid": "8d91a565-4493-11e9-a568-02910c21b398",
+        "resourceVersion": "3508064",
+        "creationTimestamp": "2019-03-12T06:53:33Z",
+        "labels": {
+          "app": "service-monitor",
+          "app.kubernetes.io/managed-by": "spinnaker",
+          "app.kubernetes.io/name": "uenginek8s",
+          "pod-template-hash": "267488502"
+        },
+        "annotations": {
+          "artifact.spinnaker.io/location": "default",
+          "artifact.spinnaker.io/name": "service-monitor",
+          "artifact.spinnaker.io/type": "kubernetes/deployment",
+          "kubernetes.io/limit-ranger": "LimitRanger plugin set: cpu request for container pod-monitor",
+          "moniker.spinnaker.io/application": "uenginek8s",
+          "moniker.spinnaker.io/cluster": "deployment service-monitor",
+          "sidecar.istio.io/status": "{\"version\":\"50128f63e7b050c58e1cdce95b577358054109ad2aff4bc4995158c06924a43b\",\"initContainers\":[\"istio-init\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"],\"imagePullSecrets\":null}"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "name": "service-monitor-6bc8dd946",
+            "uid": "8d904802-4493-11e9-a568-02910c21b398",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "default-token-zwxhl",
+            "secret": {
+              "secretName": "default-token-zwxhl",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "istio-envoy",
+            "emptyDir": {
+              "medium": "Memory"
+            }
+          },
+          {
+            "name": "istio-certs",
+            "secret": {
+              "secretName": "istio.default",
+              "defaultMode": 420,
+              "optional": true
+            }
+          }
+        ],
+        "initContainers": [
+          {
+            "name": "istio-init",
+            "image": "docker.io/istio/proxy_init:1.0.5",
+            "args": [
+              "-p",
+              "15001",
+              "-u",
+              "1337",
+              "-m",
+              "REDIRECT",
+              "-i",
+              "*",
+              "-x",
+              "",
+              "-b",
+              "",
+              "-d",
+              ""
+            ],
+            "resources": {
+              
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              },
+              "privileged": true
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "pod-monitor",
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/service-monitor",
+            "resources": {
+              "requests": {
+                "cpu": "100m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "default-token-zwxhl",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always"
+          },
+          {
+            "name": "istio-proxy",
+            "image": "docker.io/istio/proxyv2:1.0.5",
+            "args": [
+              "proxy",
+              "sidecar",
+              "--configPath",
+              "/etc/istio/proxy",
+              "--binaryPath",
+              "/usr/local/bin/envoy",
+              "--serviceCluster",
+              "service-monitor",
+              "--drainDuration",
+              "45s",
+              "--parentShutdownDuration",
+              "1m0s",
+              "--discoveryAddress",
+              "istio-pilot.istio-system:15007",
+              "--discoveryRefreshDelay",
+              "1s",
+              "--zipkinAddress",
+              "zipkin.istio-system:9411",
+              "--connectTimeout",
+              "10s",
+              "--proxyAdminPort",
+              "15000",
+              "--controlPlaneAuthPolicy",
+              "NONE"
+            ],
+            "ports": [
+              {
+                "name": "http-envoy-prom",
+                "containerPort": 15090,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "INSTANCE_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_INTERCEPTION_MODE",
+                "value": "REDIRECT"
+              },
+              {
+                "name": "ISTIO_METAJSON_ANNOTATIONS",
+                "value": "{\"artifact.spinnaker.io/location\":\"default\",\"artifact.spinnaker.io/name\":\"service-monitor\",\"artifact.spinnaker.io/type\":\"kubernetes/deployment\",\"kubernetes.io/limit-ranger\":\"LimitRanger plugin set: cpu request for container pod-monitor\",\"moniker.spinnaker.io/application\":\"uenginek8s\",\"moniker.spinnaker.io/cluster\":\"deployment service-monitor\"}\n"
+              },
+              {
+                "name": "ISTIO_METAJSON_LABELS",
+                "value": "{\"app\":\"service-monitor\",\"app.kubernetes.io/managed-by\":\"spinnaker\",\"app.kubernetes.io/name\":\"uenginek8s\",\"pod-template-hash\":\"267488502\"}\n"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "10m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "istio-envoy",
+                "mountPath": "/etc/istio/proxy"
+              },
+              {
+                "name": "istio-certs",
+                "readOnly": true,
+                "mountPath": "/etc/certs/"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "runAsUser": 1337,
+              "readOnlyRootFilesystem": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "ip-172-20-42-134.ap-northeast-2.compute.internal",
+        "securityContext": {
+          
+        },
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ],
+        "priority": 0
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-12T06:53:36Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-12T06:53:41Z"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": null
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-12T06:53:33Z"
+          }
+        ],
+        "hostIP": "172.20.42.134",
+        "podIP": "100.96.3.239",
+        "startTime": "2019-03-12T06:53:33Z",
+        "initContainerStatuses": [
+          {
+            "name": "istio-init",
+            "state": {
+              "terminated": {
+                "exitCode": 0,
+                "reason": "Completed",
+                "startedAt": "2019-03-12T06:53:35Z",
+                "finishedAt": "2019-03-12T06:53:35Z",
+                "containerID": "docker://9723b3a2c352cf43d7566015ce4d5261c7dc63c045c9236b298021c6ed2de66b"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxy_init:1.0.5",
+            "imageID": "docker-pullable://istio/proxy_init@sha256:6acdf7ffa6b6615b3fd79028220f0550f705d03ba97b66126e0990639a9f3593",
+            "containerID": "docker://9723b3a2c352cf43d7566015ce4d5261c7dc63c045c9236b298021c6ed2de66b"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "istio-proxy",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-12T06:53:40Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxyv2:1.0.5",
+            "imageID": "docker-pullable://istio/proxyv2@sha256:8b7d549100638a3697886e549c149fb588800861de8c83605557a9b4b20343d4",
+            "containerID": "docker://e31a85220786ac5de600c5d99a8e4e4af7f1a4b640b05c43ac4ede7a986f772d"
+          },
+          {
+            "name": "pod-monitor",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-12T06:53:40Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/service-monitor:latest",
+            "imageID": "docker-pullable://979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/service-monitor@sha256:a6df4796601cb4ce0345cf3cbf5d6245b6bea09132c1a9ec43af8fd6ba007f47",
+            "containerID": "docker://58326fa3e9b2195b97c6f719b1062e0ecee0cd0bbd719f3cbd3325efdd237d1a"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    },
+    {
+      "metadata": {
+        "name": "serviceapi-bb7d6458b-nmznt",
+        "generateName": "serviceapi-bb7d6458b-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/serviceapi-bb7d6458b-nmznt",
+        "uid": "175af754-4623-11e9-a568-02910c21b398",
+        "resourceVersion": "3910275",
+        "creationTimestamp": "2019-03-14T06:33:34Z",
+        "labels": {
+          "app": "serviceapi",
+          "app.kubernetes.io/managed-by": "spinnaker",
+          "app.kubernetes.io/name": "uenginek8s",
+          "pod-template-hash": "663820146"
+        },
+        "annotations": {
+          "artifact.spinnaker.io/location": "default",
+          "artifact.spinnaker.io/name": "serviceapi",
+          "artifact.spinnaker.io/type": "kubernetes/deployment",
+          "kubernetes.io/limit-ranger": "LimitRanger plugin set: cpu request for container serviceapi",
+          "moniker.spinnaker.io/application": "uenginek8s",
+          "moniker.spinnaker.io/cluster": "deployment serviceapi",
+          "sidecar.istio.io/status": "{\"version\":\"50128f63e7b050c58e1cdce95b577358054109ad2aff4bc4995158c06924a43b\",\"initContainers\":[\"istio-init\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"],\"imagePullSecrets\":null}"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "name": "serviceapi-bb7d6458b",
+            "uid": "8e66f1b8-4493-11e9-a568-02910c21b398",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "default-token-zwxhl",
+            "secret": {
+              "secretName": "default-token-zwxhl",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "istio-envoy",
+            "emptyDir": {
+              "medium": "Memory"
+            }
+          },
+          {
+            "name": "istio-certs",
+            "secret": {
+              "secretName": "istio.default",
+              "defaultMode": 420,
+              "optional": true
+            }
+          }
+        ],
+        "initContainers": [
+          {
+            "name": "istio-init",
+            "image": "docker.io/istio/proxy_init:1.0.5",
+            "args": [
+              "-p",
+              "15001",
+              "-u",
+              "1337",
+              "-m",
+              "REDIRECT",
+              "-i",
+              "*",
+              "-x",
+              "",
+              "-b",
+              "",
+              "-d",
+              ""
+            ],
+            "resources": {
+              
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              },
+              "privileged": true
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "serviceapi",
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/serviceapi:latest",
+            "resources": {
+              "requests": {
+                "cpu": "100m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "default-token-zwxhl",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always"
+          },
+          {
+            "name": "istio-proxy",
+            "image": "docker.io/istio/proxyv2:1.0.5",
+            "args": [
+              "proxy",
+              "sidecar",
+              "--configPath",
+              "/etc/istio/proxy",
+              "--binaryPath",
+              "/usr/local/bin/envoy",
+              "--serviceCluster",
+              "serviceapi",
+              "--drainDuration",
+              "45s",
+              "--parentShutdownDuration",
+              "1m0s",
+              "--discoveryAddress",
+              "istio-pilot.istio-system:15007",
+              "--discoveryRefreshDelay",
+              "1s",
+              "--zipkinAddress",
+              "zipkin.istio-system:9411",
+              "--connectTimeout",
+              "10s",
+              "--proxyAdminPort",
+              "15000",
+              "--controlPlaneAuthPolicy",
+              "NONE"
+            ],
+            "ports": [
+              {
+                "name": "http-envoy-prom",
+                "containerPort": 15090,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "INSTANCE_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_INTERCEPTION_MODE",
+                "value": "REDIRECT"
+              },
+              {
+                "name": "ISTIO_METAJSON_ANNOTATIONS",
+                "value": "{\"artifact.spinnaker.io/location\":\"default\",\"artifact.spinnaker.io/name\":\"serviceapi\",\"artifact.spinnaker.io/type\":\"kubernetes/deployment\",\"kubernetes.io/limit-ranger\":\"LimitRanger plugin set: cpu request for container serviceapi\",\"moniker.spinnaker.io/application\":\"uenginek8s\",\"moniker.spinnaker.io/cluster\":\"deployment serviceapi\"}\n"
+              },
+              {
+                "name": "ISTIO_METAJSON_LABELS",
+                "value": "{\"app\":\"serviceapi\",\"app.kubernetes.io/managed-by\":\"spinnaker\",\"app.kubernetes.io/name\":\"uenginek8s\",\"pod-template-hash\":\"663820146\"}\n"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "10m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "istio-envoy",
+                "mountPath": "/etc/istio/proxy"
+              },
+              {
+                "name": "istio-certs",
+                "readOnly": true,
+                "mountPath": "/etc/certs/"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "runAsUser": 1337,
+              "readOnlyRootFilesystem": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "ip-172-20-36-75.ap-northeast-2.compute.internal",
+        "securityContext": {
+          
+        },
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ],
+        "priority": 0
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:33:37Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:33:46Z"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": null
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-14T06:33:34Z"
+          }
+        ],
+        "hostIP": "172.20.36.75",
+        "podIP": "100.96.7.64",
+        "startTime": "2019-03-14T06:33:34Z",
+        "initContainerStatuses": [
+          {
+            "name": "istio-init",
+            "state": {
+              "terminated": {
+                "exitCode": 0,
+                "reason": "Completed",
+                "startedAt": "2019-03-14T06:33:36Z",
+                "finishedAt": "2019-03-14T06:33:36Z",
+                "containerID": "docker://1c3b1248d869774f3f60a0b84b40933fb6eda69d53e7ba2f58dffb83b2bdd465"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxy_init:1.0.5",
+            "imageID": "docker-pullable://istio/proxy_init@sha256:6acdf7ffa6b6615b3fd79028220f0550f705d03ba97b66126e0990639a9f3593",
+            "containerID": "docker://1c3b1248d869774f3f60a0b84b40933fb6eda69d53e7ba2f58dffb83b2bdd465"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "istio-proxy",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-14T06:33:46Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxyv2:1.0.5",
+            "imageID": "docker-pullable://istio/proxyv2@sha256:8b7d549100638a3697886e549c149fb588800861de8c83605557a9b4b20343d4",
+            "containerID": "docker://0a66d29a75c26035f1a543cbbf836641652350a9af177f0f40c139a679893865"
+          },
+          {
+            "name": "serviceapi",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-14T06:33:46Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/serviceapi:latest",
+            "imageID": "docker-pullable://979050235289.dkr.ecr.ap-northeast-2.amazonaws.com/uengine/serviceapi@sha256:8f3dfd74af523dd7484ceedf8366e44b505acaaae1ae4b5e656c046f688f9d08",
+            "containerID": "docker://2e5449bf44939216a5d8c03cfb4baa1f13d7434498dcf932bdf8e77f41ccd575"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    },
+    {
+      "metadata": {
+        "name": "serviceui-679b6b749f-4ldxm",
+        "generateName": "serviceui-679b6b749f-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/serviceui-679b6b749f-4ldxm",
+        "uid": "78190bd5-4ae6-11e9-a568-02910c21b398",
+        "resourceVersion": "5027347",
+        "creationTimestamp": "2019-03-20T08:02:12Z",
+        "labels": {
+          "app": "serviceui",
+          "pod-template-hash": "2356263059"
+        },
+        "annotations": {
+          "kubernetes.io/limit-ranger": "LimitRanger plugin set: cpu request for container serviceui",
+          "sidecar.istio.io/status": "{\"version\":\"50128f63e7b050c58e1cdce95b577358054109ad2aff4bc4995158c06924a43b\",\"initContainers\":[\"istio-init\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"],\"imagePullSecrets\":null}"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "name": "serviceui-679b6b749f",
+            "uid": "7815d30b-4ae6-11e9-a568-02910c21b398",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "default-token-zwxhl",
+            "secret": {
+              "secretName": "default-token-zwxhl",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "istio-envoy",
+            "emptyDir": {
+              "medium": "Memory"
+            }
+          },
+          {
+            "name": "istio-certs",
+            "secret": {
+              "secretName": "istio.default",
+              "defaultMode": 420,
+              "optional": true
+            }
+          }
+        ],
+        "initContainers": [
+          {
+            "name": "istio-init",
+            "image": "docker.io/istio/proxy_init:1.0.5",
+            "args": [
+              "-p",
+              "15001",
+              "-u",
+              "1337",
+              "-m",
+              "REDIRECT",
+              "-i",
+              "*",
+              "-x",
+              "",
+              "-b",
+              "",
+              "-d",
+              ""
+            ],
+            "resources": {
+              
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              },
+              "privileged": true
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "serviceui",
+            "image": "sanghoon01/serviceui",
+            "env": [
+              {
+                "name": "VUE_APP_API_HOST",
+                "value": "http://a83d5e3453ee611e9a56802910c21b39-157320908.ap-northeast-2.elb.amazonaws.com"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "100m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "default-token-zwxhl",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always"
+          },
+          {
+            "name": "istio-proxy",
+            "image": "docker.io/istio/proxyv2:1.0.5",
+            "args": [
+              "proxy",
+              "sidecar",
+              "--configPath",
+              "/etc/istio/proxy",
+              "--binaryPath",
+              "/usr/local/bin/envoy",
+              "--serviceCluster",
+              "serviceui",
+              "--drainDuration",
+              "45s",
+              "--parentShutdownDuration",
+              "1m0s",
+              "--discoveryAddress",
+              "istio-pilot.istio-system:15007",
+              "--discoveryRefreshDelay",
+              "1s",
+              "--zipkinAddress",
+              "zipkin.istio-system:9411",
+              "--connectTimeout",
+              "10s",
+              "--proxyAdminPort",
+              "15000",
+              "--controlPlaneAuthPolicy",
+              "NONE"
+            ],
+            "ports": [
+              {
+                "name": "http-envoy-prom",
+                "containerPort": 15090,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "INSTANCE_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "ISTIO_META_INTERCEPTION_MODE",
+                "value": "REDIRECT"
+              },
+              {
+                "name": "ISTIO_METAJSON_ANNOTATIONS",
+                "value": "{\"kubernetes.io/limit-ranger\":\"LimitRanger plugin set: cpu request for container serviceui\"}\n"
+              },
+              {
+                "name": "ISTIO_METAJSON_LABELS",
+                "value": "{\"app\":\"serviceui\",\"pod-template-hash\":\"2356263059\"}\n"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "10m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "istio-envoy",
+                "mountPath": "/etc/istio/proxy"
+              },
+              {
+                "name": "istio-certs",
+                "readOnly": true,
+                "mountPath": "/etc/certs/"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "runAsUser": 1337,
+              "readOnlyRootFilesystem": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "ip-172-20-58-194.ap-northeast-2.compute.internal",
+        "securityContext": {
+          
+        },
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ],
+        "priority": 0
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-20T08:02:14Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-20T08:02:19Z"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": null
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2019-03-20T08:02:12Z"
+          }
+        ],
+        "hostIP": "172.20.58.194",
+        "podIP": "100.96.9.115",
+        "startTime": "2019-03-20T08:02:12Z",
+        "initContainerStatuses": [
+          {
+            "name": "istio-init",
+            "state": {
+              "terminated": {
+                "exitCode": 0,
+                "reason": "Completed",
+                "startedAt": "2019-03-20T08:02:14Z",
+                "finishedAt": "2019-03-20T08:02:14Z",
+                "containerID": "docker://4c8fa0ad2489406db85c4781f8a78137644ced4fce35b769e56dd37141845b7d"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxy_init:1.0.5",
+            "imageID": "docker-pullable://istio/proxy_init@sha256:6acdf7ffa6b6615b3fd79028220f0550f705d03ba97b66126e0990639a9f3593",
+            "containerID": "docker://4c8fa0ad2489406db85c4781f8a78137644ced4fce35b769e56dd37141845b7d"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "istio-proxy",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-20T08:02:18Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "istio/proxyv2:1.0.5",
+            "imageID": "docker-pullable://istio/proxyv2@sha256:8b7d549100638a3697886e549c149fb588800861de8c83605557a9b4b20343d4",
+            "containerID": "docker://d6068bdb30453468fcb83e35128ac8595fcd09a20fe7cf6dec996401b1b3af2d"
+          },
+          {
+            "name": "serviceui",
+            "state": {
+              "running": {
+                "startedAt": "2019-03-20T08:02:18Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "sanghoon01/serviceui:latest",
+            "imageID": "docker-pullable://sanghoon01/serviceui@sha256:627c70964a81084183e30d53a4c2e5baa1ee9d82af27fb8e55dba9fd20807cf7",
+            "containerID": "docker://2019b37c98feca54b0ceb0c877a82933a4737784741c832d74245d4851802123"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    }
+  ]
+}
