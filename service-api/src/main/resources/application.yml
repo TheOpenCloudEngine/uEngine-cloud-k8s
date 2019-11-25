@@ -35,25 +35,25 @@ spring:
         show_sql: true
 
   datasource:
-    url: jdbc:mysql://uengine.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com:3306/uengine
+    url: jdbc:mysql://35.232.17.168:3306/uengine
     username: root
     password: my-secret-pw
     # mybatis 설정시에는 driverClassName 을 넣어주어야함
     driverClassName: com.mysql.cj.jdbc.Driver
-  redis:
-    host: ad5efe85e364b11e9a56802910c21b39-784087256.ap-northeast-2.elb.amazonaws.com
-    port: 6379
-    lettuce:
-      pool:
-        max-active: 7
-        max-idle: 7
-        min-idle: 2
-    password: secretpassword
-  cache:
-    redis:
-      cache-null-values: false
-      use-key-prefix: true
-    type: redis
+#  redis:
+#    host: ad5efe85e364b11e9a56802910c21b39-784087256.ap-northeast-2.elb.amazonaws.com
+#    port: 6379
+#    lettuce:
+#      pool:
+#        max-active: 7
+#        max-idle: 7
+#        min-idle: 2
+#    password: secretpassword
+#  cache:
+#    redis:
+#      cache-null-values: false
+#      use-key-prefix: true
+#    type: redis
 
   mybatis:
     configuration:
@@ -89,25 +89,25 @@ spring:
 #    # mybatis 설정시에는 driverClassName 을 넣어주어야함
 #    driverClassName: com.mysql.cj.jdbc.Driver
   datasource:
-    url: jdbc:mysql://uengine.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com:3306/uengine
+    url: jdbc:mysql://35.232.17.168:3306/uengine
     username: root
     password: my-secret-pw
     # mybatis 설정시에는 driverClassName 을 넣어주어야함
     driverClassName: com.mysql.cj.jdbc.Driver
-  redis:
-    host: my-redis-master
-    port: 6379
-    lettuce:
-      pool:
-        max-active: 7
-        max-idle: 7
-        min-idle: 2
-    password: secretpassword
-  cache:
-    redis:
-      cache-null-values: false
-      use-key-prefix: true
-    type: redis
+#  redis:
+#    host: my-redis-master
+#    port: 6379
+#    lettuce:
+#      pool:
+#        max-active: 7
+#        max-idle: 7
+#        min-idle: 2
+#    password: secretpassword
+#  cache:
+#    redis:
+#      cache-null-values: false
+#      use-key-prefix: true
+#    type: redis
 
   mybatis:
     configuration:
