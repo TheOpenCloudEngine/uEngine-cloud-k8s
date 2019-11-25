@@ -1,0 +1,293 @@
+{
+  "_type": "org.uengine.model.DomainModel",
+  "boundedContexts": [
+    {
+      "_type": "org.uengine.model.BoundedContext",
+      "name": "order",
+      "aggregates": [
+        {
+          "_type": "org.uengine.model.Aggregate",
+          "name": "Order",
+          "namePascalCase": "Order",
+          "elementView": {
+            "_type": "org.uengine.model.Aggregate",
+            "id": "d0e8e740-de24-7df6-40aa-14c032ada2f0",
+            "x": 545,
+            "y": 336,
+            "width": 100,
+            "height": 176,
+            "style": "{}"
+          },
+          "checkValue": false,
+          "drawer": false,
+          "selected": false,
+          "boundedContext": "order",
+          "aggregateRoot": {
+            "_type": "org.uengine.model.ClassDefinition",
+            "fieldDescriptors": [
+              {
+                "_type": "org.uengine.model.FieldDescriptor",
+                "name": "id",
+                "className": "Long",
+                "isKey": true,
+                "nameCamelCase": "id",
+                "namePascalCase": "Id"
+              }
+            ],
+            "keyFieldDescriptor": {
+              "_type": "org.uengine.model.FieldDescriptor",
+              "name": "id",
+              "className": "Long",
+              "isKey": true,
+              "nameCamelCase": "id",
+              "namePascalCase": "Id"
+            }
+          },
+          "events": [
+            {
+              "_type": "org.uengine.model.Event",
+              "name": "ordered",
+              "namePascalCase": "Ordered",
+              "aggregateName": "Order",
+              "aggregateId": "d0e8e740-de24-7df6-40aa-14c032ada2f0",
+              "boundedContext": "order",
+              "fieldDescriptors": [
+                {
+                  "_type": "org.uengine.model.FieldDescriptor",
+                  "name": "id",
+                  "className": "Long",
+                  "isKey": true
+                }
+              ],
+              "elementView": {
+                "_type": "org.uengine.model.Event",
+                "id": "55ef7965-6bcd-65ca-c9a5-921217e90d78",
+                "x": 624,
+                "y": 254,
+                "width": 100,
+                "height": 100,
+                "style": "{}",
+                "angle": 0
+              },
+              "checkValue": false,
+              "drawer": false,
+              "selected": false,
+              "editing": false,
+              "eventToPolicy": "Pub/Sub",
+              "trigger": "@PrePersist",
+              "options": {
+                "package": "com.eventstorming",
+                "packagePath": "src/main/java/com/eventstorming"
+              }
+            }
+          ],
+          "commands": [
+            {
+              "_type": "org.uengine.model.Command",
+              "name": "order",
+              "namePascalCase": "Order",
+              "aggregateName": "Order",
+              "aggregateId": "d0e8e740-de24-7df6-40aa-14c032ada2f0",
+              "boundedContext": "order",
+              "restfulType": "GET",
+              "elementView": {
+                "_type": "org.uengine.model.Command",
+                "id": "295b1f64-7c77-cd74-ce58-052dad6124dc",
+                "x": 465,
+                "y": 256,
+                "width": 100,
+                "height": 100,
+                "style": "{}",
+                "z-index": 999
+              },
+              "checkValue": false,
+              "drawer": false,
+              "selected": false,
+              "editing": false,
+              "fieldDescriptors": [
+                {
+                  "_type": "org.uengine.model.FieldDescriptor",
+                  "name": "id",
+                  "className": "Long",
+                  "isKey": true
+                }
+              ]
+            }
+          ],
+          "policies": [],
+          "options": {
+            "package": "com.eventstorming",
+            "packagePath": "src/main/java/com/eventstorming"
+          }
+        }
+      ],
+      "elementView": {
+        "_type": "org.uengine.model.BoundedContext",
+        "id": "4c9d4177-180f-7493-4283-bc390336fe1b",
+        "x": 546,
+        "y": 319,
+        "width": 300,
+        "height": 300,
+        "style": "{}"
+      },
+      "drawer": false,
+      "checkValue": false,
+      "selected": false,
+      "ports": 8081,
+      "options": {
+        "package": "com.resources",
+        "packagePath": "src/main/java/com/resources"
+      }
+    },
+    {
+      "_type": "org.uengine.model.BoundedContext",
+      "name": "delivery",
+      "aggregates": [
+        {
+          "_type": "org.uengine.model.Aggregate",
+          "name": "Delivery",
+          "namePascalCase": "Delivery",
+          "elementView": {
+            "_type": "org.uengine.model.Aggregate",
+            "id": "84cf3214-1f78-1ce2-4da6-a89ca8e79de0",
+            "x": 1216,
+            "y": 315,
+            "width": 98,
+            "height": 220,
+            "style": "{}"
+          },
+          "checkValue": false,
+          "drawer": false,
+          "selected": false,
+          "boundedContext": "delivery",
+          "aggregateRoot": {
+            "_type": "org.uengine.model.ClassDefinition",
+            "fieldDescriptors": [
+              {
+                "_type": "org.uengine.model.FieldDescriptor",
+                "name": "id",
+                "className": "Long",
+                "isKey": true,
+                "nameCamelCase": "id",
+                "namePascalCase": "Id"
+              },
+              {
+                "_type": "org.uengine.model.FieldDescriptor",
+                "name": "name",
+                "className": "String",
+                "namePascalCase": "Name",
+                "nameCamelCase": "name"
+              }
+            ],
+            "keyFieldDescriptor": {
+              "_type": "org.uengine.model.FieldDescriptor",
+              "name": "id",
+              "className": "Long",
+              "isKey": true,
+              "nameCamelCase": "id",
+              "namePascalCase": "Id"
+            }
+          },
+          "events": [],
+          "commands": [],
+          "policies": [
+            {
+              "_type": "org.uengine.model.Policy",
+              "name": "OrderReceived",
+              "namePascalCase": "OrderReceived",
+              "boundType": "in-bound",
+              "aggregateName": "Delivery",
+              "aggregateId": "84cf3214-1f78-1ce2-4da6-a89ca8e79de0",
+              "boundedContext": "delivery",
+              "elementView": {
+                "_type": "org.uengine.model.Policy",
+                "id": "3b533d6c-4080-32b7-a280-4c0b87b0976c",
+                "x": 1117,
+                "y": 254,
+                "width": 100,
+                "height": 100,
+                "style": "{}"
+              },
+              "checkValue": false,
+              "drawer": false,
+              "selected": false,
+              "editing": false,
+              "eventToPolicy": "Pub/Sub",
+              "relationEventInfo": {
+                "_type": "org.uengine.model.Event",
+                "name": "evnet",
+                "namePascalCase": "Evnet",
+                "aggregateName": "agg",
+                "aggregateId": "d0e8e740-de24-7df6-40aa-14c032ada2f0",
+                "boundedContext": "BoundedContext474",
+                "fieldDescriptors": [
+                  {
+                    "_type": "org.uengine.model.FieldDescriptor",
+                    "name": "id",
+                    "className": "Long",
+                    "isKey": true
+                  }
+                ],
+                "elementView": {
+                  "_type": "org.uengine.model.Event",
+                  "id": "55ef7965-6bcd-65ca-c9a5-921217e90d78",
+                  "x": 584,
+                  "y": 254,
+                  "width": 100,
+                  "height": 100,
+                  "style": "{}",
+                  "angle": 0
+                },
+                "checkValue": false,
+                "drawer": false,
+                "selected": false,
+                "editing": false,
+                "eventToPolicy": "Pub/Sub",
+                "trigger": "@PrePersist"
+              },
+              "fieldDescriptors": [
+                {
+                  "_type": "org.uengine.model.FieldDescriptor",
+                  "name": "id",
+                  "className": "Long",
+                  "isKey": true
+                },
+                {
+                  "_type": "org.uengine.model.FieldDescriptor",
+                  "name": "name",
+                  "className": "String",
+                  "namePascalCase": "Name"
+                }
+              ],
+              "options": {
+                "package": "com.eventstorming",
+                "packagePath": "src/main/java/com/eventstorming"
+              }
+            }
+          ],
+          "options": {
+            "package": "com.eventstorming",
+            "packagePath": "src/main/java/com/eventstorming"
+          }
+        }
+      ],
+      "elementView": {
+        "_type": "org.uengine.model.BoundedContext",
+        "id": "d1083286-4bc9-3fb4-0451-3cf5fd7c24e3",
+        "x": 1200,
+        "y": 320,
+        "width": 300,
+        "height": 300,
+        "style": "{}"
+      },
+      "drawer": false,
+      "checkValue": false,
+      "selected": false,
+      "ports": 8082,
+      "options": {
+        "package": "com.resources",
+        "packagePath": "src/main/java/com/resources"
+      }
+    }
+  ]
+}
