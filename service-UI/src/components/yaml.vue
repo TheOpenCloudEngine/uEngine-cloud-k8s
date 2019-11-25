@@ -1,26 +1,25 @@
 <template>
-    <div class="text-reader" style="text-align:center; margin: 10px">
-        <input type="file" @change="loadTextFromFile"/>
-        <!--<v-text-field v-else-if="item.ui_type=='number'"-->
-                      <!--v-model="item.val" @focus="onUiFocus()"-->
-                      <!--type="file"-->
-                      <!--:label='item.ui_name'-->
-        <!--&gt;</v-text-field>-->
+    <div class="yaml" style="text-align:center; margin: 10px">
+        <md-field>
+            <label>Import YAML</label>
+            <md-file v-model="single" @change="loadTextFromFile"/>
+        </md-field>
     </div>
 </template>
 
 <script>
     export default {
-        name: 'text-reader',
+
+        name: 'yaml',
         props: {
-            plainText: String,
-            fileName: String
+            plainText: String
         },
         components: {
 
         },
         data() {
             return {
+                fileName: '',
                 single: ''
             }
         },
@@ -43,8 +42,8 @@
                 const file = ev.target.files[0];
                 const reader = new FileReader();
 
-                // this.fileName = file.name;
-                this.$emit('update:fileName', file.name)
+                this.fileName = file.name;
+                this.$emit('update:fileName', this.fileName)
                 reader.onload = e => this.$emit("load", e.target.result);
                 reader.readAsText(file);
             }

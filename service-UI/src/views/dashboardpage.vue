@@ -1,45 +1,26 @@
 <template>
     <div class="dashboardpage">
-        <v-card>
-            <v-card-title>
-                <v-select
-                        v-model="namespace"
-                        :items="namespaceList"
-                        label="Namespace"
-                ></v-select>
-            </v-card-title>
-            <v-card-text>
-                <v-btn-toggle v-model="toggle_exclusive" mandatory flat>
-                    <v-btn flat color="primary"  @click="types='pod'" style="margin: 2px;">
-                        pods
-                    </v-btn>
-                    <v-btn flat color="primary" @click="types='deployment'" style="margin: 2px;">
-                        deployment
-                    </v-btn>
-                    <v-btn flat color="primary" @click="types='service'" style="margin: 2px; ">
-                        service
-                    </v-btn>
-                </v-btn-toggle>
-                <v-btn fab flat color="primary" @click="types='service'" style="margin: 2px; ">
-                    <v-icon>add</v-icon>
-                </v-btn>
-                <!--<v-btn @click="types='pod'">-->
-                    <!--Pods-->
-                <!--</v-btn>-->
+        <div class="md-layout-item">
+            <md-field>
+                <label for="namespace">NameSpace</label>
+                <md-select v-model="namespace" name="movie" id="movie" >
+                    <md-option value=null>All</md-option>
+                    <md-option v-for="item in namespaceList" :value="item">{{ item }}</md-option>
+                </md-select>
+            </md-field>
+        </div>
+        <md-tabs md-sync-route>
+            <md-tab id="tab-home" md-label="Pod">
+                <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'pod'" style="margin-top: 20px;"/>
+            </md-tab>
+            <md-tab id="tab-pages" md-label="service">
+                <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'service'" style="margin-top: 20px;"/>
+            </md-tab>
+            <md-tab id="tab-posts" md-label="deployments">
+                <DashBoard :namespace.sync="namespace" :namespaceList.sync="namespaceList" :types="'deployment'" style="margin-top: 20px;" />
+            </md-tab>
+        </md-tabs>
 
-                <!--<v-btn @click="types='deployment'">-->
-                    <!--Deployments-->
-                <!--</v-btn>-->
-
-                <!--<v-btn @click="types='service'">-->
-                    <!--Serivce-->
-                <!--</v-btn>-->
-
-                <DashBoard v-if="show"
-                           :namespace.sync="namespace" :types="types"
-                           style="margin-top: 20px;"/>
-            </v-card-text>
-        </v-card>
     </div>
 </template>
 
@@ -51,34 +32,12 @@
         name: 'home',
         data() {
             return {
-                namespace: 'default',
-                namespaceList: ['All', 'default'],
-                types: 'pod',
-                show: true,
-                toggle_exclusive: 0
+                namespace: null,
+                namespaceList: [],
             }
         },
         components: {
             DashBoard
-        },
-        watch: {
-            types: function () {
-                var me = this;
-
-                me.show = false;
-
-                me.$nextTick(function () {
-                    console.log("re-render");
-                    me.show = true;
-
-                })
-            }
-        },
-        mounted() {
-            var me = this
-            me.$http.get(`${API_HOST}/kube/v1/pods/namespaces`).then(function (result) {
-                me.namespaceList = result.data
-            })
         }
     }
 </script>

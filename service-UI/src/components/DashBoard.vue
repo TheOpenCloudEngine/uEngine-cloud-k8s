@@ -1,653 +1,351 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<template>
     <div>
-        <v-layout row style="margin-bottom: 10px;">
-            <v-flex
-                    grow
-                    pa-1
-            >
-                <v-text-field
-                        v-model="search"
-                        append-icon="search"
-                        label="Search"
-                        single-line
-                        hide-details
-                ></v-text-field>
-            </v-flex>
-            <v-flex
-                    shrink
-                    pa-1
-            >
-                <v-btn color="info" @click="codeModalShow(); status = 'add'">ADD</v-btn>
-
-            </v-flex>
-        </v-layout>
         <!-- Title -->
-        <v-data-table
-                :rows-per-page-items="pageItems"
-                :headers="headers"
-                :items="list"
-                class="elevation-1"
-                :loading="tableLoad"
-                :search="search"
-                :expand="expand"
-                :pagination.sync="pagination"
-        >
-            <template slot="items" slot-scope="props">
-                <tr v-bind:class="{ deletedItem: props.item.apiVersion == 'DELETED' }">
-                    <td style="width: 20px">
-                        <v-progress-circular
-                                indeterminate
-                                :size="20"
-                                color="primary"
-                                v-if="props.item.running == true"
-                        ></v-progress-circular>
-                    </td>
-                    <td @click="getLog(props);">{{ props.item.name }}
-                    </td>
-                    <td @click="getLog(props); props.expanded = !props.expanded">{{ props.item.namespace }}</td>
-                    <!-- pod Column -->
-                    <td class="text-xs-left" v-if="types == 'pod'" @click="getLog(props); props.expanded = !props.expanded">{{ props.item.status }}</td>
-                    <td class="text-xs-center" v-if="types == 'pod'" @click="getLog(props); props.expanded = !props.expanded">
-                        {{ props.item.createTimeStamp }}
-                    </td>
-                    <!-- Deployment Column -->
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
-                        {{ props.item.statusReadyReplicas }}
-                    </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
-                        {{ props.item.statusReplicas }}
-                    </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
-                        {{ props.item.statusUpdateReplicas }}
-                    </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
-                        {{ props.item.statusAvailableReplicas }}
-                    </td>
-                    <td class="text-xs-center" v-if="types == 'deployment'" @click="getLog(props); props.expanded = !props.expanded">
-                        {{ props.item.createTimeStamp }}
-                    </td>
-                    <!-- Service Column -->
-                    <td class="text-xs-left" v-if="types == 'service'">
-                        {{ props.item.specType }}
-                    </td>
-                    <td class="text-xs-left" v-if="types == 'service'">
-                        {{ props.item.specClusterIp }}
-                    </td>
-                    <td class="text-xs-left"
-                        v-if="types == 'service' && props.item.ingressIp != null && props.item.hostname == null"
-                    >
-                        {{ props.item.ingressIp }}
-                    </td>
-                    <td class="text-xs-left"
-                        v-if="types == 'service' && props.item.hostname != null && props.item.ingressIp == null"
-                    >
-                        {{ props.item.hostname }}
-                    </td>
-                    <td class="text-xs-left"
-                        v-if="types == 'service' && props.item.ingressIp == null && props.item.hostname == null"
-                    >
+        <div class="md-layout md-alignment-center-right">
+            <md-button class="md-raised md-primary" @click="active = true; status = 'add'">ADD</md-button>
+        </div>
+        <!-- Pods Table Start -->
+        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
+                  v-if="types=='pod'">
+            <md-table-toolbar>
+                <div class="md-toolbar-section-start">
+                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
+                </div>
 
-                    </td>
-                    <td class="text-xs-left" v-if="types == 'service' && props.item.specPorts != null">
-                        <a class="caption" style="color: #000000; margin-right: 4px;"
+                <md-field md-clearable class="md-toolbar-section-end">
+                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
+                </md-field>
+            </md-table-toolbar>
 
-                           v-for="portData in JSON.parse(props.item.specPorts)"
-                        >
-                            {{ portData.port }}:{{ portData.nodePort }}/{{ portData.protocol }}
-                        </a>
-                    </td>
-                    <td class="text-xs-left" v-if="types == 'service' && props.item.specPorts == null">
-                        <a class="caption" style="color: #000000; margin-right: 4px;">
-
-                        </a>
-                    </td>
-                    <td class="text-xs-center" v-if="types == 'service'">
-                        {{ props.item.createTimeStamp }}
-                    </td>
-                    <td class="justify-center layout px-0" v-if="props.item.apiVersion != 'DELETED'">
-                        <v-icon
-                                small
-                                class="mr-2"
-                                @click="handleEdit(props.item); status = 'edit'"
-                        >
-                            edit
-                        </v-icon>
-                        <v-icon
-                                small
-                                @click="deleteModalShow(props.item)"
-                        >
-                            delete
-                        </v-icon>
-                    </td>
-                    <td v-else></td>
-                </tr>
-            </template>
-            <!-- pod expand -->
-            <template v-if="types=='pod'" v-slot:expand="props">
-                <v-data-table
-                        :rows-per-page-items="logPageItems"
-                        :items="tmpLog"
-                        class="elevation-1"
-                        hide-headers
-                >
-                    <template v-slot:items="items">
-                        <tr v-if="items.item.status == 'WARN'" style="background-color: #FFC107; color: #000000">
-                            <td class="text-xs-left">{{ items.item.dateTime }}</td>
-                            <td class="text-xs-left">{{ items.item.status }}</td>
-                            <td>{{ items.item.message }}</td>
-                        </tr>
-                        <tr v-else-if="items.item.status == 'ERROR'"
-                            style="background-color: #b71c1c; color: #ffffff">
-                            <td>{{ items.item.dateTime }}</td>
-                            <td class="text-xs-left">{{ items.item.status }}</td>
-                            <td>{{ items.item.message }}</td>
-                        </tr>
-                        <tr v-else>
-                            <td class="text-xs-left">{{ items.item.dateTime }}</td>
-                            <td class="text-xs-left">{{ items.item.status }}</td>
-                            <td>{{ items.item.message }}</td>
-                        </tr>
-                    </template>
-                </v-data-table>
-            </template>
-            <template v-else-if="types=='deployment'" v-slot:expand="props">
-                <v-tabs
-                        v-model="deployTab"
-                >
-                    <v-tab
-                            v-for="(value, key) in tmpLog"
-                            :key="key"
-                    >
-                        {{ key }}
-                    </v-tab>
-                </v-tabs>
-                <v-tabs-items v-model="deployTab">
-                    <v-tab-item
-                            v-for="(value, key) in tmpLog"
-                            :key="key"
-                    >
-                        <v-data-table
-                                :rows-per-page-items="logPageItems"
-                                :items="value"
-                                class="elevation-1"
-                                hide-headers
-                        >
-                            <template v-slot:items="items">
-                                <tr v-if="items.item.status == 'WARN'"
-                                    style="background-color: #FFC107; color: #000000">
-                                    <td class="text-xs-left">{{ items.item.dateTime }}</td>
-                                    <td class="text-xs-left">{{ items.item.status }}</td>
-                                    <td>{{ items.item.message }}</td>
-                                </tr>
-                                <tr v-else-if="items.item.status == 'ERROR'"
-                                    style="background-color: #b71c1c; color: #ffffff">
-                                    <td>{{ items.item.dateTime }}</td>
-                                    <td class="text-xs-left">{{ items.item.status }}</td>
-                                    <td>{{ items.item.message }}</td>
-                                </tr>
-                                <tr v-else>
-                                    <td class="text-xs-left">{{ items.item.dateTime }}</td>
-                                    <td class="text-xs-left">{{ items.item.status }}</td>
-                                    <td>{{ items.item.message }}</td>
-                                </tr>
-                            </template>
-                        </v-data-table>
-                    </v-tab-item>
-                </v-tabs-items>
-            </template>
-            <template slot="no-data">
-            </template>
-        </v-data-table>
-
-        <!-- Edit & Add Modal -->
-        <modal ref="modal" name="codeModal" :height='"60%"' :width="'80%'">
-            <v-layout justify-space-between>
-                <v-flex>
-                    <v-card-title class="headline">
-                        {{types.toUpperCase()}} Editor
-                    </v-card-title>
-                </v-flex>
-                <v-flex style="text-align: right">
-                    <v-btn fab flat @click="codeModalhide">
-                        <v-icon>
-                            clear
-                        </v-icon>
-                    </v-btn>
-                </v-flex>
-            </v-layout>
-            <EditYaml :status="status" :plainText.sync="plainText" :types="types"></EditYaml>
-        </modal>
-
-        <!-- Delete Modal -->
-        <modal scrollable ref="modal" name="deleteModal" :height='"auto"' :width='500'>
-            <v-card>
-                <v-card-title primary-title>
+            <md-table-empty-state
+                    md-label="No users found"
+                    :md-description="`No {{ types }} found for this '${search}' query. Try a different search term or create a new user.`">
+                <md-button class="md-primary md-raised">Create New User</md-button>
+            </md-table-empty-state>
+            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
+                <md-table-cell md-label="Name" md-sort-by="name"> {{ item.name }}</md-table-cell>
+                <md-table-cell md-label="Status" md-sort-by="status">{{ item.status }}</md-table-cell>
+                <md-table-cell md-label="Image" md-sort-by="image">{{ item.image }}</md-table-cell>
+                <md-table-cell md-label="Host IP" md-sort-by="hostIp">{{ item.hostIp }}</md-table-cell>
+                <md-table-cell md-label="Action" style="min-width: 158px;">
                     <div>
-                        <div class="headline">삭제 안내</div>
-                        <span class="text-capitalize"> {{ deleteName }}를 삭제하시겠습니까?</span>
+                        <md-button class="md-fab md-mini md-primary" @click="handleEdit(item); status = 'edit'">
+                            <md-icon>edit</md-icon>
+                        </md-button>
+                        <md-button class="md-fab md-mini md-accent">
+                            <md-icon @click="handleDelete(scope.$index, scope.row);">delete</md-icon>
+                        </md-button>
                     </div>
-                </v-card-title>
+                </md-table-cell>
 
-                <v-card-actions>
-                    <v-btn color="primary" @click="deleteModalhide">Close</v-btn>
-                    <v-btn color="primary" @click="handleDelete(selectedRow)">Confirm</v-btn>
-                </v-card-actions>
-            </v-card>
-        </modal>
 
-        <v-snackbar
-                v-model="snackbar.status"
-                :bottom="snackbar.y === 'bottom'"
-                :top="snackbar.y === 'top'"
-                :left="snackbar.x === 'left'"
-                :right="snackbar.x === 'right'"
-                :timeout="snackbar.timeout"
-                :color="snackbar.color"
+            </md-table-row>
+
+        </md-table>
+
+        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
+                  v-if="types=='service'">
+            <md-table-toolbar>
+                <div class="md-toolbar-section-start">
+                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
+                </div>
+
+                <md-field md-clearable class="md-toolbar-section-end">
+                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
+                </md-field>
+            </md-table-toolbar>
+
+            <md-table-empty-state
+                    md-label="No users found"
+                    :md-description="`No user found for this '${search}' query. Try a different search term or create a new user.`">
+                <md-button class="md-primary md-raised">Create New User</md-button>
+            </md-table-empty-state>
+
+            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
+                <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
+                <md-table-cell md-label="SpecType" md-sort-by="specType">{{ item.specType }}</md-table-cell>
+                <md-table-cell md-label="Type" md-sort-by="type">{{ item.type }}</md-table-cell>
+                <md-table-cell md-label="CreateTimeStamp" md-sort-by="createTimeStamp">{{ item.createTimeStamp }}
+                </md-table-cell>
+                <md-table-cell md-label="Action">
+                    <div>
+                        <md-button class="md-fab md-mini md-primary" @click="handleEdit(item); status = 'edit'">
+                            <md-icon>edit</md-icon>
+                        </md-button>
+                        <md-button class="md-fab md-mini md-accent">
+                            <md-icon @click="handleDelete(scope.$index, scope.row);">delete</md-icon>
+                        </md-button>
+                    </div>
+                </md-table-cell>
+
+            </md-table-row>
+        </md-table>
+
+        <md-table v-model="searched" md-sort="name" md-sort-order="asc" md-card md-fixed-header @md-selected="onSelect"
+                  v-if="types=='deployment'">
+            <md-table-toolbar>
+                <div class="md-toolbar-section-start">
+                    <h1 class="md-title">{{types.toUpperCase()}}</h1>
+                </div>
+
+                <md-field md-clearable class="md-toolbar-section-end">
+                    <md-input placeholder="Search by name..." v-model="search" @input="searchOnTable"/>
+                </md-field>
+            </md-table-toolbar>
+
+            <md-table-empty-state
+                    md-label="No users found"
+                    :md-description="`No user found for this '${search}' query. Try a different search term or create a new user.`">
+                <md-button class="md-primary md-raised">Create New User</md-button>
+            </md-table-empty-state>
+            <md-table-row slot="md-table-row" slot-scope="{ item }" md-selectable="single" style="text-align: left">
+                <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
+                <md-table-cell md-label="Replicas" md-sort-by="statusReplicas" md-numeric>{{ item.statusReplicas }}
+                </md-table-cell>
+                <md-table-cell md-label="strategyType" md-sort-by="strategyType">{{ item.strategyType }}</md-table-cell>
+                <md-table-cell md-label="createTimeStamp" md-sort-by="createTimeStamp">{{ item.createTimeStamp }}
+                </md-table-cell>
+            </md-table-row>
+        </md-table>
+
+        <!-- Dial Button -->
+
+        <md-dialog
+                :md-active.sync="active"
+                style="height: 800px;"
         >
-            {{ snackbar.text }}
-            <v-btn
-                    dark
-                    flat
-                    @click="snackbar.status = false"
-            >
-                Close
-            </v-btn>
-        </v-snackbar>
+            <md-dialog-content style="max-width: 1000px;">
+                <codemirror
+                        ref="mycm"
+                        :options="
+                cmOptions
+                "
+                        :value="plainText"
+                        v-model="plainText"
+                        style="postion: absolute"
+                        @ready="onCmReady"
+                        @focus="onFocus"
+                        @close="onClose"
+                >
+                </codemirror>
+
+            </md-dialog-content>
+
+            <text-reader @load="plainText = $event" style="width: 900px !important;"></text-reader>
+
+
+
+            <md-dialog-actions>
+                <md-button class="md-raised md-primary" @click="active = false; plainText= ''">Cancel</md-button>
+                <md-button class="md-raised md-primary" @click="postYAML">Confirm</md-button>
+            </md-dialog-actions>
+        </md-dialog>
+
+        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
+                     :md-active.sync="showAddSnackbar" md-persistent>
+            <span>{{types.toUpperCase()}} 생성 시작 되었습니다.</span>
+            <md-button class="md-primary" @click="showAddSnackbar = false">확인</md-button>
+        </md-snackbar>
+
+        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
+                     :md-active.sync="showAddSnackbar" md-persistent>
+            <span>{{types.toUpperCase()}} 수정 되었습니다.</span>
+            <md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>
+        </md-snackbar>
+
+        <md-snackbar :md-position="position" :md-duration="isInfinity ? Infinity : duration"
+                     :md-active.sync="showAddSnackbar" md-persistent>
+            <span>{{selected.name}} 삭제하였습니다.</span>
+            <md-button class="md-primary" @click="showEditSnackbar = false">확인</md-button>
+        </md-snackbar>
     </div>
 </template>
 
 <script>
-    // import EditYaml from "@/components/edityamlpage.vue";
+    import TextReader from "@/components/yaml.vue";
     import yaml from 'js-yaml'
     import json2yaml from 'json2yaml'
-    import {codemirror} from 'vue-codemirror'
-    import 'codemirror/lib/codemirror.css'
-    import 'codemirror/theme/darcula.css'
+    import 'vue-codemirror'
     import 'codemirror/mode/yaml/yaml.js'
 
+    const toLower = text => {
+        return text.toString().toLowerCase()
+    }
+
+    const searchByName = (items, term) => {
+        if (term) {
+            return items.filter(item => toLower(item.name).includes(toLower(term)))
+        }
+
+        return items
+    }
 
     export default {
 
         name: 'DashBoard',
         props: {
             namespace: String,
+            namespaceList: Array,
             types: String
         },
         components: {
+            TextReader,
             yaml,
-            json2yaml,
-            codemirror
+            json2yaml
         },
         created() {
-            var me = this
-            me.$EventBus.$on('deployStart', function () {
-                me.postYAML()
-            });
         },
         data() {
             return {
-                pagination: {},
-                pageItems: [10, 25, {"text": "$vuetify.dataIterator.rowsPerPageAll", "value": -1}],
-                logPageItems: [100, 200, {"text": "$vuetify.dataIterator.rowsPerPageAll", "value": -1}],
                 evtSource: null,
-                cmOption: {
+                cmOptions: {
                     tabSize: 4,
                     mode: 'yaml',
                     theme: 'darcula',
                     lineNumbers: true,
-                    lineWrapping: true,
-                    viewportMargin: 20
-
+                    line: true,
+                    viewportMargin: 15,
                 },
-                deployTab: 'tab-1',
-                expand: false,
-                modalStatus: false,
-                tableLoad: false,
                 list: [],
-                search: '',
-                visible: false,
+                selected: '',
+                searched: [],
+                search: null,
+                providerFilters: [],
                 plainText: "",
-                selectedRow: [],
+                selectedRow: "",
                 loading: false,
                 yamlText: "",
                 status: '',
-                snackbar: {
-                    status: false,
-                    y: 'top',
-                    x: null,
-                    mode: '',
-                    timeout: 6000,
-                    text: ''
-                },
-                tmpLog: ''
+                active: false,
+                position: 'center',
+                duration: 4000,
+                isInfinity: false,
+                showAddSnackbar: false,
+                showEditSnackbar: false
             }
         },
+
         beforeDestroy: function () {
             var me = this
             console.log("closing evtSource beforeDestroy");
             this.evtSource.close();
-            me.$EventBus.$off('deployStart')
-
         },
         computed: {
-            codemirror: function () {
-                return this.$refs.myCm.codemirror;
-            },
-            kubeHost: function () {
-                return this.$store.state.kubeHost
-            },
-            getAuth() {
-                return this.$store.state.storeAuthorized
-            },
-            deleteName() {
-                return this.selectedRow.name
-            },
-            deleteNamespace() {
-                return this.selectedRow.namespace
-            },
-            headers() {
-                if (this.types == 'pod') {
-                    var result = [
-                        {text: '', value: 'running', align: 'left', sortable: false},
-                        {
-                            text: 'Name',
-                            align: 'left',
-                            sortable: false,
-                            value: 'name'
-                        },
-                        {text: 'Namespace', value: 'namespace', align: 'left', sortable: false},
-                        {text: 'Status', value: 'status', sortable: false},
-                        {text: 'Create Time', value: 'createTimeStamp', align: 'center', sortable: false},
-                        {text: 'Action', value: 'name', sortable: false, align: 'center'},
-                    ]
-                    return result
-                } else if (this.types == 'deployment') {
-                    var result = [
-                        {text: '', value: 'running', align: 'left', sortable: false},
-
-                        {
-                            text: 'Name',
-                            align: 'left',
-                            sortable: false,
-                            value: 'name'
-                        },
-                        {text: 'Namespace', value: 'namespace', align: 'left', sortable: false},
-                        {text: 'Desire', value: 'statusReadyReplicas', align: 'center', sortable: false},
-                        {text: 'Current', value: 'Current', align: 'center', sortable: false},
-                        {text: 'Up-To-Date', value: 'Up-to-Date', align: 'center', sortable: false},
-                        {text: 'Available', value: 'Available', align: 'center', sortable: false},
-                        {text: 'Create Time', value: 'createTimeStamp', align: 'center', sortable: false},
-                        {text: 'Action', value: 'name', sortable: false, align: 'center'},
-                    ]
-                    return result
-
-                } else if (this.types == 'service') {
-                    var result = [
-                        {text: '', value: 'running', align: 'left', sortable: false},
-
-                        {
-                            text: 'Name',
-                            align: 'left',
-                            sortable: false,
-                            value: 'name'
-                        },
-                        {text: 'Namespace', value: 'namespace', align: 'left', sortable: false},
-                        {text: 'Type', value: 'type', align: 'left', sortable: false},
-                        {text: 'Cluster IP', value: 'cluster-ip', align: 'center', sortable: false},
-                        {text: 'External IP', value: 'external-ip', align: 'center', sortable: false},
-                        {text: 'PORT(S)', value: 'ports', align: 'center', sortable: false},
-                        {text: 'Create Time', value: 'createTimeStamp', align: 'center', sortable: false},
-                        {text: 'Action', value: 'name', sortable: false, align: 'center'},
-                    ]
-                    return result
-                }
+            codemirror() {
+                console.log(this.$refs.mycm.codemirror)
+                return this.$refs.mycm.codemirror
             }
         },
         mounted() {
-            this.$nextTick(function () {
-                if (this.getAuth == true) {
-                    this.getList()
-                }
-            })
+            this.getList()
         },
         watch: {
             namespace: function () {
                 this.getList()
-                this.pagination.page = 1;
             },
-            plainText: function (newVal) {
+            list: function (newVal) {
+                this.searched = newVal
             },
-            getAuth: function (newVal) {
-                this.getList()
-            },
-            kubeHost: function (newVal) {
-                this.getList()
-            },
-            tmpLog: function (newVal, oldVal) {
+            active: function (newVal) {
                 var me = this
-                clearTimeout(function () {
-                    me.getLog(me.selectedRow)
-                })
-                // clearInterval(me.getLog(me.selectedRow))
-                // setInterval(me.getLog(me.selectedRow), 10000)
-                setTimeout(function () {
-                    me.getLog(me.selectedRow)
-                }, 5000)
+
+                if (newVal == true) {
+                    this.$nextTick(function () {
+                        me.codemirror.refresh()
+
+                        me.codemirror.setSize(900,500)
+                        me.codemirror.setOption('lineWrapping',true)
+                        me.codemirror.refresh()
+                    })
+
+                }
             }
         },
 
         methods: {
-            getLog(props) {
+            onCmReady() {
+                // 임시처리
+
+            },
+            onFocus() {
                 var me = this
-                me.selectedRow = props;
+                me.codemirror.scrollTo(0,1000)
+                me.codemirror.refresh()
 
-                clearTimeout()
+                me.codemirror.scrollTo(0,0)
+                me.codemirror.refresh()
 
-                let types = me.types
-                if (types == 'pod') {
-                    types = 'pods'
-                }
-
-                let type = me.types
-                if (type == 'deployment') {
-                    type = 'deploy'
-                }
-
-                this.$http.get(`${API_HOST}/kube/v1/${types}/namespaces/${props.item.namespace}/${types}/${props.item.name}/log?username=${this.$store.state.username}`)
-                    .then(function (result) {
-                        if (result.data.length != undefined) {
-                            me.tmpLog = [];
-                            me.tmpLog = result.data.reverse();
-
-                        }
-                        // deployment
-                        else {
-                            me.tmpLog = {};
-                            me.tmpLog["All"] = {};
-                            let tmpLog = [];
-                            let tmpKeys = []
-                            Object.keys(result.data).forEach(function (keys) {
-                                tmpKeys.push(keys)
-                            })
-
-                            Object.values(result.data).forEach(function (resultLog) {
-                                resultLog.forEach(function (logItem) {
-                                    tmpLog.push(logItem)
-                                })
-                            })
-
-                            me.tmpLog["All"] = _.sortBy(tmpLog, 'dateTime').reverse();
-
-                            tmpKeys.forEach(function (tmpKey) {
-                                me.tmpLog[tmpKey] = _.sortBy(result.data[tmpKey], 'dateTime').reverse();
-                            })
-                        }
-                        // console.log(props)
-
-                        if(props.expanded == false || props.expanded == undefined) {
-                            props.expanded = true
-                        }
-                    })
             },
-            codeModalShow() {
-                this.plainText = '';
-                this.$modal.show('codeModal');
+            onSelect(item) {
+                this.selected = item
             },
-            codeModalhide() {
-                this.$modal.hide('codeModal');
-            },
-            deleteModalShow(item) {
-                this.selectedRow = item
-                this.$modal.show('deleteModal');
-            },
-            deleteModalhide() {
-                this.$modal.hide('deleteModal');
+            searchOnTable() {
+                this.searched = searchByName(this.list, this.search)
             },
             startSSE: function () {
                 var me = this;
-// var tmp = [];
+                // var tmp = [];
                 if (me.evtSource != null) {
                     me.evtSource.close()
                 }
+                if (me.namespace != null) {
+                    console.log(me.namespace)
 
-                if (me.namespace == 'All') {
-                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?host=${this.$store.state.kubeHost}&username=${this.$store.state.username}&instanceType=` + me.types)
-                } else if (me.namespace != null) {
-                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?host=${this.$store.state.kubeHost}&username=${this.$store.state.username}&instanceType=` + me.types + '&namespace=' + me.namespace)
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types + '&namespace=' + me.namespace)
+                } else if (me.namespace == null) {
+                    console.log(me.namespace)
+
+                    me.evtSource = new EventSource(`${API_HOST}/kubesse/?instanceType=` + me.types)
                 }
 
                 /*
-                TODO : 이벤트 수정
-                */
+                    TODO : 이벤트 수정
+                 */
                 me.evtSource.onmessage = function (e) {
-
+                    // console.log(e.data)
                     var parseMessage = JSON.parse(e.data);
-
                     var tmpData = JSON.parse(parseMessage.message)
-                    console.log(tmpData)
-                    var listIdTmp = [];
+                    var listUidTmp = [];
+
                     me.list.forEach(function (listData) {
-                        listIdTmp.push(listData.id)
+                        listUidTmp.push(listData.uid)
                     });
 
-                    if (parseMessage.instanceType == 'status') {
-                        if (parseMessage.host == 'Cluster') {
-                            me.snackbar.text = `${tmpData.msg}`
-                            me.snackbar.y = 'bottom'
-                            me.snackbar.timeout = 6000
-                            me.snackbar.status = true
-                            me.snackbar.color = 'error'
-                        }
-                    } else {
-                        me.list.some(function (listTmp, index) {
-                            if (listIdTmp.includes(tmpData.id)) {
-                                if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
-                                    if (listTmp.kind == 'Pod') {
-                                        if (tmpData.apiVersion == 'DELETED') {
-                                            tmpData["running"] = false;
-                                            me.list = [
-                                                ...me.list.slice(0, index),
-                                                tmpData,
-                                                ...me.list.slice(index + 1)
-                                            ]
-                                        } else {
-                                            me.list = [
-                                                ...me.list.slice(0, index),
-                                                tmpData,
-                                                ...me.list.slice(index + 1)
-                                            ]
-                                        }
-                                    } else if (listTmp.kind == 'Deployment') {
-                                        if (tmpData.apiVersion == 'DELETED') {
-                                            me.list = [
-                                                ...me.list.slice(0, index),
-                                                tmpData,
-                                                ...me.list.slice(index + 1)
-                                            ]
-                                        } else {
-                                            if (tmpData.statusAvailableReplicas == tmpData.statusReadyReplicas && tmpData.statusReplicas == tmpData.statusUpdateReplicas && tmpData.statusReplicas == tmpData.statusReadyReplicas) {
-                                                tmpData["running"] = false;
-                                                me.list = [
-                                                    ...me.list.slice(0, index),
-                                                    tmpData,
-                                                    ...me.list.slice(index + 1)
-                                                ]
-                                            } else {
-                                                tmpData["running"] = true
-                                                me.list = [
-                                                    ...me.list.slice(0, index),
-                                                    tmpData,
-                                                    ...me.list.slice(index + 1)
-                                                ]
-                                            }
-                                        }
-                                    } else if (listTmp.kind == 'Service') {
-                                        if (tmpData.apiVersion == 'DELETED') {
-                                            me.list = [
-                                                ...me.list.slice(0, index),
-                                                tmpData,
-                                                ...me.list.slice(index + 1)
-                                            ]
-                                        } else {
-                                            me.list = [
-                                                ...me.list.slice(0, index),
-                                                tmpData,
-                                                ...me.list.slice(index + 1)
-                                            ]
-                                        }
-                                    }
-                                }
-                            } else if (!listIdTmp.includes(tmpData.id)) {
-                                if (tmpData.apiVersion == 'DELETED') {
-                                    me.list.some(function (listTmp, index) {
-                                        if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
-                                            me.list = [
-                                                ...me.list.slice(0, index),
-                                                tmpData,
-                                                ...me.list.slice(index + 1)
-                                            ]
-                                        }
-                                    })
-                                } else {
-                                    tmpData["running"] = true;
-                                    me.list.push(tmpData)
-                                    listIdTmp.push(tmpData.id)
-                                    return;
-                                }
+                    me.list.some(function (listTmp, index) {
+                        if (listTmp.uid == tmpData.uid) {
+                            if (tmpData.type == 'DELETED') {
+                                me.list = [
+                                    ...me.list.slice(0, index),
+                                    ...me.list.slice(index + 1)
+                                ]
+                                me.loading = false;
+                                return;
+                            } else {
+                                me.list = [
+                                    ...me.list.slice(0, index),
+                                    tmpData,
+                                    ...me.list.slice(index + 1)
+                                ]
+                                return;
                             }
-                        })
-                    }
+                        } else if (!listUidTmp.includes(tmpData.uid)) {
+                            if (!(tmpData.type == 'DELETED')) {
+                                me.list.push(tmpData)
+                                listUidTmp.push(tmpData.uid)
+                                return;
+                            }
+                        }
+                    })
+
                 }
-
-                //     if (tmpData.instanceType == 'status') {
-                //         me.list.some(function (listTmp, index) {
-                //             if (listTmp.name == tmpData.name && listTmp.namespace == tmpData.namespace) {
-                //                 me.list = [
-                //                     ...me.list.slice(0, index),
-                //                     tmpData,
-                //                     ...me.list.slice(index + 1)
-                //                 ]
-                //                 me.tableLoad = false;
-                //                 return;
-                //             }
-                //         })
-                //     } else {
-
-                // }
-                // }
-
                 me.evtSource.onerror = function (e) {
                     me.evtSource.close();
-
-                    setTimeout(function () {
-                        me.startSSE()
-                    }, 2000)
+                    me.startSSE();
                 }
             },
             getList() {
                 var me = this
                 var getURLType
-                this.list = [];
                 if (me.types == 'pod') {
                     getURLType = me.types + 's'
                 } else {
@@ -656,29 +354,32 @@
 
 
                 /*
-                TODO : 현재 Default만 받아오도록 설정되어있음.
+                        TODO : 현재 Default만 받아오도록 설정되어있음.
                 */
-                if (me.namespace == 'All') {
+                if (me.namespace == null) {
                     me.$http.get(`${API_HOST}/kube/v1/` + getURLType)
                         .then((result) => {
                             var tmpData = result.data
                             var resultMap = []
-                            var usedId = []
+                            var usedUid = []
                             return new Promise((resolve, reject) => {
                                 tmpData.forEach(function (sortingData) {
-                                    if (!(usedId.includes(sortingData.id))) {
+                                    if (!me.namespaceList.includes(sortingData.namespace)) {
+                                        me.namespaceList.push(sortingData.namespace)
+                                    }
+                                    if (!(usedUid.includes(sortingData.uid))) {
                                         resultMap.push(sortingData)
-                                        usedId.push(sortingData.id)
+                                        usedUid.push(sortingData.uid)
                                     } else {
                                         resultMap.forEach(function (resultMapTmp, index) {
-                                            if (resultMapTmp.id == sortingData.id) {
-                                                if (resultMapTmp.apiVersion == 'DELETED') {
+                                            if (resultMapTmp.uid == sortingData.uid) {
+                                                if (resultMapTmp.type == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
                                                         resultMapTmp,
                                                         ...resultMap.slice(index + 1)
                                                     ]
-                                                } else if (sortingData.apiVersion == 'DELETED') {
+                                                } else if (sortingData.type == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
                                                         sortingData,
@@ -702,7 +403,7 @@
                                 var deleteItemList = []
                                 // console.log(resolveData)
                                 resolveData.forEach(function (deleteTmp, index) {
-                                    if (deleteTmp.apiVersion == 'DELETED') {
+                                    if (deleteTmp.type == 'DELETED') {
                                         deleteItemList.push(deleteTmp)
                                     }
                                 })
@@ -710,30 +411,32 @@
                                 me.startSSE()
                                 me.list = _.difference(resolveData, deleteItemList)
 
+                                me.searched = me.list
+                                me.$emit('update:namespaceList', me.namespaceList)
 
                             })
                         })
-                } else if (me.namespace != 'All') {
+                } else if (me.namespace != null) {
                     me.$http.get(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + me.namespace)
                         .then((result) => {
                             var tmpData = result.data
                             var resultMap = []
-                            var usedId = []
+                            var usedUid = []
                             return new Promise((resolve, reject) => {
                                 tmpData.forEach(function (sortingData) {
-                                    if (!(usedId.includes(sortingData.id))) {
+                                    if (!(usedUid.includes(sortingData.uid))) {
                                         resultMap.push(sortingData)
-                                        usedId.push(sortingData.id)
+                                        usedUid.push(sortingData.uid)
                                     } else {
                                         resultMap.forEach(function (resultMapTmp, index) {
-                                            if (resultMapTmp.id == sortingData.id) {
-                                                if (resultMapTmp.apiVersion == 'DELETED') {
+                                            if (resultMapTmp.uid == sortingData.uid) {
+                                                if (resultMapTmp.type == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
                                                         resultMapTmp,
                                                         ...resultMap.slice(index + 1)
                                                     ]
-                                                } else if (sortingData.apiVersion == 'DELETED') {
+                                                } else if (sortingData.type == 'DELETED') {
                                                     resultMap = [
                                                         ...resultMap.slice(0, index),
                                                         sortingData,
@@ -757,101 +460,76 @@
                                 var deleteItemList = []
                                 // console.log(resolveData)
                                 resolveData.forEach(function (deleteTmp, index) {
-                                    if (deleteTmp.apiVersion == 'DELETED') {
+                                    if (deleteTmp.type == 'DELETED') {
                                         deleteItemList.push(deleteTmp)
                                     }
                                 })
 
                                 me.startSSE()
-                                // let tmpList = _.difference(resolveData, deleteItemList)
-                                // tmpList.forEach(function (item) {
-                                //     item['running'] = false;
-                                // })
                                 me.list = _.difference(resolveData, deleteItemList)
-                                // me.searched = me.list
+
+                                me.searched = me.list
                             })
                         })
                 }
             },
-            handleDelete(item) {
+            handleDelete(index, row) {
                 var me = this
-                var getURLType
+                var getURLType;
 
-                me.list.some(function (items, index) {
-                    if (me.selectedRow.name == items.name && me.selectedRow.namespace == items.namespace) {
-                        me.list[index]['running'] = true;
+                this.$confirm('삭제하시겠습니까?', 'Warning', {
+                    confirmButtonText: 'OK',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }).then(() => {
+                    if (me.types == 'pod') {
+                        getURLType = me.types + 's'
+                    } else {
+                        getURLType = me.types
                     }
-                })
-
-                if (me.types == 'pod') {
-                    getURLType = me.types + 's'
-                } else {
-                    getURLType = me.types
-                }
-                me.$http.delete(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + item.namespace + '/' + item.name, {
-                        headers: {
-                            'Content-Type': 'application/json'
+                    // console.log(row)
+                    me.$http.delete(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + row.namespace + '/' + row.name, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
                         }
-                    }
-                ).then(function () {
-                    me.snackbar.text = me.types.toUpperCase() + '삭제 진행중입니다.'
-                    me.snackbar.x = 'right'
-                    me.snackbar.y = 'top'
-                    me.snackbar.timeout = 6000
-                    me.snackbar.status = true
-                    me.snackbar.color = 'cyan darken-2'
-
-                    me.status = ''
-                    me.deleteModalhide()
+                    ).then(function () {
+                        me.$notify({
+                            title: 'Success',
+                            message: '삭제되었습니다. 적용 중 입니다.',
+                            type: 'Success'
+                        });
+                        me.loading = true;
+                    })
                 })
             },
+
             handleEdit(item) {
                 var me = this
-                // me.visible = true
-                me.codeModalShow()
-
+                var getURLType;
+                me.active = true
                 var yamlData = item.sourceData
                 me.selectedRow = item
-                me.plainText = json2yaml.stringify(JSON.parse(yamlData))
-                    .replace(/- \n[ ]+/g, '- ')
-                    .replace(/\\"/g, '\'')
+                me.plainText = json2yaml.stringify(JSON.parse(yamlData)).replace(/- \n[ ]+/g, '- ').replace(/\\"/g, '\'')
             },
             postYAML() {
                 var me = this
-                me.$EventBus.$emit('postYAML')
                 var nameSpace = me.namespace;
-                if (nameSpace == 'All') {
+                if (nameSpace == null) {
                     nameSpace = 'default'
                 }
 
-                if (me.status == 'edit') {
-                    me.snackbar.text = me.types.toUpperCase() + '수정 진행중입니다.'
-                    me.snackbar.x = 'right'
-                    me.snackbar.y = 'top'
-                    me.snackbar.timeout = 6000
-                    me.snackbar.color = 'info'
-                    me.snackbar.status = true
-                } else if (me.status == 'add') {
-                    me.snackbar.text = me.types.toUpperCase() + '추가 진행중입니다.'
-                    me.snackbar.x = 'right'
-                    me.snackbar.y = 'top'
-                    me.snackbar.timeout = 6000
-                    me.snackbar.color = 'info'
-                    me.snackbar.status = true
-                }
+                // if (me.plainText == "") {
+                //     this.$alert('입력값이 부족합니다.', '알림', {
+                //         confirmButtonText: 'OK',
+                //     })
+                // }
 
                 var me = this;
-                var postText
 
-                if (me.plainText.includes('}n')) {
-                    postText = me.plainText.replace('}n', '}')
-                } else {
-                    postText = me.plainText
-                }
+                var jsonYaml = yaml.load(me.plainText)
 
-                var jsonYaml = yaml.load(postText)
-
-                me.codeModalhide()
+                console.log(jsonYaml)
 
                 var getURLType;
                 if (me.types == 'pod') {
@@ -859,7 +537,6 @@
                 } else {
                     getURLType = me.types
                 }
-
                 if (me.status == 'add') {
                     me.$http.post(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace, jsonYaml, {
                             headers: {
@@ -867,13 +544,10 @@
                             }
                         }
                     ).then(function () {
-                        me.snackbar.text = me.types.toUpperCase() + ' 추가중입니다..'
-                        me.snackbar.x = 'right'
-                        me.snackbar.y = 'top'
-                        me.snackbar.timeout = 6000
-                        me.snackbar.status = true
-                        me.snackbar.color = 'success'
+                        me.active = false
+                        me.showAddSnackbar = true;
                         me.status = ''
+
                     })
                 } else if (me.status == 'edit') {
                     me.$http.put(`${API_HOST}/kube/v1/` + getURLType + '/namespaces/' + nameSpace + '/' + me.selectedRow.name, jsonYaml, {
@@ -882,19 +556,9 @@
                             }
                         }
                     ).then(function () {
-                        me.snackbar.text = me.types.toUpperCase() + '수정중입니다..'
-                        me.snackbar.x = 'right'
-                        me.snackbar.y = 'top'
-                        me.snackbar.timeout = 6000
-                        me.snackbar.status = true
-                        me.snackbar.color = 'success'
+                        me.active = false
+                        me.showEditnackbar = true;
                         me.status = ''
-
-                        me.list.some(function (item, index) {
-                            if (me.selectedRow.name == item.name && me.selectedRow.namespace == item.namespace) {
-                                me.list[index]['running'] = true;
-                            }
-                        })
                     })
                 }
             }
@@ -903,20 +567,5 @@
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="css">
-    .CodeMirror {
-        height: 500px !important;
-    }
-
-    .v-card__text {
-        padding: 0px !important;
-    }
-
-    .v-card__actions {
-        text-align: right !important;
-    }
-
-    .deletedItem {
-        text-decoration: line-through;
-    }
+<style scoped lang="scss">
 </style>
