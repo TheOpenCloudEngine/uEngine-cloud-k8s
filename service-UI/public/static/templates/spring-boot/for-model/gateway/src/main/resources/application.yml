@@ -1,0 +1,98 @@
+server:
+  port: 8088
+
+---
+spring:
+  profiles: default
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8088/.well-known/jwks.json
+  cloud:
+    gateway:
+      routes:
+        - id: product
+          uri: http://localhost:8085
+          predicates:
+            - Path=/product/**,,/products/**,/goods/**
+        - id: order
+          uri: http://localhost:8081
+          predicates:
+            - Path=/orders/**
+        - id: delivery
+          uri: http://localhost:8082
+          predicates:
+            - Path=/deliveries/**
+        - id: servicecenter
+          uri: http://localhost:8084
+          predicates:
+            - Path=/surveys/**
+        - id: mypage
+          uri: http://localhost:8086
+          predicates:
+            - Path=/users/**,/mypage/**
+        - id: oauth
+          uri: http://localhost:8090
+          predicates:
+            - Path=/oauth/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+
+---
+spring:
+  profiles: docker
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/.well-known/jwks.json
+  cloud:
+    gateway:
+      routes:
+        - id: product
+          uri: http://products:8080
+          predicates:
+            - Path=/product/**,/products/**,/goods/**
+        - id: order
+          uri: http://orders:8080
+          predicates:
+            - Path=/orders/**
+        - id: delivery
+          uri: http://delivery:8080
+          predicates:
+            - Path=/deliveries/**
+        - id: servicecenter
+          uri: http://servicecenter:8080
+          predicates:
+            - Path=/surveys/**
+        - id: mypage
+          uri: http://mypage:8080
+          predicates:
+            - Path=/users/**,/mypage/**
+        - id: oauth
+          uri: http://oauth:8080
+          predicates:
+            - Path=/oauth/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+server:
+  port: 8080

@@ -64,6 +64,8 @@ public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTa
 //                    return accessToken.getBody();
 
                     clearAuthenticationAttributes(request, response);
+                    logger.info(request);
+                    logger.info(request.getHeader("referer"));
 
                     if( request.getHeader("referer") != null ){
                         String host = request.getHeader("referer");
@@ -77,6 +79,7 @@ public class CustomAuthenticationSuccessHandler extends AbstractAuthenticationTa
                         String uri = request.getRequestURI();
                         String host = url.substring(0, url.indexOf(uri));
                         clearAuthenticationAttributes(request, response);
+                        logger.info(host);
                         response.sendRedirect(host);
                     }
 

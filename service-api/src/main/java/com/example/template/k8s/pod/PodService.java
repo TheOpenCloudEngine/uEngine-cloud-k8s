@@ -78,7 +78,7 @@ public class PodService {
         userDetail = userDetailService.getUserDetail(userDetail.getUsername());
         return podRepository.findByHostAndNamespaceAndName(userDetail.getHost(), namespace, name);
     }
-    
+
     public Iterable<Pod> getPodsByNamespaceAndNameLike(String namespace, String name){
         return podRepository.findByNamespaceAndNameLike(namespace, name + "%");
     }
@@ -167,6 +167,20 @@ public class PodService {
     	ResponseEntity<ArrayList> response = rt.exchange(this.monitorServiceUrl + "/api/v1/namespaces/"+namespace+"/pods/"+name+"/log", HttpMethod.GET, new HttpEntity(header), ArrayList.class);
 
     	return response.getBody();
+    }
+
+    public void getDesc(String username,  String namespace, String name) {
+        UserDetail userDetail = userDetailService.getUserDetail(username);
+        HttpHeaders header = new HttpHeaders();
+
+        header.add("kubehost", userDetail.getHost());
+        header.add("kubetoken", userDetail.getToken());
+
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<ArrayList> response = rt.exchange(this.monitorServiceUrl + "/api/v1/namespaces/"+namespace+"/pods/"+name+"/desc", HttpMethod.GET, new HttpEntity(header), ArrayList.class);
+
+//        return response.getBody();
+
     }
 
 }
