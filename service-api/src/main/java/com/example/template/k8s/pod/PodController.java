@@ -147,4 +147,14 @@ public class PodController {
         return podService.getLog(username, namespace, name);
     }
 
+    @RequestMapping(value = "/namespaces/{namespace}/pods/{name}/desc", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public ArrayList<LogMessageFormat> getDescPodsByNamespace(
+            HttpServletRequest request,
+            @RequestParam String username,
+            @PathVariable(value = "namespace") String namespace,
+            @PathVariable(value = "name") String name
+    ) throws Exception {
+
+        return podService.getLog(username, namespace, name);
+    }
 }

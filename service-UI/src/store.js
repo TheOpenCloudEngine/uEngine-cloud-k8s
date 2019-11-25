@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import axios from 'axios'
 
 Vue.prototype.$http = axios
-
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -21,7 +20,6 @@ export default new Vuex.Store({
     },
     mutations: {
         LOGIN (state, data) {
-            console.log(data)
             state.kubeHost = data.kubeHost;
             state.kubeToken = data.kubeToken;
             state.username = data.userName;
