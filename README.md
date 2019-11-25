@@ -11,7 +11,7 @@
 - Spring-security 를 사용하여 소셜 로그인 및 JWT 토큰방식 Oauth 인증
 - kubernetes API 접근 방법과, 활용하여 각종 Object 모니터링, 로깅 예제
 - VueJs 를 사용하여 UI 개발 방법
-- SSE(Servcer sent Event) 를 사용하여 back-end 와 front-end 통신방법
+- SSE(Server sent Event) 를 사용하여 back-end 와 front-end 통신방법
 - UI 에서 kubernetes Object 컨트롤 및 yaml 파일을 활용하여 Object 수정
 - Helm 을 활용한 배포 sample
 - GCB 를 활용하여 클라우드 배포 방법
