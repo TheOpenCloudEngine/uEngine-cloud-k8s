@@ -23,6 +23,7 @@ public class GoogleOAuth2ClientAuthenticationProcessingFilter extends OAuth2Clie
 
     public GoogleOAuth2ClientAuthenticationProcessingFilter(SocialService socialService) {
         super("/login/google");
+        logger.info("Login");
         this.socialService = socialService;
     }
 
@@ -41,6 +42,7 @@ public class GoogleOAuth2ClientAuthenticationProcessingFilter extends OAuth2Clie
         userDetails.setAccessToken(accessToken);
 
         final UserConnection userConnection = UserConnection.valueOf(userDetails);
+        logger.info("doAuthentication");
 
         final UsernamePasswordAuthenticationToken authenticationToken = socialService.doAuthentication(userConnection);
 

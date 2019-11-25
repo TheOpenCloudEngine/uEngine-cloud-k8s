@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @RequestMapping("/kubesse")
-public class SseRestController {
+public class    SseRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SseRestController.class);
 
