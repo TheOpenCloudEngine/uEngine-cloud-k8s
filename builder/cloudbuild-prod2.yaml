@@ -1,34 +1,85 @@
 steps:
-  ### Build
-  - id: 'build'
-    name: 'gcr.io/cloud-builders/docker'
+#  ### Build
+#  - id: 'build'
+#    name: 'gcr.io/cloud-builders/docker'
+#    entrypoint: 'bash'
+#    args:
+#      - '-c'
+#      - |
+#        cd service-api
+#        cp DockerfileAutoBuild Dockerfile
+#        mvn clean package -B
+#        docker build -t gcr.io/$PROJECT_ID/serviceapi:$COMMIT_SHA .
+#        cd ..
+##  - id: 'build2'
+##    name: 'gcr.io/cloud-builders/docker'
+##    entrypoint: 'bash'
+##    args:
+##      - '-c'
+##      - |
+##        cd monitor-k8s
+##        cp DockerfileAutoBuild Dockerfile
+##        mvn clean package -B
+##        docker build -t gcr.io/$PROJECT_ID/monitor-k8s .
+##        cd ..
+#  ### Test
+#  ### Publish
+#  - id: 'publish'
+#    name: 'gcr.io/cloud-builders/docker'
+#    entrypoint: 'bash'
+#    args:
+#      - '-c'
+#      - |
+#        docker push gcr.io/$PROJECT_ID/serviceapi
+##        docker push gcr.io/$PROJECT_ID/monitor-k8s
+  - id: 'deploy'
+    name: 'gcr.io/cloud-builders/gcloud'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=standard-cluster-1'
+      - 'KUBECONFIG=/kube/config'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        cd service-api
-        cp DockerfileAutoBuild Dockerfile
-        mvn clean package -B
-        docker build -t gcr.io/$PROJECT_ID/serviceapi .
-        cd ..
-  - id: 'build2'
-    name: 'gcr.io/cloud-builders/docker'
-    entrypoint: 'bash'
+        CLUSTER=standard-cluster-1
+        PROJECT=$$(gcloud config get-value core/project)
+        ZONE=asia-northeast1-a
+        gcloud container clusters get-credentials "$${CLUSTER}" \
+          --project "$${PROJECT}" \
+          --zone "$${ZONE}"
+
+        cat <<EOF | kubectl apply -f -
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: serviceapi
+          labels:
+            app: serviceapi
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: serviceapi
+          template:
+            metadata:
+              labels:
+                app: serviceapi
+            spec:
+              containers:
+                - name: serviceapi
+                  image: gcr.io/$PROJECT_ID/serviceapi
+                  ports:
+                    - containerPort: 8080
+        EOF
+  - id: 'deploy2'
+    name: 'gcr.io/cloud-builders/kubectl'
     args:
-      - '-c'
-      - |
-        cd monitor-k8s
-        cp DockerfileAutoBuild Dockerfile
-        mvn clean package -B
-        docker build -t gcr.io/$PROJECT_ID/monitor-k8s .
-        cd ..
-  ### Test
-  ### Publish
-  - id: 'publish'
-    name: 'gcr.io/cloud-builders/docker'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        docker push gcr.io/$PROJECT_ID/serviceapi
-        docker push gcr.io/$PROJECT_ID/monitor-k8s
+      - set
+      - image
+      - deployment
+      - serviceapi
+      - serviceapi=gcr.io/$PROJECT_ID/serviceapi
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=standard-cluster-1'
