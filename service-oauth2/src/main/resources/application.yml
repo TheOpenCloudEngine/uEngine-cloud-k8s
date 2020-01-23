@@ -1,11 +1,11 @@
 
 server:
   port: 8080
-  ssl:
-    key-store: classpath:keystore.p12
-    key-store-password: cheese
-    keyStoreType: PKCS12
-    keyAlias: tomcat
+#  ssl:
+#    key-store: classpath:keystore.p12
+#    key-store-password: cheese
+#    keyStoreType: PKCS12
+#    keyAlias: tomcat
 
 spring:
   jpa:
@@ -15,15 +15,15 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL57Dialect
+#        dialect: org.hibernate.dialect.MySQL57Dialect
         show_sql: true
 
-  datasource:
-    url: jdbc:mysql://uengine.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com:3306/uengine
-    username: root
-    password: my-secret-pw
-    # mybatis 설정시에는 driverClassName 을 넣어주어야함
-    driverClassName: com.mysql.cj.jdbc.Driver
+#  datasource:
+#    url: jdbc:mysql://104.198.86.212:3306/uengine
+#    username: root
+#    password: test1234!@
+#    # mybatis 설정시에는 driverClassName 을 넣어주어야함
+#    driverClassName: com.mysql.cj.jdbc.Driver
 
 
 google :
