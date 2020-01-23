@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: pod-monitor
-        image: {{ .Values.repo }}/pod-monitor
+        image: {{ .Values.repo }}/monitor-pod
         env:
         - name: kubehost
           value: {{ .Values.kubehost }}

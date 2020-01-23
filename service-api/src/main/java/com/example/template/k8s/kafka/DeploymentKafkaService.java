@@ -58,7 +58,9 @@ public class DeploymentKafkaService {
     @KafkaListener(topics = "${topic.delpoyMsgTopic}")
     public void listenByDeployment(@Payload String message, ConsumerRecord<?, ?> consumerRecord) throws ParseException {
         String host = (String)consumerRecord.key();
-
+        System.out.println("===================");
+        System.out.println("host = " + host);
+        System.out.println("===================");
         Header[] h = consumerRecord.headers().toArray();
         // 객체의 DataTime 이 정상적으로 변환이 안되서 header 에 담아서 처리함
         String createTimeStamp = null;

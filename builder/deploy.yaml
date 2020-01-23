@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serviceapi
+  labels:
+    app: serviceapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: serviceapi
+  template:
+    metadata:
+      labels:
+        app: serviceapi
+    spec:
+      containers:
+        - name: serviceapi
+          image: gcr.io/electric-block-238113/serviceapi
+          ports:
+            - containerPort: 8080

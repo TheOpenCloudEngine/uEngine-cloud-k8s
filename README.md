@@ -4,8 +4,17 @@
   - [리소스 생성 Yaml 템플리에서 리소스 생성](https://github.com/TheOpenCloudEngine/uEngine-cloud-k8s/wiki/2.-%EC%A3%BC%EC%9A%94-%EC%82%AC%EC%9A%A9%EB%B0%A9%EB%B2%95-_-%EC%B6%94%EA%B0%80)
   - [리소스 삭제](https://github.com/TheOpenCloudEngine/uEngine-cloud-k8s/wiki/3.-%EC%A3%BC%EC%9A%94-%EC%82%AC%EC%9A%A9%EB%B0%A9%EB%B2%95-_-%EC%88%98%EC%A0%95)
   - [리소스 수정](https://github.com/TheOpenCloudEngine/uEngine-cloud-k8s/wiki/4.-%EC%A3%BC%EC%9A%94-%EC%82%AC%EC%9A%A9%EB%B0%A9%EB%B2%95-_-%EC%82%AD%EC%A0%9C)
-- 커스텀 리소스 유형 생성 관리
-- 토폴로지 모델링 및 디플로이 
+
+- spring-boot, spring-cloud 를 사용하여 MSA 개발요소 sample
+- kafka, redis 접근 및 활용 방법 sample
+- zull 과 spring-cloud-gateway 의 routing 방법 비교 및 인증방법 sample
+- Spring-security 를 사용하여 소셜 로그인 및 JWT 토큰방식 Oauth 인증
+- kubernetes API 접근 방법과, 활용하여 각종 Object 모니터링, 로깅 예제
+- VueJs 를 사용하여 UI 개발 방법
+- SSE(Server sent Event) 를 사용하여 back-end 와 front-end 통신방법
+- UI 에서 kubernetes Object 컨트롤 및 yaml 파일을 활용하여 Object 수정
+- Helm 을 활용한 배포 sample
+- GCB 를 활용하여 클라우드 배포 방법
 
 
 ![image](https://user-images.githubusercontent.com/487999/54256571-cfcdd300-459f-11e9-89d3-c457a50676c0.png)
