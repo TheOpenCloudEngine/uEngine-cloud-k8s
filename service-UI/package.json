@@ -22,7 +22,7 @@
   "devDependencies": {
     "@vue/cli-service": "^3.3.0",
     "css-loader": "^2.1.0",
-    "node-sass": "^4.9.0",
+    "node-sass": "^7.0.0",
     "sass-loader": "^7.0.1",
     "style-loader": "^0.23.1",
     "stylus": "^0.54.5",
